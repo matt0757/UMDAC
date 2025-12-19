@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  jupyter:
+    build: .
+    container_name: umdac-cashflow
+    ports:
+      - "8888:8888"
+    volumes:
+      # Mount data and notebooks for live editing
+      - ./Data:/app/Data
+      - ./notebooks:/app/notebooks
+      - ./processed_data:/app/processed_data
+      - ./outputs:/app/outputs
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    restart: unless-stopped
