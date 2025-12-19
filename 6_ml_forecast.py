@@ -51,8 +51,8 @@ except ImportError:
     HAS_LGB = False
 
 # Configuration
-DATA_DIR = 'd:/UM_DATATHON/UMDAC/processed_data'
-OUTPUT_DIR = 'd:/UM_DATATHON/UMDAC/outputs/ml_forecast'
+DATA_DIR = './processed_data'
+OUTPUT_DIR = './outputs/ml_forecast'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Forecast settings
