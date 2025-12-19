@@ -14,7 +14,9 @@ ipykernel>=6.0.0
 # Date/Time handling
 python-dateutil>=2.8.0
 
-# Optional: For advanced forecasting (uncomment if needed)
-# statsmodels>=0.14.0
-# scikit-learn>=1.3.0
-# prophet>=1.1.0
+# For advanced forecasting
+statsmodels>=0.14.0
+scikit-learn>=1.3.0
+prophet>=1.1.0
+xgboost>=2.0.0
+lightgbm>=4.0.0
