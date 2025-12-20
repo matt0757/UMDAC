@@ -39,15 +39,32 @@ class SentimentAnalyzer:
             device=self.device
         )
         self.max_length = 512
+        self.min_article_length = 200  # Minimum chars to consider "full article"
     
     def analyze(self, article: Dict) -> Dict:
         """Analyze sentiment using FinBERT."""
-        text = f"{article.get('title', '')} {article.get('text', '')}"
-        # Truncate text to max length
-        text = text[:self.max_length * 4]  # Rough char estimate
+        title = article.get('title', '')
+        text = article.get('text', '')
+        
+        # Determine if we have full article content or just headline
+        has_full_article = len(text) > self.min_article_length and text != title
+        
+        # Combine title and text, giving priority to actual content
+        if has_full_article:
+            # Use title + beginning of article (most important info usually at start)
+            combined_text = f"{title}. {text}"
+            analysis_type = "full_article"
+        else:
+            # Fallback to just title/headline
+            combined_text = title if title else text
+            analysis_type = "headline_only"
+        
+        # Truncate to reasonable length for model (FinBERT handles 512 tokens)
+        # ~4 chars per token on average, so 512*4 = 2048 chars
+        combined_text = combined_text[:2048]
         
         try:
-            result = self.classifier(text, truncation=True, max_length=self.max_length)[0]
+            result = self.classifier(combined_text, truncation=True, max_length=self.max_length)[0]
             label = result['label'].lower()  # positive, negative, neutral
             score = result['score']
             
@@ -71,6 +88,7 @@ class SentimentAnalyzer:
             score = 0
             category = "NEUTRAL"
             impact = "ANALYSIS ERROR"
+            analysis_type = "error"
         
         return {
             'title': article.get('title', 'Unknown'),
@@ -80,7 +98,9 @@ class SentimentAnalyzer:
             'final_score': round(final_score, 3),
             'confidence': round(score, 3),
             'category': category,
-            'impact': impact
+            'impact': impact,
+            'analysis_type': analysis_type,  # 'full_article' or 'headline_only'
+            'text_length': len(text)  # For debugging
         }
     
     def summarize_results(self, results: List[Dict]) -> Dict:

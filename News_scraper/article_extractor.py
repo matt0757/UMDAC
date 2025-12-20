@@ -28,10 +28,14 @@ class ArticleExtractor:
                 except Exception:
                     pass  # NLP is optional, continue without it
             
-            # Check if we got meaningful content
-            if not article.text or len(article.text) < 50:
+            # Lower threshold - accept shorter articles too
+            if not article.text or len(article.text) < 20:
                 print(f"   ⚠️ Article too short or empty: {url[:50]}")
                 return None
+            
+            # Log extraction success with text length
+            text_preview = article.text[:100].replace('\n', ' ')
+            print(f"   ✓ Extracted {len(article.text)} chars: \"{text_preview}...\"")
             
             return {
                 'url': url,

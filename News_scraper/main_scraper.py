@@ -24,21 +24,23 @@ class EconomicNewsSentimentAnalyzer:
         print(f"🔍 Searching for news with keywords: {keywords}")
         
         # Step 1: Scrape headlines (get extra in case some fail)
-        buffer_multiplier = 2  # Get 2x more headlines as buffer
+        buffer_multiplier = 3  # Get 3x more headlines as buffer for full article extraction
         headlines = await self.scraper.search_headlines(keywords, max_articles * buffer_multiplier)
         print(f"📰 Found {len(headlines)} headlines")
         
-        # Step 2: Extract and analyze each article
-        results = []
-        processed = 0
+        # Step 2: Extract and analyze each article - prioritize full articles
+        full_article_results = []
+        headline_only_results = []
         skipped = 0
         
         for i, headline in enumerate(headlines):
-            # Stop if we have enough successful articles
-            if len(results) >= max_articles:
+            # Stop if we have enough full articles
+            if len(full_article_results) >= max_articles:
                 break
                 
-            print(f"📄 Processing {processed+1}/{max_articles} (attempt {i+1}): {headline['headline'][:50]}...")
+            current_full = len(full_article_results)
+            current_total = current_full + len(headline_only_results)
+            print(f"📄 Processing (full: {current_full}/{max_articles}, attempt {i+1}): {headline['headline'][:50]}...")
             
             try:
                 # Get actual URL (follow redirect)
@@ -53,29 +55,48 @@ class EconomicNewsSentimentAnalyzer:
                 # Extract article content
                 article = self.extractor.extract(actual_url)
                 
-                # Fallback: use headline text if extraction failed
-                if not article or not article.get('text'):
-                    print(f"   ℹ️ Using headline for sentiment analysis")
-                    article = self.extractor.extract_basic(actual_url, headline['headline'])
-                
                 if article and article.get('text'):
                     # Analyze sentiment
                     sentiment = self.analyzer.analyze(article)
                     sentiment['source'] = headline.get('source', 'unknown')
-                    results.append(sentiment)
-                    processed += 1
-                    print(f"   → {sentiment['category']} (score: {sentiment['final_score']})")
+                    
+                    analysis_type = sentiment.get('analysis_type', 'unknown')
+                    text_len = sentiment.get('text_length', 0)
+                    
+                    if analysis_type == 'full_article':
+                        full_article_results.append(sentiment)
+                        print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Full article: {text_len} chars] ✓")
+                    else:
+                        # Store headline-only as backup
+                        headline_only_results.append(sentiment)
+                        print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Headline only - stored as backup]")
                 else:
-                    print(f"   ⚠️ No content extracted, skipping to next article...")
-                    skipped += 1
+                    # Try headline fallback but store separately
+                    print(f"   ℹ️ Extraction failed, storing headline as backup")
+                    article = self.extractor.extract_basic(actual_url, headline['headline'])
+                    if article and article.get('text'):
+                        sentiment = self.analyzer.analyze(article)
+                        sentiment['source'] = headline.get('source', 'unknown')
+                        headline_only_results.append(sentiment)
+                        print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Headline only - backup]")
+                    else:
+                        skipped += 1
                     
             except Exception as e:
                 print(f"   ⚠️ Error: {e} - skipping to next article...")
                 skipped += 1
         
-        print(f"✅ Successfully processed {len(results)} articles ({skipped} skipped)")
+        # Step 3: Combine results - full articles first, then fill with headline-only if needed
+        results = full_article_results.copy()
+        remaining_slots = max_articles - len(results)
         
-        # Step 3: Generate summary
+        if remaining_slots > 0 and headline_only_results:
+            results.extend(headline_only_results[:remaining_slots])
+            print(f"📝 Added {min(remaining_slots, len(headline_only_results))} headline-only analyses to fill remaining slots")
+        
+        print(f"✅ Successfully processed {len(results)} articles ({len(full_article_results)} full, {len(results) - len(full_article_results)} headline-only, {skipped} skipped)")
+        
+        # Step 4: Generate summary
         summary = self.analyzer.summarize_results(results)
         
         return {
@@ -121,6 +142,13 @@ class EconomicNewsSentimentAnalyzer:
             print(f"   Score: {article['final_score']} | {article['impact']}")
             print(f"   Confidence: {article.get('confidence', 'N/A')}")
             print(f"   Source: {article.get('source', 'unknown')}")
+            
+            # Show analysis type
+            analysis_type = article.get('analysis_type', 'unknown')
+            if analysis_type == 'full_article':
+                print(f"   📝 Analysis: Full article ({article.get('text_length', 0)} chars)")
+            else:
+                print(f"   📝 Analysis: Headline only")
             
             # Display URL
             url = article.get('url', '')
