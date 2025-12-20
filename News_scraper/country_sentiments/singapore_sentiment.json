@@ -1,41 +1,41 @@
 {
   "country": "Singapore",
-  "average_score": 0.2,
+  "average_score": 0.287,
   "total_articles": 5,
   "articles": [
     {
-      "title": "SNAPSHOT: Malaysia Airlines 627 Kuala Lumpur to Singapore - Economy Class & Beyond -",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxObjlCNFUxY1V1VHJKUVd1dnFSZjh4dzVUWXAySTVGT1VTUjNyWW1fMkJiQWh4Y2pwZ01VMlRhQ25nWmUwMTVqRUtab1VwTi0zenFJSkZaYWdaNWExN0hFUHFGWGNmQlRpZ0I2Q2FUYXR5b1NpQUp3OU5BcXdjZW92Mk54cEVIUHcweFdscHpnUnpwdVQ5MzRPMVZJX0JZN202S183WU0yZEQ3eV9IWi1qV3dJVlBpdw?oc=5",
-      "publish_date": "Wed, 17 Dec 2025 16:00:18 GMT",
+      "title": "World Bank Group",
+      "url": "https://www.worldbank.org/ext/en/country/singapore",
+      "publish_date": null,
       "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "Singapore - World Bank Group",
-      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5mOG5KV2tWQlk1LVBHdUNCRUxOQ0tQbTFkUW1wQmU4OGhoSzZDOWFUTGlKN1hnNmJjT3YwczY4aGNObGtad01iQVVPaVJZSVIydFNyeDkxU3dPbXpGUWRN?oc=5",
-      "publish_date": "Thu, 04 Dec 2025 07:31:17 GMT",
-      "final_score": 0.5,
+      "title": "Budget 2026: MOF Calls for Public Input on Strengthening Singapore's Economy, Jobs and Social Support Systems",
+      "url": "https://www.entrepreneur.com/en-au/news-and-trends/budget-2026-mof-calls-for-public-input-on-strengthening/500363",
+      "publish_date": "2025-12-03 07:38:44+00:00",
+      "final_score": 0.581,
       "source": "google_news_rss"
     },
     {
-      "title": "Singapore raises annual growth forecast as third-quarter GDP tops expectations - CNBC",
-      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQZ0pHNm1VVmtqMlR2VDJHVVR2aU84cUt4aHAwallFSm91VXJrWEN0RVNRTVlFT3Uyc2p2WnNnRGRncnBodlB0cjFRSEF0Wm5GdmlqSTVaLUtTVkM5aXVYMkUxRk1tWGYzQ0Voak16bGJoeHMzTUVaeEpORVBWQ0tkektOSW9jQXJUX1ZkT3BHdkJyRGp6ZjFjOVIydi01UnFyX2JvQUJCZmJyTGlDSS01SVpQRkh5STJRc2V3WUhWbVNOX2vSAcgBQVVfeXFMT3hHYkdqdXZkcFV6Z0hBRU5fcElRUE5lR053LXpKemVYbXowRXQ0ZDRBbjhoeXdnQkZ3RjlhbkJqbXBrZ2x6eGM0aFhGakNyWWxmMm81NzBncDhBRWhnRENidjBzXzVrRVJIRFpZaTJZdGFwZG5XS21kbGtLQzROb19CSTgtOU1yTGdGeFo4amZrX3NZM2djVWxfcnhTa3A4U3drZFI1RnBEMUlpMndPSDEzV19CemkzWWhyTHZwdEZ3MTkyVWxJVlc?oc=5",
-      "publish_date": "Thu, 20 Nov 2025 08:00:00 GMT",
-      "final_score": 0.5,
+      "title": "Singapore Airlines Premium Economy Review",
+      "url": "https://www.nerdwallet.com/travel/learn/singapore-airlines-premium-economy",
+      "publish_date": "2022-12-28 13:55:40+00:00",
+      "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "Budget 2026: MOF Calls for Public Input on Strengthening Singapore's Economy, Jobs and Social Support Systems - Entrepreneur",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQam9aZmJERGYzcjJNRkQyM2Rzb1U5XzdCSF9xWHR0RE1DX2hORGV0TjBTblpNRWFUSWlPTGFwN2pFN0x3Q3Q0cVEyVWk2VEZqQmZ0R1pubHpfQUJ1REpidTMydVBCZG85ZE8yeUxUbEE4dC1tOUZVSnNucVFnVGhoWDFvZW1Od1d5ZDRyR3Rjeks2a21CYnVPZlRQM1ZlTnE3bUplZmZkR2VzSzVTWTNPWXdfZw?oc=5",
-      "publish_date": "Wed, 03 Dec 2025 08:00:00 GMT",
-      "final_score": 0.5,
+      "title": "Why connectivity, not just AI, will power Singapore\u2019s next leap in competitiveness",
+      "url": "https://sg.finance.yahoo.com/news/why-connectivity-not-just-ai-183851827.html",
+      "publish_date": "2025-12-14 18:38:51+00:00",
+      "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "Singapore economy grows 4.3% in second quarter, avoids technical recession, advance estimate shows - Reuters",
-      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOZ29RbHJ5dTVvc1hUNW1wY2VVMWdzbkNQdGhBTzduOEF1LU1pYmFrTnYtMTJoWHpwMUtHelB3cWNrQ0xsdGkydEUyYWk0SzZHU3dGSUVPQzl4WGhPX1U1bThFTnR3YktuSjZsNExHVnE1dGw1bXVxYmJGUExyM0JpQ3hvS0JGczFTOXR2UF83Y090R2hUUHlTaElMQUlVaU5qMmd1RVU2RVowdHM?oc=5",
-      "publish_date": "Sun, 13 Jul 2025 07:00:00 GMT",
-      "final_score": -0.5,
+      "title": "Economists raise their Singapore growth forecasts for 2025 and 2026: MAS survey",
+      "url": "https://www.straitstimes.com/business/economists-raise-their-singapore-growth-forecasts-for-2025-and-2026-mas-survey",
+      "publish_date": "2025-12-17 12:00:00+08:00",
+      "final_score": 0.852,
       "source": "google_news_rss"
     }
   ]

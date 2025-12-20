@@ -1,41 +1,41 @@
 {
   "country": "South Korea",
-  "average_score": 0.2,
+  "average_score": 0.044,
   "total_articles": 5,
   "articles": [
     {
-      "title": "South Korean economy grows at fastest pace in almost 4 years in Q3 - KED Global",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1nZ09zLUZBN0k5TjVjWkhYQWhDendPeTN4LWc2NzNfcDc3TEY3OW9pVnYwb3JoUEdKOWdZRDI0V3E2Yk9NVEkzUWc2T2RMdUdtRmpTOHdRam0xYUJzcmJwZlBIVGE1U0I2bFE?oc=5",
-      "publish_date": "Wed, 03 Dec 2025 08:00:00 GMT",
+      "title": "South Korean economy grows at fastest pace in almost 4 years in Q3",
+      "url": "https://www.kedglobal.com/economy/newsView/ked202512030003",
+      "publish_date": "2025-12-03 22:11:32+09:00",
+      "final_score": -0.524,
+      "source": "google_news_rss"
+    },
+    {
+      "title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers",
+      "url": "https://theconversation.com/south-korea-taiwan-and-vietnam-show-that-economic-statecraft-is-not-just-the-preserve-of-great-powers-272139",
+      "publish_date": "2025-12-18 11:01:08+00:00",
       "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers - The Conversation",
-      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPTm55cDltaTk3Q1dZR29zRXIzTkVkRmVIVUMyaEZvcThHQk5nWDFnTGZGdFJ1UDBGV1BNSEozUTd1WEhDUm9vVnZHUFh2bkVXYnBZUE50ZWptN0J5S0hBZzdZVm52REczRExramtjLWxBV1VUSG5lVXA0bkp0Vi1pUWE2RjZrMFFCTDl5TnBkWHhZeGhyRkNuRXR3TFFYQl9sUU04LVRWVEdINHdXLVQ2MjNKR2h0VFItT1FtNF9FVnRJNU90LXBPM0UzelIzZk5wWFE?oc=5",
-      "publish_date": "Thu, 18 Dec 2025 11:01:08 GMT",
+      "title": "Republic of Korea",
+      "url": "https://www.worldbank.org/ext/en/country/korea",
+      "publish_date": null,
       "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "\u2018Largest investment in state history\u2019: Lee announces $6.6B deal with South Korea metals company - Tennessee Lookout",
-      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNOTNzWDVZV0lSTy1CTjNLd3FqRDlwN1k0cXM0SkxRcGFnZXRwNXM5TVdEV3FzV01jSFU2ZjdPSWx6WG9UQ29LbDFYaDV5VjdJdGdEckNKSEJuTWNOSkFzLXJCUmsweU9MelNhRm42Y3lQQjRhcWhURXBob3VYSnY2RmZjMFlYTGxWUlRJR0FGZGJRN2pGVmR4U1RqekRuTzJVWWNfY09pRERSN19yNEp6QUxOYW1GcEpyZlBwYVZzbGFfX25IcjFZWWQ3Sno?oc=5",
-      "publish_date": "Thu, 18 Dec 2025 11:07:58 GMT",
+      "title": "South Korea trade deal: Bentleys and Scottish salmon to benefit",
+      "url": "https://www.bbc.com/news/articles/cewjzkw875vo",
+      "publish_date": "2025-12-15 22:31:15.472000+00:00",
+      "final_score": 0.744,
+      "source": "google_news_rss"
+    },
+    {
+      "title": "South Korea\u2019s market moonshot is a model for other economies",
+      "url": "https://www.ft.com/content/9762980f-38f9-4169-886f-651dc925aeb3",
+      "publish_date": "2025-12-18 00:01:01.107000+00:00",
       "final_score": 0,
-      "source": "google_news_rss"
-    },
-    {
-      "title": "Korea Policy Series: Building Up Japan-South Korea Rapprochement - Korea Economic Institute of America",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQSXMwMzZFQURBYXVjRm9DSmY2N19tYkRIU3VEdC1HUUhkNVpxQVhtV0lXQXJZRDB1YmZnVHpVRGVUM05iencxV1ZrRndLM2kzTGEzbFF0QTA2X2pXZ1RKTWUwNTFCTlUxLUFYYzB4V3U2ZFV6UlMtV3VOMXhBV2g0eWRGTWsxM1lWc1k4eUw0dDhqb1ZGdEU3X2xXZw?oc=5",
-      "publish_date": "Wed, 17 Dec 2025 14:53:12 GMT",
-      "final_score": 0.5,
-      "source": "google_news_rss"
-    },
-    {
-      "title": "Republic of Korea - World Bank Group",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBORWRuaDFGWWN4MVRRX2pSS3hieXhCUlhJeXY3R2UwLUJGYWtoamJyaHE4dFNpaEIwQ0x4bDNNWW54YUJtZGNRc3RHLTlGUzUtV0RhU3RrcUx6Zw?oc=5",
-      "publish_date": "Wed, 03 Dec 2025 23:30:49 GMT",
-      "final_score": 0.5,
       "source": "google_news_rss"
     }
   ]

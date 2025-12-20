@@ -1,40 +1,40 @@
 {
   "country": "Thailand",
-  "average_score": 0.0,
+  "average_score": -0.388,
   "total_articles": 5,
   "articles": [
     {
-      "title": "Thai central bank cuts rates, open to more cuts after trimming 2026 GDP outlook - Reuters",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPcVZlR3c4S1FkU1A4bmtHbkZVZWxrajd0QlJWcTJjOHEtR0M1aGN4QjItM1U2cEM1SUhWUkFJV0hmam5TdnFBNExZc3pTckVDTGNBQnRVZS04LUNUTkpMZ2xmMmhac3lTd0xTc2cyczlBNlFNNDg0ZG9fS05VLVJ1bUNHOVd4cFlvY09vMUFpdDZjLUt3d1hmcXBCTFNmaEtpdFNSVzB5elhfY0dY?oc=5",
-      "publish_date": "Wed, 17 Dec 2025 10:15:12 GMT",
-      "final_score": 0,
+      "title": "Thailand and Laos discuss economic cooperation plan to boost trade to $11 billion by 2027",
+      "url": "https://www.nationthailand.com/business/economy/40059973",
+      "publish_date": "2025-12-18 10:19:00+07:00",
+      "final_score": 0.76,
       "source": "google_news_rss"
     },
     {
-      "title": "Bank of Thailand Resumes Rate Cuts as Economy Wilts - The Wall Street Journal",
-      "url": "https://news.google.com/rss/articles/CBMikANBVV95cUxOUXBiVjNyNWlmeVN4S1FsaDdyNEZnR0dZcVlVX09VUmY5cjZOdzk0NFp1R1hhbkRmU2hUWU5tRzlUOEV2dklEekVJeDAzaS01dzlKeVdmOU1KU0lyaHJuWWdVWFZ3QVFGaHlkVWczZWtIS3VyZGE2SGpmdXpNRUJpVy1xMmVrY2ZzRThZS3hWVmZqWUw1ODg1WVFIbENIOHMyMnZMVUxtVHdhZEtKVlY2Y1l0RlloQU45NWMxNC0tcmxXMVdGNEIydlZMMWZESm5GQlRnYkxJTUM4d0RDclVEamZyZmV0LVdLS252dk9fYmRudDVsSEhMT3dwc3o0dDZTWl9yQVo2YnhmQkdyRFZvdnlXbjVpUUV4bEJUc0NvVzRwMklWc096VjMxM0ZvQ21sMExKVHR4dG5kay1Bd1NZa0l4RFE0YWNhaEZxb3d4eVE1LXVxdEZzbGgyd3FVaWpZaXJWTDNCcXIwVHRtcVlCcWNhWXE2REtfSjljbkU3eWRWNmpTVjJrTVBXc3N0d0Nz?oc=5",
-      "publish_date": "Wed, 17 Dec 2025 08:43:00 GMT",
-      "final_score": 0,
+      "title": "Thai Economy Faces Severe Slump in 2026 as China Overcapacity and Floods Bite",
+      "url": "https://www.nationthailand.com/business/economy/40059181",
+      "publish_date": "2025-12-03 14:28:00+07:00",
+      "final_score": -0.941,
+      "source": "google_news_rss"
+    },
+    {
+      "title": "Thai central bank cuts rates, open to more cuts after trimming 2026 GDP outlook - Reuters",
+      "url": "https://www.reuters.com/world/asia-pacific/thai-central-bank-cuts-policy-rate-by-25-bps-expected-2025-12-17/",
+      "publish_date": null,
+      "final_score": -0.792,
       "source": "google_news_rss"
     },
     {
       "title": "THD: Tourism Headwinds And Stagnant, Aging Population Will Weigh Down Thailand's Economy - Seeking Alpha",
-      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPTHFXTFN1TWpsUUVUS1VrRFdJTnc4T0JkU3Axd2loNnBIX0tyTkVjbUxDbmQwNnFYTGNka3ZJTzRJTVdaSHhtdVNkN2NPUHJUeWtfc3VLcjFvZk1PWXBRSUx6RnJlVEptaTgtcHBSMmJ0OTNWSFFqQkc2UHBpc3JpYVNUbnF6UGVYQ3h1UHZnMlppT1FwME5fbGdTRUc0aTlFUnFXazAyckpHeGxOTFQwXy1aeUZibWVhQzFxR3NaR3lvTF82?oc=5",
-      "publish_date": "Thu, 18 Dec 2025 16:43:38 GMT",
-      "final_score": -0.5,
+      "url": "https://seekingalpha.com/article/4854410-thd-tourism-headwinds-and-stagnant-aging-population-will-weigh-down-thailands-economy",
+      "publish_date": null,
+      "final_score": -0.966,
       "source": "google_news_rss"
     },
     {
-      "title": "Thailand - World Bank Group",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE5ueXVURUVDM1J2NGxiTHdVUGVSamhSYmtfUEdIcEpRSlZwQThGMWs0cnN0UVBFNk1Xc2dqUk8zM2ZqZXVHOWFUM05jZkNWbDh4YlMyOHhST0pJbEN2NHc?oc=5",
-      "publish_date": "Wed, 03 Dec 2025 19:38:33 GMT",
-      "final_score": 0.5,
-      "source": "google_news_rss"
-    },
-    {
-      "title": "Improving productivity and addressing informality can boost Thailand\u2019s economy - OECD",
-      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQMWZxVUNiZllGdXV2VmlPTEJHQjl2WGZ4NHZ1b3o2UXZiX3c2UTJVX29BVXZqbDhLSVhCeVBsbTJ3MVF5VExBREJhNjVhUGNDRzBxOUp4YWhhcGlZd1JmdEpONlVxdG1SaS1yMEhhQVBqTmxpNXM2MklLeC1TRDA3QjJJZWNfcWVYTDczU0dXRUFzcVZXTTdnTklqWlYwZXN0bWxxWW9jMzNNZjZoWWgxS0xDb1M4S1FoZWIzU2FGRG5VemxSNlVnaE9KTGdaaHpUMjRnUy1uVVU?oc=5",
-      "publish_date": "Mon, 08 Dec 2025 03:49:53 GMT",
+      "title": "Bank of Thailand Resumes Rate Cuts as Economy Wilts - The Wall Street Journal",
+      "url": "https://www.wsj.com/articles/bank-of-thailand-lowers-rates-to-boost-growth-7e8ef987?gaa_at=eafs&gaa_n=AWEtsqdlyybe22ORJOi2eBCDI6XAVrBMEW3Wj27FNVngFGLhHygPFbNGW4CE&gaa_ts=6946987f&gaa_sig=3DKOS0xsyHblrDq7CBhCHOQeIQVbLwtbt3eV26E3rukqqbu78oMuN7CR_IGBVT8MJnulXCc3V9LQDja30U2X5Q%3D%3D",
+      "publish_date": null,
       "final_score": 0,
       "source": "google_news_rss"
     }

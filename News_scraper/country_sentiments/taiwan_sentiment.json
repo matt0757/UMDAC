@@ -1,41 +1,41 @@
 {
   "country": "Taiwan",
-  "average_score": 0.3,
+  "average_score": -0.367,
   "total_articles": 5,
   "articles": [
     {
-      "title": "The global AI race is supercharging Taiwan\u2019s economy. But many don\u2019t feel better off - CNN",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFA4MUJzamtWR1A4RTdzNjJPRlZ3Sm8yOUpES2ROcFBxTlk0cUpUYnkzS1pCR3JUX0dFeE92MDhxY19uTm5HUUZ1RFZlQ2F5RlZ1dFZYZS1ZTWh6WHpCLVdZSnR0ZFM5YWxveW5Fb2NWcU1vNkE?oc=5",
-      "publish_date": "Fri, 28 Nov 2025 08:00:00 GMT",
-      "final_score": 0.5,
+      "title": "The global AI race is supercharging Taiwan\u2019s economy. But many don\u2019t feel better off",
+      "url": "https://edition.cnn.com/2025/11/28/economy/taiwan-ai-economy-intl-hnk",
+      "publish_date": "2025-11-28 00:00:00",
+      "final_score": -0.881,
       "source": "google_news_rss"
     },
     {
-      "title": "Taiwan Central Bank Holds Rates Again as Economy Powers On - The Wall Street Journal",
-      "url": "https://news.google.com/rss/articles/CBMiogNBVV95cUxPSWg5cDBJREFSZ3hDVzFDQWJYSzBVcXlDUHRJaEhmbjlTR1lFbmxMNzl3OXhzMTdoRmRhTGpPOFhnN0tWTWhJcGFpSTJpNlJOQ1U0ZVlQaVNEUmpjZ3I2NXE2TU1FekxmYVBJVy1KVDZNbk1JaEM2dzVkR05NUUl0MGEwSks5eTU2a3NUOEJTUHMwN2VvWTlDNTNMN2ludkpGdHp1ZDYtMmhMMVlfQnJnSDUyVERfMERCZWlZMjJCREdyci1lMlNWejJGS2NrWjJlSGVjSXlRU0ZVb2h6NVpLNHJaUVFHWkNKWmduellPZUNLa3QtT0lUX3FxSDJzaUpQTTh0bW5oMTdwZTBkVlFscFNzNjdtdDZDYlg4b2todllkZ3dCYWtwZzRBaEhOQ3RDM2tTVmJDUkF4RWR5WXQyY1dhd2dOakMyLVZvVC1CTnN1STdFRVdqcGV1RkFwQnh0TmcxcHpQTTA5QWt3NkVLdHJmWlkxVWNyMUx4WXV0N0lOLW82cXNDUjNvb0VjeEpoMFBzNHV0WGVrZlJGX2k1am5n?oc=5",
-      "publish_date": "Thu, 18 Dec 2025 09:18:00 GMT",
-      "final_score": 0.5,
-      "source": "google_news_rss"
-    },
-    {
-      "title": "Taiwan\u2019s economy roars ahead on back of AI demand - Financial Times",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9BZUgyeURxSVRoMm1ZSlFvNDNfY3lTeE1Od0ExMEtmYmpTQ0hLSW5EMjI1Q0J0STBBWGJVdkZocjFxQlRxU1NFOF9mb3ZjZU5tMXMwcS1zUnoyaU9jZ2tQXzE3U3ZsMjVSdVJNeHozb2M?oc=5",
-      "publish_date": "Fri, 28 Nov 2025 08:00:00 GMT",
+      "title": "Taiwan\u2019s economy roars ahead on back of AI demand",
+      "url": "https://www.ft.com/content/f6b8fac5-1a70-4815-854b-a2670cb9ac00",
+      "publish_date": "2025-11-28 11:17:48.487000+00:00",
       "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "Taiwan Expected to Hold Key Rate as Economy Roars on AI Frenzy - Bloomberg.com",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOV1BJZUtIMGFFZnN0ZENjVFI4d0lKQ3BKYWJUZnFXbmNTelE3OXJuRUgzbGluRDlqT0sxNFh3S2RZS1pWSk9tWFVLQnhlOWhjU21tVzIxWHBwN0NpRV9aSHhIRE83RnJ0VWlSa1FoRUxNNXYwTnlHa3drRl9ubFR6aEVFb3h0VHRLYXl3UlZ1YlZTZDdVc0lLTE1RU3Z3QWw4YXQ4UkpncklMcWhHbmZLY0NQTQ?oc=5",
-      "publish_date": "Thu, 18 Dec 2025 10:14:09 GMT",
+      "title": "Taiwan economic success down to \u2018inclusive institutions\u2019: Nobel winner",
+      "url": "https://www.taipeitimes.com/News/biz/archives/2025/12/17/2003849003",
+      "publish_date": "2025-12-17 00:00:00",
       "final_score": 0,
       "source": "google_news_rss"
     },
     {
-      "title": "After a Strong 2025, Taiwan\u2019s Economy Faces Pressure in 2026\uff5cInsight\uff5c2025-12-17\uff5cweb only - \u5929\u4e0b\u96dc\u8a8c",
-      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1HbFVjZ1d3ellDeDBzQVI0U2hFMU15NUxmVnlxY3VhVk94TGtHZm4zMW9YVTRaalhJWDY2THYxZmxnN0E2OFpWN2xKNGNBUXRyV3AwdWJiTk8yeXIxc0d2cHNPTUwwMFE?oc=5",
-      "publish_date": "Wed, 17 Dec 2025 00:36:44 GMT",
-      "final_score": 0.5,
+      "title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers",
+      "url": "https://uk.finance.yahoo.com/news/south-korea-taiwan-vietnam-show-110108055.html",
+      "publish_date": "2025-12-18 11:01:08+00:00",
+      "final_score": 0,
+      "source": "google_news_rss"
+    },
+    {
+      "title": "The Economic and Diplomatic Costs of Takaichi\u2019s Taiwan Remarks",
+      "url": "https://www.orfonline.org/expert-speak/the-economic-and-diplomatic-costs-of-takaichi-s-taiwan-remarks",
+      "publish_date": "2025-12-18 16:40:41",
+      "final_score": -0.952,
       "source": "google_news_rss"
     }
   ]
