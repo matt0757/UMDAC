@@ -1,0 +1,47 @@
+{
+  "summary": {
+    "model": "FinBERT",
+    "overall_assessment": "BEARISH - Negative economic outlook",
+    "average_score": -0.335,
+    "total_articles": 3,
+    "positive_articles": 1,
+    "negative_articles": 2,
+    "neutral_articles": 0,
+    "sentiment_ratio": "1:2:0 (pos:neg:neutral)"
+  },
+  "articles": [
+    {
+      "title": "Trump hopes North Carolina speech will bolster his standing on US economy - Reuters",
+      "url": "https://www.reuters.com/world/us/trump-hopes-north-carolina-speech-will-bolster-his-standing-us-economy-2025-12-19/",
+      "publish_date": null,
+      "model": "FinBERT",
+      "final_score": 0.758,
+      "confidence": 0.758,
+      "category": "POSITIVE",
+      "impact": "GOOD for US Economy",
+      "source": "google_news_rss"
+    },
+    {
+      "title": "This is Europe's secret weapon against Trump: it could burst his AI bubble | Johnny Ryan",
+      "url": "https://www.theguardian.com/commentisfree/2025/dec/17/europe-donald-trump-ai-bubble-us-economy-eu",
+      "publish_date": "2025-12-17 00:00:00",
+      "model": "FinBERT",
+      "final_score": -0.794,
+      "confidence": 0.794,
+      "category": "NEGATIVE",
+      "impact": "BAD for US Economy",
+      "source": "google_news_rss"
+    },
+    {
+      "title": "US economy flashes warning signs in new data, some analysts say",
+      "url": "https://abcnews.go.com/US/us-economy-flashes-warning-signs-new-data-analysts/story?id=128463726",
+      "publish_date": "2025-12-17 10:19:24+00:00",
+      "model": "FinBERT",
+      "final_score": -0.968,
+      "confidence": 0.968,
+      "category": "NEGATIVE",
+      "impact": "BAD for US Economy",
+      "source": "google_news_rss"
+    }
+  ]
+}
