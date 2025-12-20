@@ -403,9 +403,11 @@ except Exception:  # pragma: no cover - optional dependency
 # - Autoregressive components (Net_Lag1, Net_Lag2, Net_Lag4)
 # - Trend/volatility indicators (Net_Rolling4_Mean, Net_Rolling4_Std)
 # - Activity metrics (Transaction_Count, Inflow_Count, Outflow_Count)
+# - Category-based features (AP, AR, Payroll, Tax, etc.)
 # See module docstring for detailed rationale on each feature.
 
-FEATURE_COLS = [
+# Core features that are always included
+CORE_FEATURE_COLS = [
     "Week_of_Month",      # Weekly position within month (1-5)
     "Is_Month_End",       # Binary flag for last week of month
     "Month",              # Calendar month (1-12)
@@ -421,6 +423,40 @@ FEATURE_COLS = [
     "Inflow_Lag1",        # Previous week's inflow (separated dynamics)
     "Outflow_Lag1",       # Previous week's outflow (separated dynamics)
 ]
+
+# Major categories to create features from (based on transaction volume and business importance)
+MAJOR_CATEGORIES = [
+    "AP",                 # Accounts Payable - largest category
+    "AR",                 # Accounts Receivable - key inflow
+    "Payroll",            # Payroll - regular, predictable outflow
+    "Tax_payable",        # Tax payments - significant periodic outflow
+    "Bank_charges",       # Bank charges - regular small outflow
+    "Other_receipt",      # Other receipts - miscellaneous inflows
+    "Custom_and_Duty",    # Custom and Duty - import/export related
+]
+
+# Category-based features (generated dynamically based on available categories)
+CATEGORY_FEATURE_COLS = [
+    # Net amount per category
+    "Cat_AP_Net",
+    "Cat_AR_Net",
+    "Cat_Payroll_Net",
+    "Cat_Tax_payable_Net",
+    "Cat_Bank_charges_Net",
+    # Lag features for major categories
+    "Cat_AP_Lag1",
+    "Cat_AR_Lag1",
+    "Cat_Payroll_Lag1",
+    # Rolling stats for key categories
+    "Cat_AP_Rolling4_Mean",
+    "Cat_AR_Rolling4_Mean",
+    # Category ratios (proportion of total)
+    "AP_Ratio",
+    "AR_Ratio",
+]
+
+# Combined feature list (will be filtered based on availability)
+FEATURE_COLS = CORE_FEATURE_COLS + CATEGORY_FEATURE_COLS
 
 
 # ==============================================================================
@@ -676,6 +712,7 @@ class WeeklyAggregator:
         weekly_df["Quarter"] = weekly_df["Week_Start"].dt.quarter
         weekly_df = weekly_df.sort_values(["Entity", "Week_Num"]).reset_index(drop=True)
 
+        # Standard lag features for net cash flow
         for lag in [1, 2, 4]:
             weekly_df[f"Net_Lag{lag}"] = weekly_df.groupby("Entity")["Total_Net"].shift(lag)
             weekly_df[f"Inflow_Lag{lag}"] = weekly_df.groupby("Entity")["Total_Inflow"].shift(lag)
@@ -689,6 +726,47 @@ class WeeklyAggregator:
         )
         weekly_df["Cumulative_Net"] = weekly_df.groupby("Entity")["Total_Net"].cumsum()
 
+        # =====================================================================
+        # CATEGORY-BASED FEATURE ENGINEERING
+        # =====================================================================
+        # Create lag and rolling features for major categories
+        major_cat_cols = [col for col in weekly_df.columns if col.startswith("Cat_") and col.endswith("_Net")]
+        
+        for cat_col in major_cat_cols:
+            cat_name = cat_col.replace("Cat_", "").replace("_Net", "")
+            
+            # Lag features for categories (last week's value)
+            weekly_df[f"Cat_{cat_name}_Lag1"] = weekly_df.groupby("Entity")[cat_col].shift(1)
+            
+            # Rolling mean for categories (captures trend)
+            weekly_df[f"Cat_{cat_name}_Rolling4_Mean"] = weekly_df.groupby("Entity")[cat_col].transform(
+                lambda x: x.rolling(window=4, min_periods=1).mean()
+            )
+        
+        # Category ratios (what proportion of total flow is from each category)
+        # This helps capture composition changes
+        total_abs_flow = weekly_df["Total_Inflow"].abs() + weekly_df["Total_Outflow"].abs()
+        total_abs_flow = total_abs_flow.replace(0, 1)  # Avoid division by zero
+        
+        for cat_col in major_cat_cols:
+            cat_name = cat_col.replace("Cat_", "").replace("_Net", "")
+            weekly_df[f"{cat_name}_Ratio"] = weekly_df[cat_col].abs() / total_abs_flow
+        
+        # AP to AR ratio (key business metric - payables vs receivables)
+        if "Cat_AP_Net" in weekly_df.columns and "Cat_AR_Net" in weekly_df.columns:
+            ar_safe = weekly_df["Cat_AR_Net"].abs().replace(0, 1)
+            weekly_df["AP_AR_Ratio"] = weekly_df["Cat_AP_Net"].abs() / ar_safe
+        
+        # Inflow concentration (is cash coming from few or many sources?)
+        inflow_cats = [col for col in weekly_df.columns if col.startswith("Cat_") and col.endswith("_Net")]
+        if inflow_cats:
+            inflow_values = weekly_df[inflow_cats].clip(lower=0)  # Only positive values
+            inflow_total = inflow_values.sum(axis=1).replace(0, 1)
+            # Herfindahl-like concentration index
+            weekly_df["Inflow_Concentration"] = ((inflow_values.div(inflow_total, axis=0) ** 2).sum(axis=1))
+        
+        weekly_df = weekly_df.fillna(0)
+
         weekly_df.to_csv(self.paths.processed / "weekly_entity_features.csv", index=False)
         entity_frames: Dict[str, pd.DataFrame] = {}
         for entity in entities:
@@ -697,6 +775,7 @@ class WeeklyAggregator:
             entity_df.to_csv(entity_path, index=False)
             entity_frames[entity] = entity_df
         print(f"✅ Weekly features saved to {self.paths.processed}")
+        print(f"   📊 Created {len([c for c in weekly_df.columns if 'Cat_' in c or '_Ratio' in c])} category-based features")
         return weekly_df, entity_frames
 
 
@@ -848,7 +927,23 @@ class MLForecaster:
         backtest_weeks: Number of weeks to hold out for validation (default: 4)
         forecast_weeks: Number of weeks for short-term forecast (default: 4)
         long_horizon_weeks: Total weeks for long-term forecast (default: 26)
+        use_feature_selection: Whether to perform automatic feature selection
     """
+    
+    # Entity-specific configurations for entities with special characteristics
+    ENTITY_CONFIG = {
+        "TH10": {
+            # Thailand has high volatility, outliers, and strong week-of-month patterns
+            "use_robust_scaling": True,  # Handle outliers better
+            "model_preference": ["Ridge", "GradientBoosting"],  # Simpler models for small data
+            "historical_weight": 0.70,  # Rely more on historical patterns
+            "model_weight": 0.30,
+            "add_week_dummies": True,  # One-hot encode week-of-month
+            "clip_outliers": True,  # Clip extreme predictions
+            "outlier_multiplier": 2.5,  # Clip at 2.5x IQR
+        },
+        # Other entities use defaults
+    }
     
     def __init__(
         self,
@@ -856,11 +951,196 @@ class MLForecaster:
         backtest_weeks: int = 4,
         forecast_weeks: int = 4,
         long_horizon_weeks: int = 26,
+        use_feature_selection: bool = True,
     ) -> None:
         self.paths = paths
         self.backtest_weeks = backtest_weeks
         self.forecast_weeks = forecast_weeks
         self.long_horizon_weeks = long_horizon_weeks
+        self.use_feature_selection = use_feature_selection
+        self.selected_features: Dict[str, List[str]] = {}  # Store selected features per entity
+        self.feature_importance: Dict[str, Dict[str, float]] = {}  # Store feature importance per entity
+        self.current_entity: Optional[str] = None  # Track current entity being processed
+
+    def _get_entity_config(self, entity: str) -> Dict:
+        """Get entity-specific configuration or defaults."""
+        default_config = {
+            "use_robust_scaling": False,
+            "model_preference": None,
+            "historical_weight": 0.60,
+            "model_weight": 0.40,
+            "add_week_dummies": False,
+            "clip_outliers": False,
+            "outlier_multiplier": 3.0,
+        }
+        if entity in self.ENTITY_CONFIG:
+            config = default_config.copy()
+            config.update(self.ENTITY_CONFIG[entity])
+            return config
+        return default_config
+
+    def _get_all_available_features(self, df: pd.DataFrame) -> List[str]:
+        """
+        Get all potential features from the dataframe, including category-based ones.
+        
+        This dynamically discovers all available features including:
+        - Core temporal and lag features
+        - Category net amounts and counts
+        - Category lag and rolling features
+        - Category ratios
+        """
+        potential_features = []
+        
+        # Core features
+        potential_features.extend(CORE_FEATURE_COLS)
+        
+        # Category net amounts
+        cat_net_cols = [c for c in df.columns if c.startswith("Cat_") and c.endswith("_Net")]
+        potential_features.extend(cat_net_cols)
+        
+        # Category counts
+        cat_count_cols = [c for c in df.columns if c.startswith("Cat_") and c.endswith("_Count")]
+        potential_features.extend(cat_count_cols)
+        
+        # Category lags
+        cat_lag_cols = [c for c in df.columns if c.startswith("Cat_") and "_Lag" in c]
+        potential_features.extend(cat_lag_cols)
+        
+        # Category rolling means
+        cat_rolling_cols = [c for c in df.columns if c.startswith("Cat_") and "_Rolling" in c]
+        potential_features.extend(cat_rolling_cols)
+        
+        # Ratio features
+        ratio_cols = [c for c in df.columns if c.endswith("_Ratio")]
+        potential_features.extend(ratio_cols)
+        
+        # Concentration index
+        if "Inflow_Concentration" in df.columns:
+            potential_features.append("Inflow_Concentration")
+        
+        # Week-of-month dummy features (for entities with special config)
+        wom_dummies = [c for c in df.columns if c.startswith("WOM_")]
+        potential_features.extend(wom_dummies)
+        
+        # Filter to only those that exist in the dataframe
+        available = [f for f in potential_features if f in df.columns]
+        return list(dict.fromkeys(available))  # Remove duplicates while preserving order
+
+    def _add_week_dummies(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Add week-of-month dummy variables for entities with strong week-of-month patterns.
+        
+        This creates one-hot encoded features for weeks 1-5 of the month,
+        which allows the model to learn different patterns for each week.
+        Particularly useful for entities like TH10 that show strong
+        week-of-month dependencies.
+        """
+        df = df.copy()
+        if "Week_of_Month" not in df.columns:
+            df["Week_of_Month"] = ((pd.to_datetime(df["Week_Start"]).dt.day - 1) // 7) + 1
+        
+        # Create dummy variables for weeks 1-5
+        for week in range(1, 6):
+            df[f"WOM_{week}"] = (df["Week_of_Month"] == week).astype(int)
+        
+        return df
+
+    def _forward_feature_selection(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        feature_names: List[str],
+        max_features: int = 20,
+    ) -> Tuple[List[str], Dict[str, float]]:
+        """
+        Forward feature selection using cross-validation RMSE.
+        
+        Algorithm:
+        1. Start with empty feature set
+        2. For each remaining feature, try adding it
+        3. Keep the feature that gives best CV RMSE improvement
+        4. Repeat until no improvement or max_features reached
+        
+        Returns:
+            Tuple of (selected_feature_names, feature_importance_dict)
+        """
+        from sklearn.model_selection import cross_val_score
+        
+        selected_idx = []
+        remaining_idx = list(range(len(feature_names)))
+        importance = {}
+        
+        best_score = float('inf')
+        
+        # Use a simple model for feature selection (faster)
+        selector_model = Ridge(alpha=1.0)
+        scaler = StandardScaler()
+        
+        for _ in range(min(max_features, len(feature_names))):
+            best_new_feature = None
+            best_new_score = best_score
+            
+            for idx in remaining_idx:
+                # Try adding this feature
+                trial_idx = selected_idx + [idx]
+                X_trial = scaler.fit_transform(X[:, trial_idx])
+                
+                # Cross-validation score (negative MSE, so higher is better)
+                try:
+                    scores = cross_val_score(
+                        selector_model, X_trial, y,
+                        cv=min(5, len(y) // 2),
+                        scoring='neg_mean_squared_error'
+                    )
+                    mean_score = -np.mean(scores)  # Convert to positive RMSE-like
+                    
+                    if mean_score < best_new_score:
+                        best_new_score = mean_score
+                        best_new_feature = idx
+                except Exception:
+                    continue
+            
+            # If we found an improvement, add the feature
+            if best_new_feature is not None and best_new_score < best_score * 0.995:  # 0.5% improvement threshold
+                selected_idx.append(best_new_feature)
+                remaining_idx.remove(best_new_feature)
+                improvement = (best_score - best_new_score) / max(best_score, 1e-6)
+                importance[feature_names[best_new_feature]] = improvement
+                best_score = best_new_score
+            else:
+                break  # No improvement, stop
+        
+        selected_names = [feature_names[i] for i in selected_idx]
+        return selected_names, importance
+
+    def _get_feature_importance_from_model(
+        self,
+        model,
+        feature_names: List[str],
+    ) -> Dict[str, float]:
+        """
+        Extract feature importance from trained model.
+        
+        Works with tree-based models (feature_importances_) and linear models (coef_).
+        """
+        importance = {}
+        
+        try:
+            if hasattr(model, 'feature_importances_'):
+                # Tree-based models
+                importances = model.feature_importances_
+                for name, imp in zip(feature_names, importances):
+                    importance[name] = float(imp)
+            elif hasattr(model, 'coef_'):
+                # Linear models - use absolute coefficient values
+                coefs = np.abs(model.coef_)
+                total = coefs.sum() if coefs.sum() > 0 else 1
+                for name, coef in zip(feature_names, coefs):
+                    importance[name] = float(coef / total)
+        except Exception:
+            pass
+        
+        return importance
 
     def _metrics(self, actual: np.ndarray, pred: np.ndarray) -> Dict[str, float]:
         """
@@ -908,7 +1188,8 @@ class MLForecaster:
         return {"MAE": mae, "RMSE": rmse, "MAPE": mape, "Direction_Accuracy": direction_acc, "Sign_Accuracy": sign_acc}
 
     def _train_models(
-        self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray
+        self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray,
+        feature_names: List[str] = None, entity: str = None
     ) -> Dict[str, ModelResult]:
         """
         Train all available ML models and evaluate on backtest data.
@@ -933,14 +1214,26 @@ class MLForecaster:
             y_train: Training target values
             X_test: Backtest feature matrix
             y_test: Backtest target values (for evaluation only)
+            feature_names: List of feature names (for importance tracking)
+            entity: Entity name (for entity-specific model configurations)
             
         Returns:
             Dictionary mapping model names to ModelResult objects
         """
         results: Dict[str, ModelResult] = {}
+        
+        # Get entity-specific config
+        entity = entity or self.current_entity
+        config = self._get_entity_config(entity) if entity else {}
+        use_robust_scaling = config.get("use_robust_scaling", False)
 
         def add_model(name: str, estimator, use_scaler: bool = False) -> None:
-            scaler = StandardScaler() if use_scaler else None
+            if use_robust_scaling and use_scaler:
+                # Use RobustScaler for high-variance entities like TH10
+                from sklearn.preprocessing import RobustScaler
+                scaler = RobustScaler()
+            else:
+                scaler = StandardScaler() if use_scaler else None
             Xtr = scaler.fit_transform(X_train) if scaler is not None else X_train
             Xte = scaler.transform(X_test) if scaler is not None else X_test
             estimator.fit(Xtr, y_train)
@@ -1095,6 +1388,13 @@ class MLForecaster:
             "Inflow_Lag1": inflow_history[-1] if inflow_history else float(last_row.get("Total_Inflow", 0)),
             "Outflow_Lag1": outflow_history[-1] if outflow_history else float(last_row.get("Total_Outflow", 0)),
         }
+        
+        # Add week-of-month dummies for entities that use them
+        entity_config = self._get_entity_config(self.current_entity) if self.current_entity else {}
+        if entity_config.get("add_week_dummies", False):
+            for week in range(1, 6):
+                row[f"WOM_{week}"] = 1 if week_of_month == week else 0
+        
         return row
 
     def _iterative_forecast(
@@ -1475,10 +1775,10 @@ class MLForecaster:
                     wom_std = hist_std
                     historical_values = []
                 
-                # Blend model prediction with historical same-month pattern
-                # Weight: 40% model, 60% historical pattern (year rhymes assumption)
-                model_weight = 0.4
-                historical_weight = 0.6
+                # Get entity-specific weights
+                entity_config = self._get_entity_config(self.current_entity) if self.current_entity else {}
+                model_weight = entity_config.get("model_weight", 0.4)
+                historical_weight = entity_config.get("historical_weight", 0.6)
                 
                 # Calculate year-over-year seasonal adjustment
                 if overall_mean != 0:
@@ -1500,6 +1800,15 @@ class MLForecaster:
                     noise = np.random.normal(0, wom_std * 0.3)
                 
                 y_hat = y_hat_adjusted + noise
+                
+                # Apply outlier clipping for high-variance entities
+                if entity_config.get("clip_outliers", False):
+                    q1, q3 = np.percentile(history_net[-20:] if len(history_net) >= 20 else history_net, [25, 75])
+                    iqr = q3 - q1
+                    multiplier = entity_config.get("outlier_multiplier", 2.5)
+                    lower_bound = q1 - multiplier * iqr
+                    upper_bound = q3 + multiplier * iqr
+                    y_hat = np.clip(y_hat, lower_bound, upper_bound)
                 
                 # Store prediction
                 month_dates.append(cursor_date)
@@ -1526,27 +1835,90 @@ class MLForecaster:
     def forecast_entity(self, entity: str, df: pd.DataFrame) -> Optional[ForecastArtifacts]:
         df = df.copy().sort_values("Week_Start")
         df["Week_Start"] = pd.to_datetime(df["Week_Start"])
-        available_features = [c for c in FEATURE_COLS if c in df.columns]
-        df = df.dropna(subset=available_features)
-        if len(df) < self.backtest_weeks + 8:
+        
+        # Set current entity for use by other methods
+        self.current_entity = entity
+        config = self._get_entity_config(entity)
+        
+        # Add week-of-month dummy features for entities that benefit from it
+        if config["add_week_dummies"]:
+            df = self._add_week_dummies(df)
+        
+        # Get all available features dynamically (including category features)
+        all_available_features = self._get_all_available_features(df)
+        
+        # Filter to non-null features
+        df_clean = df.dropna(subset=[f for f in all_available_features if f in df.columns])
+        if len(df_clean) < self.backtest_weeks + 8:
             print(f"  Skipping {entity}: not enough history after cleaning.")
             return None
 
-        train_df = df.iloc[:-self.backtest_weeks]
-        test_df = df.iloc[-self.backtest_weeks :]
+        train_df = df_clean.iloc[:-self.backtest_weeks]
+        test_df = df_clean.iloc[-self.backtest_weeks:]
+        
+        # Perform feature selection if enabled
+        if self.use_feature_selection and len(all_available_features) > 15:
+            print(f"    📊 Feature selection from {len(all_available_features)} candidates...")
+            X_train_all = train_df[all_available_features].values
+            y_train_all = train_df["Total_Net"].values
+            
+            selected_features, importance = self._forward_feature_selection(
+                X_train_all, y_train_all, all_available_features, max_features=20
+            )
+            
+            # Store for later use
+            self.selected_features[entity] = selected_features
+            self.feature_importance[entity] = importance
+            
+            # Ensure we have at least core features
+            if len(selected_features) < 5:
+                selected_features = [f for f in CORE_FEATURE_COLS if f in all_available_features][:10]
+            
+            available_features = selected_features
+            print(f"    ✅ Selected {len(available_features)} features")
+            
+            # Show top features
+            if importance:
+                top_features = sorted(importance.items(), key=lambda x: x[1], reverse=True)[:5]
+                print(f"    🔝 Top features: {', '.join([f[0] for f in top_features])}")
+        else:
+            available_features = [f for f in all_available_features if f in df_clean.columns]
+            self.selected_features[entity] = available_features
+        
         X_train, y_train = train_df[available_features].values, train_df["Total_Net"].values
         X_test, y_test = test_df[available_features].values, test_df["Total_Net"].values
 
-        results = self._train_models(X_train, y_train, X_test, y_test)
-        best_name = min(results.keys(), key=lambda k: results[k].metrics["RMSE"])
+        results = self._train_models(X_train, y_train, X_test, y_test, available_features, entity=entity)
+        
+        # Select best model (consider entity preference)
+        if config["model_preference"]:
+            # Prefer specified models if they perform reasonably well
+            best_name = None
+            best_rmse = float('inf')
+            for preferred in config["model_preference"]:
+                if preferred in results:
+                    if results[preferred].metrics["RMSE"] < best_rmse:
+                        best_rmse = results[preferred].metrics["RMSE"]
+                        best_name = preferred
+            if best_name is None:
+                best_name = min(results.keys(), key=lambda k: results[k].metrics["RMSE"])
+        else:
+            best_name = min(results.keys(), key=lambda k: results[k].metrics["RMSE"])
+        
         best = results[best_name]
+        
+        # Get feature importance from best model
+        if best.model is not None:
+            model_importance = self._get_feature_importance_from_model(best.model, available_features)
+            if model_importance:
+                self.feature_importance[entity] = model_importance
 
         # 1-month forecast (4 weeks)
-        short_dates, short_pred = self._iterative_forecast(best_name, available_features, df, self.forecast_weeks)
+        short_dates, short_pred = self._iterative_forecast(best_name, available_features, df_clean, self.forecast_weeks)
         
         # 6-month forecast with month-by-month iteration
         long_dates, long_pred, monthly_forecasts = self._iterative_forecast_monthly(
-            best_name, available_features, df, num_months=6, weeks_per_month=4
+            best_name, available_features, df_clean, num_months=6, weeks_per_month=4
         )
 
         print(
@@ -1585,7 +1957,82 @@ class MLForecaster:
             art = self.forecast_entity(entity, frame)
             if art:
                 all_results[entity] = art
+        
+        # Print feature importance summary
+        self._print_feature_importance_summary()
+        
         return all_results
+    
+    def _print_feature_importance_summary(self) -> None:
+        """Print a summary of feature importance across all entities."""
+        if not self.feature_importance:
+            return
+        
+        print("\n" + "=" * 70)
+        print("  📊 FEATURE IMPORTANCE ANALYSIS")
+        print("=" * 70)
+        
+        # Aggregate importance across all entities
+        aggregated = {}
+        for entity, importance in self.feature_importance.items():
+            for feature, imp in importance.items():
+                if feature not in aggregated:
+                    aggregated[feature] = []
+                aggregated[feature].append(imp)
+        
+        # Calculate mean importance (handle NaN)
+        mean_importance = {}
+        for f, imps in aggregated.items():
+            valid_imps = [x for x in imps if not np.isnan(x)]
+            if valid_imps:
+                mean_importance[f] = np.mean(valid_imps)
+            else:
+                mean_importance[f] = 0.0
+        
+        sorted_features = sorted(mean_importance.items(), key=lambda x: x[1], reverse=True)
+        
+        print("\n  Top 15 Most Important Features (averaged across entities):")
+        print("  " + "-" * 50)
+        
+        # Normalize for bar visualization
+        max_imp = max(mean_importance.values()) if mean_importance else 1.0
+        if max_imp == 0:
+            max_imp = 1.0
+        
+        for i, (feature, imp) in enumerate(sorted_features[:15], 1):
+            # Determine feature category
+            if feature.startswith("Cat_"):
+                category = "📦 Category"
+            elif "Lag" in feature:
+                category = "⏮️  Lag"
+            elif "Rolling" in feature:
+                category = "📈 Rolling"
+            elif feature in ["Month", "Quarter", "Week_of_Month", "Is_Month_End"]:
+                category = "📅 Temporal"
+            elif "Ratio" in feature:
+                category = "📊 Ratio"
+            else:
+                category = "📋 Other"
+            
+            normalized_imp = imp / max_imp
+            bar_len = int(normalized_imp * 30)
+            bar = "█" * bar_len
+            print(f"  {i:2d}. {feature:40s} {category:12s} {imp:.4f} {bar}")
+        
+        # Category feature analysis
+        cat_features = [f for f, _ in sorted_features if f.startswith("Cat_") or "Ratio" in f]
+        if cat_features:
+            print(f"\n  📦 Category-based features in top 15: {len([f for f in cat_features if f in dict(sorted_features[:15])])}")
+            print(f"  📦 Most important category feature: {cat_features[0] if cat_features else 'None'}")
+        
+        # Per-entity selected features
+        print("\n  Selected Features per Entity:")
+        print("  " + "-" * 50)
+        for entity, features in self.selected_features.items():
+            cat_count = len([f for f in features if f.startswith("Cat_") or "Ratio" in f])
+            print(f"  {entity}: {len(features)} features ({cat_count} category-based)")
+        
+        print("=" * 70 + "\n")
 
 
 # ==============================================================================
@@ -1946,27 +2393,52 @@ class InteractiveDashboardBuilder:
                 y: {json.dumps(backtest_actual)},
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Actual',
+                name: '✓ Actual Values',
                 line: {{color: '{AZ_COLORS["navy"]}', width: 4}},
-                marker: {{size: 14, symbol: 'circle'}}
+                marker: {{size: 14, symbol: 'circle'}},
+                hovertemplate: '<b>Actual</b><br>Date: %{{x}}<br>Value: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
                 x: {json.dumps(backtest_dates)},
                 y: {json.dumps(backtest_pred)},
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Forecast',
+                name: '🔮 Model Prediction',
                 line: {{color: '{AZ_COLORS["gold"]}', width: 4, dash: 'dash'}},
-                marker: {{size: 12, symbol: 'diamond'}}
+                marker: {{size: 12, symbol: 'diamond'}},
+                hovertemplate: '<b>Prediction</b><br>Date: %{{x}}<br>Predicted: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
             height: 350,
-            margin: {{t: 30, b: 50, l: 80, r: 30}},
-            xaxis: {{title: 'Week', tickangle: -30}},
-            yaxis: {{title: 'Net Cash Flow (USD)', tickformat: ',.0f'}},
-            legend: {{x: 0, y: 1.15, orientation: 'h'}},
+            margin: {{t: 50, b: 60, l: 80, r: 40}},
+            xaxis: {{
+                title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
+                tickangle: -30,
+                tickfont: {{size: 10}},
+                gridcolor: '#eee'
+            }},
+            yaxis: {{
+                title: {{text: 'Net Cash Flow (USD)', font: {{size: 12, color: '#666'}}}},
+                tickformat: ',.0f',
+                tickfont: {{size: 10}},
+                gridcolor: '#eee',
+                zerolinecolor: '#333',
+                zerolinewidth: 2
+            }},
+            legend: {{
+                x: 0.5,
+                y: 1.12,
+                xanchor: 'center',
+                orientation: 'h',
+                bgcolor: 'rgba(255,255,255,0.95)',
+                bordercolor: '#ddd',
+                borderwidth: 1,
+                font: {{size: 11}}
+            }},
             hovermode: 'x unified',
-            shapes: [{{type: 'line', x0: '{backtest_dates[0]}', x1: '{backtest_dates[-1]}', y0: 0, y1: 0, line: {{color: '#888', width: 1, dash: 'dot'}}}}]
+            shapes: [{{type: 'line', x0: '{backtest_dates[0]}', x1: '{backtest_dates[-1]}', y0: 0, y1: 0, line: {{color: '#888', width: 1, dash: 'dot'}}}}],
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white'
         }}, {{responsive: true}});
 
         // Inflow/Outflow Chart
@@ -1975,33 +2447,59 @@ class InteractiveDashboardBuilder:
                 x: {json.dumps(history_dates)},
                 y: {json.dumps(history_inflow)},
                 type: 'bar',
-                name: 'Inflow',
-                marker: {{color: '{AZ_COLORS["lime_green"]}'}}
+                name: '↑ Inflow',
+                marker: {{color: '{AZ_COLORS["lime_green"]}', line: {{color: 'rgba(0,0,0,0.2)', width: 1}}}},
+                hovertemplate: '<b>Inflow</b><br>Date: %{{x}}<br>Amount: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
                 x: {json.dumps(history_dates)},
                 y: {json.dumps([-x for x in history_outflow])},
                 type: 'bar',
-                name: 'Outflow',
-                marker: {{color: '{AZ_COLORS["magenta"]}'}}
+                name: '↓ Outflow',
+                marker: {{color: '{AZ_COLORS["magenta"]}', line: {{color: 'rgba(0,0,0,0.2)', width: 1}}}},
+                hovertemplate: '<b>Outflow</b><br>Date: %{{x}}<br>Amount: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
                 x: {json.dumps(history_dates)},
                 y: {json.dumps(history_net)},
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Net Cash Flow',
+                name: '— Net Cash Flow',
                 line: {{color: '{AZ_COLORS["navy"]}', width: 3}},
-                marker: {{size: 6}}
+                marker: {{size: 6}},
+                hovertemplate: '<b>Net</b><br>Date: %{{x}}<br>Amount: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
             height: 400,
             barmode: 'relative',
-            margin: {{t: 30, b: 60, l: 80, r: 30}},
-            xaxis: {{title: 'Week', tickangle: -45}},
-            yaxis: {{title: 'Amount (USD)', tickformat: ',.0f'}},
-            legend: {{x: 0, y: 1.15, orientation: 'h'}},
-            hovermode: 'x unified'
+            margin: {{t: 50, b: 60, l: 80, r: 40}},
+            xaxis: {{
+                title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
+                tickangle: -45,
+                tickfont: {{size: 10}},
+                gridcolor: '#eee'
+            }},
+            yaxis: {{
+                title: {{text: 'Amount (USD)', font: {{size: 12, color: '#666'}}}},
+                tickformat: ',.0f',
+                tickfont: {{size: 10}},
+                gridcolor: '#eee',
+                zerolinecolor: '#333',
+                zerolinewidth: 2
+            }},
+            legend: {{
+                x: 0.5,
+                y: 1.12,
+                xanchor: 'center',
+                orientation: 'h',
+                bgcolor: 'rgba(255,255,255,0.95)',
+                bordercolor: '#ddd',
+                borderwidth: 1,
+                font: {{size: 11}}
+            }},
+            hovermode: 'x unified',
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white'
         }}, {{responsive: true}});
 
         // Short-term Forecast Chart
@@ -2013,29 +2511,54 @@ class InteractiveDashboardBuilder:
                 y: {json.dumps(history_net[-8:])},
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Historical',
+                name: '📊 Historical (Last 8 Weeks)',
                 line: {{color: '{AZ_COLORS["navy"]}', width: 3}},
-                marker: {{size: 10}}
+                marker: {{size: 10}},
+                hovertemplate: '<b>Historical</b><br>Date: %{{x}}<br>Net: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
                 x: [lastHistDate].concat({json.dumps(short_dates)}),
                 y: [lastHistVal].concat({json.dumps(short_pred)}),
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: '1-Month Forecast',
+                name: '🔮 1-Month Forecast',
                 line: {{color: '{AZ_COLORS["light_blue"]}', width: 4}},
                 marker: {{size: 12, symbol: 'diamond'}},
                 fill: 'tozeroy',
-                fillcolor: 'rgba(104, 210, 223, 0.2)'
+                fillcolor: 'rgba(104, 210, 223, 0.2)',
+                hovertemplate: '<b>Forecast</b><br>Date: %{{x}}<br>Predicted: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
             height: 320,
-            margin: {{t: 30, b: 50, l: 70, r: 30}},
-            xaxis: {{title: 'Week', tickangle: -30}},
-            yaxis: {{title: 'Net Cash Flow (USD)', tickformat: ',.0f'}},
-            legend: {{x: 0, y: 1.15, orientation: 'h'}},
+            margin: {{t: 50, b: 60, l: 80, r: 40}},
+            xaxis: {{
+                title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
+                tickangle: -30,
+                tickfont: {{size: 10}},
+                gridcolor: '#eee'
+            }},
+            yaxis: {{
+                title: {{text: 'Net Cash Flow (USD)', font: {{size: 12, color: '#666'}}}},
+                tickformat: ',.0f',
+                tickfont: {{size: 10}},
+                gridcolor: '#eee',
+                zerolinecolor: '#333',
+                zerolinewidth: 2
+            }},
+            legend: {{
+                x: 0.5,
+                y: 1.12,
+                xanchor: 'center',
+                orientation: 'h',
+                bgcolor: 'rgba(255,255,255,0.95)',
+                bordercolor: '#ddd',
+                borderwidth: 1,
+                font: {{size: 10}}
+            }},
             hovermode: 'x unified',
-            shapes: [{{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {{color: '#888', width: 2, dash: 'dash'}}}}]
+            shapes: [{{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {{color: '#888', width: 2, dash: 'dash'}}}}],
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white'
         }}, {{responsive: true}});
 
         // Long-term Forecast Chart (Month-by-Month with different colors)
@@ -2045,14 +2568,16 @@ class InteractiveDashboardBuilder:
                 y: {json.dumps(history_net[-12:])},
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Historical',
+                name: '📊 Historical',
                 line: {{color: '{AZ_COLORS["navy"]}', width: 3}},
-                marker: {{size: 8}}
+                marker: {{size: 8}},
+                hovertemplate: '<b>Historical</b><br>Date: %{{x}}<br>Net: $%{{y:,.0f}}<extra></extra>'
             }}
         ];
         
         // Add each month as a separate trace with different colors
         var monthColors = ['{AZ_COLORS["light_blue"]}', '{AZ_COLORS["lime_green"]}', '{AZ_COLORS["gold"]}', '{AZ_COLORS["magenta"]}', '{AZ_COLORS["purple"]}', '{AZ_COLORS["mulberry"]}'];
+        var monthNames = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'];
         var monthlyData = {json.dumps(monthly_data)};
         var prevEndDate = lastHistDate;
         var prevEndVal = lastHistVal;
@@ -2060,29 +2585,72 @@ class InteractiveDashboardBuilder:
         monthlyData.forEach(function(month, idx) {{
             var xVals = [prevEndDate].concat(month.dates);
             var yVals = [prevEndVal].concat(month.predictions);
+            var monthTotal = month.total;
+            var sign = monthTotal >= 0 ? '+' : '';
             longForecastTraces.push({{
                 x: xVals,
                 y: yVals,
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Month ' + month.month_num,
+                name: 'M' + month.month_num + ' (' + sign + (monthTotal/1000).toFixed(0) + 'K)',
                 line: {{color: monthColors[idx], width: 3}},
-                marker: {{size: 10, symbol: idx % 2 === 0 ? 'diamond' : 'circle'}},
+                marker: {{size: 8, symbol: 'circle'}},
                 fill: 'tozeroy',
-                fillcolor: monthColors[idx] + '20'
+                fillcolor: monthColors[idx] + '15',
+                hovertemplate: '<b>Month ' + month.month_num + '</b><br>Date: %{{x}}<br>Net: $%{{y:,.0f}}<extra></extra>'
             }});
             prevEndDate = month.dates[month.dates.length - 1];
             prevEndVal = month.predictions[month.predictions.length - 1];
         }});
         
         Plotly.newPlot('long-forecast-{entity}', longForecastTraces, {{
-            height: 350,
-            margin: {{t: 30, b: 50, l: 70, r: 30}},
-            xaxis: {{title: 'Week', tickangle: -30}},
-            yaxis: {{title: 'Net Cash Flow (USD)', tickformat: ',.0f'}},
-            legend: {{x: 0, y: 1.2, orientation: 'h'}},
+            height: 380,
+            margin: {{t: 60, b: 60, l: 80, r: 40}},
+            xaxis: {{
+                title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
+                tickangle: -30,
+                tickfont: {{size: 10}},
+                gridcolor: '#eee'
+            }},
+            yaxis: {{
+                title: {{text: 'Net Cash Flow (USD)', font: {{size: 12, color: '#666'}}}},
+                tickformat: ',.0f',
+                tickfont: {{size: 10}},
+                gridcolor: '#eee',
+                zerolinecolor: '#333',
+                zerolinewidth: 2
+            }},
+            legend: {{
+                x: 0.5,
+                y: 1.15,
+                xanchor: 'center',
+                orientation: 'h',
+                bgcolor: 'rgba(255,255,255,0.95)',
+                bordercolor: '#ccc',
+                borderwidth: 1,
+                font: {{size: 10}},
+                itemwidth: 40
+            }},
             hovermode: 'x unified',
-            shapes: [{{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {{color: '#888', width: 2, dash: 'dash'}}}}]
+            shapes: [{{
+                type: 'line',
+                x0: lastHistDate,
+                x1: lastHistDate,
+                y0: 0,
+                y1: 1,
+                yref: 'paper',
+                line: {{color: '#888', width: 2, dash: 'dash'}}
+            }}],
+            annotations: [{{
+                x: lastHistDate,
+                y: 1.02,
+                yref: 'paper',
+                text: 'Forecast →',
+                showarrow: false,
+                font: {{size: 10, color: '#666'}}
+            }}],
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white'
         }}, {{responsive: true}});
 
         // Monthly Summary Bar Chart
@@ -2095,30 +2663,63 @@ class InteractiveDashboardBuilder:
                 x: monthlyLabels,
                 y: monthlyTotals,
                 type: 'bar',
-                marker: {{color: monthlyBarColors}},
+                name: 'Monthly Net',
+                marker: {{
+                    color: monthlyBarColors,
+                    line: {{color: 'rgba(0,0,0,0.3)', width: 1}}
+                }},
                 text: monthlyTotals.map(v => v >= 0 ? '+' + (v/1000).toFixed(0) + 'K' : (v/1000).toFixed(0) + 'K'),
                 textposition: 'outside',
-                hovertemplate: 'Month %{{x}}<br>Net: %{{y:,.0f}}<extra></extra>'
+                textfont: {{size: 12, color: '#333', weight: 'bold'}},
+                hovertemplate: '<b>%{{x}}</b><br>Net: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
                 x: monthlyLabels,
                 y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Cumulative',
+                name: 'Cumulative Total',
                 yaxis: 'y2',
                 line: {{color: '{AZ_COLORS["navy"]}', width: 3}},
-                marker: {{size: 10}}
+                marker: {{size: 10, symbol: 'circle'}},
+                hovertemplate: '<b>%{{x}}</b><br>Cumulative: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
-            height: 300,
-            margin: {{t: 30, b: 50, l: 70, r: 70}},
-            xaxis: {{title: ''}},
-            yaxis: {{title: 'Monthly Net (USD)', tickformat: ',.0f'}},
-            yaxis2: {{title: 'Cumulative (USD)', overlaying: 'y', side: 'right', tickformat: ',.0f'}},
+            height: 320,
+            margin: {{t: 50, b: 60, l: 80, r: 80}},
+            xaxis: {{
+                title: {{text: 'Forecast Period', font: {{size: 12, color: '#666'}}}},
+                tickfont: {{size: 11}}
+            }},
+            yaxis: {{
+                title: {{text: 'Monthly Net (USD)', font: {{size: 12, color: '{AZ_COLORS["mulberry"]}'}}}},
+                tickformat: ',.0f',
+                tickfont: {{size: 10}},
+                gridcolor: '#eee',
+                zerolinecolor: '#333',
+                zerolinewidth: 2
+            }},
+            yaxis2: {{
+                title: {{text: 'Cumulative (USD)', font: {{size: 12, color: '{AZ_COLORS["navy"]}'}}}},
+                overlaying: 'y',
+                side: 'right',
+                tickformat: ',.0f',
+                tickfont: {{size: 10}}
+            }},
             showlegend: true,
-            legend: {{x: 0.5, y: 1.15, orientation: 'h', xanchor: 'center'}},
-            hovermode: 'x unified'
+            legend: {{
+                x: 0.5,
+                y: 1.12,
+                xanchor: 'center',
+                orientation: 'h',
+                bgcolor: 'rgba(255,255,255,0.9)',
+                bordercolor: '#ddd',
+                borderwidth: 1,
+                font: {{size: 11}}
+            }},
+            hovermode: 'x unified',
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white'
         }}, {{responsive: true}});
         </script>
         '''
