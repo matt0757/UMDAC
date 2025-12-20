@@ -2385,6 +2385,15 @@ class InteractiveDashboardBuilder:
                         </tr>''' for name, m in art.all_model_metrics.items()])}
                     </tbody>
                 </table>
+                <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; font-size: 0.85rem; color: #555;">
+                    <strong>📊 Metric Definitions:</strong>
+                    <ul style="margin: 0.5rem 0 0 1.5rem; line-height: 1.6;">
+                        <li><strong>MAE</strong> (Mean Absolute Error): Average dollar difference between predicted and actual values — lower is better.</li>
+                        <li><strong>RMSE</strong> (Root Mean Square Error): Similar to MAE but penalizes large errors more heavily — lower is better.</li>
+                        <li><strong>MAPE</strong> (Mean Absolute Percentage Error): Average percentage error relative to actual values — lower is better.</li>
+                        <li><strong>Direction Acc</strong> (Direction Accuracy): Percentage of times the model correctly predicted if cash flow would go up or down — higher is better.</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -2661,6 +2670,13 @@ class InteractiveDashboardBuilder:
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '{AZ_COLORS["magenta"]}');
         
+        // Calculate y-axis range to accommodate text labels
+        var maxVal = Math.max(...monthlyTotals);
+        var minVal = Math.min(...monthlyTotals);
+        var yPadding = Math.max(Math.abs(maxVal), Math.abs(minVal)) * 0.25;
+        var yMin = minVal < 0 ? minVal - yPadding : Math.min(0, minVal);
+        var yMax = maxVal > 0 ? maxVal + yPadding : Math.max(0, maxVal);
+        
         Plotly.newPlot('monthly-chart-{entity}', [
             {{
                 x: monthlyLabels,
@@ -2673,7 +2689,9 @@ class InteractiveDashboardBuilder:
                 }},
                 text: monthlyTotals.map(v => v >= 0 ? '+' + (v/1000).toFixed(0) + 'K' : (v/1000).toFixed(0) + 'K'),
                 textposition: 'outside',
-                textfont: {{size: 12, color: '#333', weight: 'bold'}},
+                textfont: {{size: 11, color: '#333', family: 'Inter, sans-serif', weight: 600}},
+                cliponaxis: false,
+                constraintext: 'none',
                 hovertemplate: '<b>%{{x}}</b><br>Net: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
@@ -2688,8 +2706,8 @@ class InteractiveDashboardBuilder:
                 hovertemplate: '<b>%{{x}}</b><br>Cumulative: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
-            height: 320,
-            margin: {{t: 50, b: 60, l: 80, r: 80}},
+            height: 380,
+            margin: {{t: 80, b: 60, l: 80, r: 80}},
             xaxis: {{
                 title: {{text: 'Forecast Period', font: {{size: 12, color: '#666'}}}},
                 tickfont: {{size: 11}}
@@ -2700,7 +2718,8 @@ class InteractiveDashboardBuilder:
                 tickfont: {{size: 10}},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2
+                zerolinewidth: 2,
+                range: [yMin, yMax]
             }},
             yaxis2: {{
                 title: {{text: 'Cumulative (USD)', font: {{size: 12, color: '{AZ_COLORS["navy"]}'}}}},
