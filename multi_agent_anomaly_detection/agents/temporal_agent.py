@@ -33,8 +33,8 @@ class TemporalAgent(BaseDetectorAgent):
     
     def __init__(self, agent_id: str = None, name: str = "Temporal Agent",
                  knowledge_base: KnowledgeBase = None,
-                 wow_threshold: float = 0.5,
-                 mom_threshold: float = 0.3):
+                 wow_threshold: float = 1.0,
+                 mom_threshold: float = 0.75):
         """
         Initialize the temporal agent.
         
@@ -42,8 +42,8 @@ class TemporalAgent(BaseDetectorAgent):
             agent_id: Unique identifier
             name: Agent name
             knowledge_base: Shared knowledge base
-            wow_threshold: Week-over-week change threshold (50% by default)
-            mom_threshold: Month-over-month change threshold (30% by default)
+            wow_threshold: Week-over-week change threshold (100% - only flag if doubled)
+            mom_threshold: Month-over-month change threshold (75% - significant change)
         """
         super().__init__(agent_id, name, knowledge_base)
         
@@ -52,7 +52,7 @@ class TemporalAgent(BaseDetectorAgent):
             'mom_threshold': mom_threshold,  # Month-over-month
             'trend_window': 4,               # Weeks to consider for trend
             'min_historical_data': 4,        # Minimum weeks of history
-            'lag_deviation_threshold': 2.5   # Z-score for lag deviation
+            'lag_deviation_threshold': 3.0   # Z-score for lag deviation (stricter)
         }
         
         # Temporal trees per entity

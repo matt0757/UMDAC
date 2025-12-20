@@ -236,6 +236,30 @@ class AnomalyDetectionEngine:
         # Get system status
         self.system_status = self.coordinator.get_system_status()
     
+    def train_agents(self, entities: Dict[str, 'EntityData']) -> Dict[str, Any]:
+        """
+        Train pattern-based agents on historical entity data.
+        
+        Args:
+            entities: Dictionary of EntityData objects
+        
+        Returns:
+            Training results per entity
+        """
+        # Combine all entity data for training
+        all_data = []
+        for entity_id, entity_data in entities.items():
+            df = entity_data.data.copy()
+            if 'Entity' not in df.columns:
+                df['Entity'] = entity_id
+            all_data.append(df)
+        
+        if all_data:
+            combined_data = pd.concat(all_data, ignore_index=True)
+            return self.coordinator.train_agents(combined_data)
+        
+        return {}
+    
     def run_detection(self, entity_data: EntityData) -> EnsembleVerdict:
         """
         Run anomaly detection on entity data.
@@ -314,19 +338,23 @@ class AnomalyDetectionEngine:
             'recommended_action': verdict.recommended_action,
         }
         
-        # Financial metrics
-        if 'Net' in df.columns:
+        # Financial metrics - check for both naming conventions
+        net_col = 'Total_Net' if 'Total_Net' in df.columns else ('Net' if 'Net' in df.columns else None)
+        inflow_col = 'Total_Inflow' if 'Total_Inflow' in df.columns else ('Inflow' if 'Inflow' in df.columns else None)
+        outflow_col = 'Total_Outflow' if 'Total_Outflow' in df.columns else ('Outflow' if 'Outflow' in df.columns else None)
+        
+        if net_col:
             summary['financial'] = {
-                'total_net': float(df['Net'].sum()),
-                'avg_net': float(df['Net'].mean()),
-                'std_net': float(df['Net'].std()),
-                'min_net': float(df['Net'].min()),
-                'max_net': float(df['Net'].max()),
+                'total_net': float(df[net_col].sum()),
+                'avg_net': float(df[net_col].mean()),
+                'std_net': float(df[net_col].std()),
+                'min_net': float(df[net_col].min()),
+                'max_net': float(df[net_col].max()),
             }
         
-        if 'Inflow' in df.columns and 'Outflow' in df.columns:
-            summary['financial']['total_inflow'] = float(df['Inflow'].sum())
-            summary['financial']['total_outflow'] = float(df['Outflow'].sum())
+        if inflow_col and outflow_col:
+            summary['financial']['total_inflow'] = float(df[inflow_col].sum())
+            summary['financial']['total_outflow'] = float(df[outflow_col].sum())
         
         # Agent breakdown
         for result in verdict.agent_results:
@@ -1454,8 +1482,22 @@ class AnomalyDetectionPipeline:
         print(f"\n✓ Loaded {len(entities)} entities")
         print()
         
-        # Step 2: Run Detection
-        print("🔍 STEP 2: Running Multi-Agent Detection")
+        # Step 2: Train Pattern Agents
+        print("🧠 STEP 2: Training Pattern Agents")
+        print("-" * 40)
+        
+        training_results = self.detection_engine.train_agents(entities)
+        # Count trained entities from nested pattern results
+        pattern_results = training_results.get('pattern', {})
+        trained_count = sum(
+            1 for v in pattern_results.values() 
+            if isinstance(v, dict) and v.get('status') == 'trained'
+        )
+        print(f"  ✓ Trained patterns for {trained_count}/{len(entities)} entities")
+        print()
+        
+        # Step 3: Run Detection
+        print("🔍 STEP 3: Running Multi-Agent Detection")
         print("-" * 40)
         
         entities = self.detection_engine.analyze_all_entities(entities)
@@ -1469,8 +1511,8 @@ class AnomalyDetectionPipeline:
         print(f"\n✓ Detection complete: {anomaly_count}/{len(entities)} entities with anomalies")
         print()
         
-        # Step 3: Generate Dashboard
-        print("📊 STEP 3: Generating Interactive Dashboard")
+        # Step 4: Generate Dashboard
+        print("📊 STEP 4: Generating Interactive Dashboard")
         print("-" * 40)
         
         dashboard_path = self.dashboard_generator.generate(
@@ -1481,8 +1523,8 @@ class AnomalyDetectionPipeline:
         print(f"✓ Dashboard saved: {dashboard_path}")
         print()
         
-        # Step 4: Save Reports
-        print("📝 STEP 4: Saving Reports")
+        # Step 5: Save Reports
+        print("📝 STEP 5: Saving Reports")
         print("-" * 40)
         
         report_paths = self._save_reports(entities)

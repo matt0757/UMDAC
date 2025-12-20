@@ -34,7 +34,7 @@ class PatternAgent(BaseDetectorAgent):
     
     def __init__(self, agent_id: str = None, name: str = "Pattern Agent",
                  knowledge_base: KnowledgeBase = None,
-                 pattern_deviation_threshold: float = 2.0):
+                 pattern_deviation_threshold: float = 3.0):
         """
         Initialize the pattern agent.
         
@@ -42,7 +42,7 @@ class PatternAgent(BaseDetectorAgent):
             agent_id: Unique identifier
             name: Agent name
             knowledge_base: Shared knowledge base
-            pattern_deviation_threshold: Threshold for pattern deviation
+            pattern_deviation_threshold: Threshold for pattern deviation (3.0 - increased from 2.0)
         """
         super().__init__(agent_id, name, knowledge_base)
         
@@ -185,12 +185,12 @@ class PatternAgent(BaseDetectorAgent):
             available_features = [f for f in tree_features if f in ent_data.columns]
             
             if len(available_features) >= 3 and 'Total_Net' in ent_data.columns:
-                # Create anomaly labels based on z-score
+                # Create anomaly labels based on z-score (using config threshold)
                 mean_val = ent_data['Total_Net'].mean()
                 std_val = ent_data['Total_Net'].std()
                 if std_val > 0:
                     zscore = (ent_data['Total_Net'] - mean_val) / std_val
-                    labels = (abs(zscore) > 2).astype(int)
+                    labels = (abs(zscore) > self.config['pattern_deviation_threshold']).astype(int)
                     
                     tree = InterpretableTreeAgent(
                         tree_id=f"pattern_{ent}",

@@ -40,7 +40,7 @@ class CategoryAgent(BaseDetectorAgent):
     
     def __init__(self, agent_id: str = None, name: str = "Category Agent",
                  knowledge_base: KnowledgeBase = None,
-                 category_deviation_threshold: float = 2.5):
+                 category_deviation_threshold: float = 4.0):
         """
         Initialize the category agent.
         
@@ -48,7 +48,7 @@ class CategoryAgent(BaseDetectorAgent):
             agent_id: Unique identifier
             name: Agent name
             knowledge_base: Shared knowledge base
-            category_deviation_threshold: Z-score threshold for category anomalies
+            category_deviation_threshold: Z-score threshold for category anomalies (4.0 - very strict)
         """
         super().__init__(agent_id, name, knowledge_base)
         
@@ -56,7 +56,7 @@ class CategoryAgent(BaseDetectorAgent):
             'category_deviation_threshold': category_deviation_threshold,
             'min_training_samples': 10,
             'tree_max_depth': 4,
-            'significant_category_threshold': 0.05  # 5% of total
+            'significant_category_threshold': 0.15  # 15% of total (stricter)
         }
         
         # Decision trees per entity per category

@@ -309,9 +309,13 @@ class MetaCoordinator:
             reverse=True
         )
         
-        # Primary flags = top 3 most significant
-        primary_flags = sorted_flags[:3]
-        secondary_flags = sorted_flags[3:]
+        # Primary flags = high-severity or high-confidence flags (critical, high severity OR confidence >= 0.85)
+        # Secondary flags = everything else
+        primary_flags = [
+            f for f in sorted_flags 
+            if f.severity.value in ('critical', 'high') or f.confidence >= 0.85
+        ]
+        secondary_flags = [f for f in sorted_flags if f not in primary_flags]
         
         # Generate explanation
         explanation = self._generate_explanation(primary_flags, resolution, context)
@@ -388,24 +392,44 @@ class MetaCoordinator:
         detecting_agents = levels['HIGH'] + levels['MEDIUM'] + levels['LOW']
         total_agents = len(agent_results)
         
-        # Apply conflict matrix
-        if len(detecting_agents) >= 2:
-            # Multiple agents agree - use matrix
-            level_pair = (primary_level, 'MEDIUM')  # Simplified
-            if level_pair in self.CONFLICT_MATRIX:
-                matrix_result = self.CONFLICT_MATRIX[level_pair]
-            else:
-                matrix_result = {'is_anomaly': True, 'confidence': 0.7, 'action': 'REVIEW'}
-            
-            is_anomaly = matrix_result['is_anomaly']
-            confidence = matrix_result['confidence']
-        elif len(detecting_agents) == 1:
-            # Single agent - lower confidence
-            is_anomaly = True
-            confidence = 0.6
-        else:
+        # Calculate dynamic confidence based on multiple factors
+        if len(detecting_agents) == 0:
+            # No agents detected anything
             is_anomaly = False
-            confidence = 0.9
+            confidence = 0.95  # High confidence it's normal
+        else:
+            is_anomaly = True
+            
+            # Base confidence from agent agreement ratio
+            agreement_ratio = len(detecting_agents) / total_agents if total_agents > 0 else 0
+            
+            # Calculate weighted confidence from individual agent results
+            total_flag_confidence = 0
+            total_flags = 0
+            severity_weights = {'critical': 1.0, 'high': 0.85, 'medium': 0.65, 'low': 0.4}
+            
+            for result in agent_results:
+                for flag in result.flags:
+                    weight = severity_weights.get(flag.severity.value, 0.5)
+                    total_flag_confidence += flag.confidence * weight
+                    total_flags += 1
+            
+            avg_flag_confidence = total_flag_confidence / total_flags if total_flags > 0 else 0.5
+            
+            # Combine factors:
+            # - 40% from agent agreement ratio
+            # - 40% from average flag confidence (weighted by severity)
+            # - 20% from severity level bonus
+            severity_bonus = {'HIGH': 0.15, 'MEDIUM': 0.08, 'LOW': 0.0, 'NONE': -0.1}
+            
+            confidence = (
+                0.40 * agreement_ratio +
+                0.40 * avg_flag_confidence +
+                0.20 + severity_bonus.get(primary_level, 0)
+            )
+            
+            # Clamp confidence to valid range
+            confidence = max(0.30, min(0.98, confidence))
         
         # Determine severity
         if primary_level == 'HIGH':

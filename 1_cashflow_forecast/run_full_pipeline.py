@@ -2413,12 +2413,13 @@ class InteractiveDashboardBuilder:
             }}
         ], {{
             height: 350,
-            margin: {{t: 50, b: 60, l: 80, r: 40}},
+            margin: {{t: 70, b: 70, l: 90, r: 50}},
             xaxis: {{
                 title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
                 tickangle: -30,
                 tickfont: {{size: 10}},
-                gridcolor: '#eee'
+                gridcolor: '#eee',
+                automargin: true
             }},
             yaxis: {{
                 title: {{text: 'Net Cash Flow (USD)', font: {{size: 12, color: '#666'}}}},
@@ -2426,11 +2427,12 @@ class InteractiveDashboardBuilder:
                 tickfont: {{size: 10}},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2
+                zerolinewidth: 2,
+                automargin: true
             }},
             legend: {{
                 x: 0.5,
-                y: 1.12,
+                y: 1.15,
                 xanchor: 'center',
                 orientation: 'h',
                 bgcolor: 'rgba(255,255,255,0.95)',
@@ -2475,12 +2477,13 @@ class InteractiveDashboardBuilder:
         ], {{
             height: 400,
             barmode: 'relative',
-            margin: {{t: 50, b: 60, l: 80, r: 40}},
+            margin: {{t: 70, b: 80, l: 90, r: 50}},
             xaxis: {{
                 title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
                 tickangle: -45,
                 tickfont: {{size: 10}},
-                gridcolor: '#eee'
+                gridcolor: '#eee',
+                automargin: true
             }},
             yaxis: {{
                 title: {{text: 'Amount (USD)', font: {{size: 12, color: '#666'}}}},
@@ -2488,11 +2491,12 @@ class InteractiveDashboardBuilder:
                 tickfont: {{size: 10}},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2
+                zerolinewidth: 2,
+                automargin: true
             }},
             legend: {{
                 x: 0.5,
-                y: 1.12,
+                y: 1.15,
                 xanchor: 'center',
                 orientation: 'h',
                 bgcolor: 'rgba(255,255,255,0.95)',
@@ -2532,13 +2536,14 @@ class InteractiveDashboardBuilder:
                 hovertemplate: '<b>Forecast</b><br>Date: %{{x}}<br>Predicted: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
-            height: 320,
-            margin: {{t: 50, b: 60, l: 80, r: 40}},
+            height: 350,
+            margin: {{t: 70, b: 70, l: 90, r: 50}},
             xaxis: {{
                 title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
                 tickangle: -30,
                 tickfont: {{size: 10}},
-                gridcolor: '#eee'
+                gridcolor: '#eee',
+                automargin: true
             }},
             yaxis: {{
                 title: {{text: 'Net Cash Flow (USD)', font: {{size: 12, color: '#666'}}}},
@@ -2546,11 +2551,12 @@ class InteractiveDashboardBuilder:
                 tickfont: {{size: 10}},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2
+                zerolinewidth: 2,
+                automargin: true
             }},
             legend: {{
                 x: 0.5,
-                y: 1.12,
+                y: 1.18,
                 xanchor: 'center',
                 orientation: 'h',
                 bgcolor: 'rgba(255,255,255,0.95)',
@@ -2607,13 +2613,14 @@ class InteractiveDashboardBuilder:
         }});
         
         Plotly.newPlot('long-forecast-{entity}', longForecastTraces, {{
-            height: 380,
-            margin: {{t: 60, b: 60, l: 80, r: 40}},
+            height: 400,
+            margin: {{t: 80, b: 70, l: 90, r: 50}},
             xaxis: {{
                 title: {{text: 'Week', font: {{size: 12, color: '#666'}}}},
                 tickangle: -30,
                 tickfont: {{size: 10}},
-                gridcolor: '#eee'
+                gridcolor: '#eee',
+                automargin: true
             }},
             yaxis: {{
                 title: {{text: 'Net Cash Flow (USD)', font: {{size: 12, color: '#666'}}}},
@@ -2621,11 +2628,12 @@ class InteractiveDashboardBuilder:
                 tickfont: {{size: 10}},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2
+                zerolinewidth: 2,
+                automargin: true
             }},
             legend: {{
                 x: 0.5,
-                y: 1.15,
+                y: 1.20,
                 xanchor: 'center',
                 orientation: 'h',
                 bgcolor: 'rgba(255,255,255,0.95)',
@@ -2646,7 +2654,7 @@ class InteractiveDashboardBuilder:
             }}],
             annotations: [{{
                 x: lastHistDate,
-                y: 1.02,
+                y: 1.05,
                 yref: 'paper',
                 text: 'Forecast →',
                 showarrow: false,
@@ -2660,18 +2668,6 @@ class InteractiveDashboardBuilder:
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '{AZ_COLORS["magenta"]}');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-{entity}', [
             {{
@@ -2686,25 +2682,29 @@ class InteractiveDashboardBuilder:
                 text: monthlyTotals.map(v => v >= 0 ? '+' + (v/1000).toFixed(0) + 'K' : (v/1000).toFixed(0) + 'K'),
                 textposition: 'outside',
                 textfont: {{size: 12, color: '#333', weight: 'bold'}},
+                cliponaxis: false,
+                constraintext: 'none',
                 hovertemplate: '<b>%{{x}}</b><br>Net: $%{{y:,.0f}}<extra></extra>'
             }},
             {{
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
                 yaxis: 'y2',
                 line: {{color: '{AZ_COLORS["navy"]}', width: 3}},
                 marker: {{size: 10, symbol: 'circle'}},
+                cliponaxis: false,
                 hovertemplate: '<b>%{{x}}</b><br>Cumulative: $%{{y:,.0f}}<extra></extra>'
             }}
         ], {{
-            height: 320,
-            margin: {{t: 50, b: 60, l: 80, r: 80}},
+            height: 420,
+            margin: {{t: 100, b: 100, l: 100, r: 100}},
             xaxis: {{
                 title: {{text: 'Forecast Period', font: {{size: 12, color: '#666'}}}},
-                tickfont: {{size: 11}}
+                tickfont: {{size: 11}},
+                automargin: true
             }},
             yaxis: {{
                 title: {{text: 'Monthly Net (USD)', font: {{size: 12, color: '{AZ_COLORS["mulberry"]}'}}}},
@@ -2713,7 +2713,7 @@ class InteractiveDashboardBuilder:
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
                 zerolinewidth: 2,
-                range: barRange
+                automargin: true
             }},
             yaxis2: {{
                 title: {{text: 'Cumulative (USD)', font: {{size: 12, color: '{AZ_COLORS["navy"]}'}}}},
@@ -2721,12 +2721,12 @@ class InteractiveDashboardBuilder:
                 side: 'right',
                 tickformat: ',.0f',
                 tickfont: {{size: 10}},
-                range: cumRange
+                automargin: true
             }},
             showlegend: true,
             legend: {{
                 x: 0.5,
-                y: 1.12,
+                y: 1.20,
                 xanchor: 'center',
                 orientation: 'h',
                 bgcolor: 'rgba(255,255,255,0.9)',
@@ -2747,310 +2747,100 @@ class InteractiveDashboardBuilder:
         forecast_results: Dict[str, ForecastArtifacts],
     ) -> str:
         """
-        Generate Market Insights & Recommendations section with per-country
-        news sentiment analysis. Priority is based on sentiment scores only.
+        Generate Market Insights & Recommendations section by integrating
+        news sentiment analysis with cashflow forecast data.
+        
+        Falls back to default insights if news scraper is unavailable.
         """
-        print("  📊 Generating Market Insights section with per-country sentiment...")
+        print("  📊 Generating Market Insights section...")
         
-        # Entity to country mapping
-        entity_countries = {
-            "TW10": {"country": "Taiwan", "search_term": "Taiwan economy"},
-            "PH10": {"country": "Philippines", "search_term": "Philippines economy"},
-            "TH10": {"country": "Thailand", "search_term": "Thailand economy"},
-            "ID10": {"country": "Indonesia", "search_term": "Indonesia economy"},
-            "SS10": {"country": "Singapore", "search_term": "Singapore economy"},
-            "MY10": {"country": "Malaysia", "search_term": "Malaysia economy"},
-            "VN20": {"country": "Vietnam", "search_term": "Vietnam economy"},
-            "KR10": {"country": "South Korea", "search_term": "South Korea economy"},
-        }
+        # First, check if we have a cached sentiment report to use
+        sentiment_report_path = self.paths.project_root / "News_scraper" / "sentiment_report.json"
         
-        # Check for per-country sentiment data
-        sentiment_dir = self.paths.project_root / "News_scraper" / "country_sentiments"
-        country_sentiments = {}
-        
-        # Try to load per-country sentiment data
-        if sentiment_dir.exists():
-            import json
-            for entity, info in entity_countries.items():
-                country_file = sentiment_dir / f"{info['country'].lower().replace(' ', '_')}_sentiment.json"
-                if country_file.exists():
-                    try:
-                        with open(country_file, 'r') as f:
-                            country_sentiments[entity] = json.load(f)
-                        print(f"  ✅ Loaded sentiment for {info['country']}")
-                    except Exception as e:
-                        print(f"  ⚠️ Error loading {info['country']}: {e}")
-        
-        # If no per-country data, try to scrape it now
-        if not country_sentiments:
-            print("  📡 Attempting to scrape per-country news sentiment...")
-            country_sentiments = self._scrape_country_sentiments(entity_countries, entity_frames)
-        
-        # If still no data, generate default insights
-        if not country_sentiments:
-            print("  ℹ️ No sentiment data available, generating default insights...")
-            return self._generate_default_market_insights(entity_frames, forecast_results)
-        
-        return self._generate_interactive_market_insights(
-            entity_frames, forecast_results, country_sentiments, entity_countries
-        )
-    
-    def _scrape_country_sentiments(
-        self,
-        entity_countries: Dict[str, Dict],
-        entity_frames: Dict[str, pd.DataFrame]
-    ) -> Dict[str, Dict]:
-        """Scrape news sentiment for each country using RSS feeds."""
-        import json
-        
-        country_sentiments = {}
-        
-        try:
-            import feedparser
-            print("  📡 Using RSS feeds for news scraping...")
-        except ImportError:
-            print("  ⚠️ feedparser not installed. Run: pip install feedparser")
-            return {}
-        
-        # Use keyword-based sentiment by default (fast and reliable)
-        # FinBERT is slow to load and can cause issues
-        use_finbert = False
-        sentiment_pipeline = None
-        print("  📝 Using keyword-based sentiment analysis (fast mode)")
-        
-        for entity, info in entity_countries.items():
-            if entity not in entity_frames:
-                continue
-                
-            country = info['country']
-            search_term = info['search_term']
-            
-            print(f"  🔍 Scraping news for {country}...")
-            
-            articles = []
+        if sentiment_report_path.exists():
             try:
-                # Google News RSS
-                import urllib.parse
-                rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(search_term)}&hl=en-US&gl=US&ceid=US:en"
-                feed = feedparser.parse(rss_url)
-                
-                for entry in feed.entries[:5]:  # Get top 5 articles per country
-                    title = entry.title
-                    url = entry.link
-                    published = entry.get('published', None)
-                    
-                    # Analyze sentiment
-                    if use_finbert and sentiment_pipeline:
-                        try:
-                            result = sentiment_pipeline(title[:512], truncation=True)[0]
-                            label = result['label'].lower()
-                            score = result['score']
-                            
-                            if label == 'positive':
-                                final_score = score
-                            elif label == 'negative':
-                                final_score = -score
-                            else:
-                                final_score = 0
-                        except:
-                            final_score = 0
-                    else:
-                        # Simple keyword-based sentiment
-                        title_lower = title.lower()
-                        positive_words = ['growth', 'surge', 'gain', 'rise', 'boom', 'strong', 'positive', 'up', 'recovery', 'profit']
-                        negative_words = ['fall', 'drop', 'decline', 'crash', 'crisis', 'weak', 'negative', 'down', 'loss', 'recession', 'warning']
-                        
-                        pos_count = sum(1 for w in positive_words if w in title_lower)
-                        neg_count = sum(1 for w in negative_words if w in title_lower)
-                        
-                        if pos_count > neg_count:
-                            final_score = 0.5
-                        elif neg_count > pos_count:
-                            final_score = -0.5
-                        else:
-                            final_score = 0
-                    
-                    articles.append({
-                        'title': title,
-                        'url': url,
-                        'publish_date': published,
-                        'final_score': round(final_score, 3),
-                        'source': 'google_news_rss'
-                    })
-                
-                if articles:
-                    avg_score = sum(a['final_score'] for a in articles) / len(articles)
-                    country_sentiments[entity] = {
-                        'country': country,
-                        'average_score': round(avg_score, 3),
-                        'total_articles': len(articles),
-                        'articles': articles
-                    }
-                    print(f"    ✓ {country}: {len(articles)} articles, avg score: {avg_score:.2f}")
-                    
+                import json
+                with open(sentiment_report_path, 'r') as f:
+                    sentiment_data = json.load(f)
+                print(f"  ✅ Loaded cached sentiment from {sentiment_report_path.name}")
+                return self._generate_market_insights_with_sentiment(
+                    entity_frames, forecast_results, sentiment_data
+                )
             except Exception as e:
-                print(f"    ⚠️ Error scraping {country}: {e}")
+                print(f"  ⚠️ Could not load cached sentiment: {e}")
         
-        # Save the scraped data for future use
-        if country_sentiments:
-            sentiment_dir = self.paths.project_root / "News_scraper" / "country_sentiments"
-            sentiment_dir.mkdir(parents=True, exist_ok=True)
-            
-            for entity, data in country_sentiments.items():
-                country_name = data['country'].lower().replace(' ', '_')
-                output_file = sentiment_dir / f"{country_name}_sentiment.json"
-                try:
-                    with open(output_file, 'w') as f:
-                        json.dump(data, f, indent=2)
-                except Exception as e:
-                    print(f"  ⚠️ Could not save {country_name}: {e}")
-            
-            print(f"  💾 Saved sentiment data to {sentiment_dir}")
-        
-        return country_sentiments
+        # Fall back to default insights based on forecast data only
+        print("  ℹ️ Generating Market Insights from forecast data analysis...")
+        return self._generate_default_market_insights(entity_frames, forecast_results)
     
-    def _generate_interactive_market_insights(
+    def _generate_market_insights_with_sentiment(
         self,
         entity_frames: Dict[str, pd.DataFrame],
         forecast_results: Dict[str, ForecastArtifacts],
-        country_sentiments: Dict[str, Dict],
-        entity_countries: Dict[str, Dict],
+        sentiment_data: Dict,
     ) -> str:
-        """Generate interactive market insights with clickable country cards."""
+        """Generate market insights HTML using cached sentiment data."""
         
-        # Build entity analysis with sentiment-based priority
-        entity_analysis = []
-        for entity, df in entity_frames.items():
-            if entity not in entity_countries:
-                continue
-                
-            country_info = entity_countries[entity]
-            sentiment_data = country_sentiments.get(entity, {})
-            
-            # Get sentiment score (default to 0 if not available)
-            sentiment_score = sentiment_data.get('average_score', 0)
-            articles = sentiment_data.get('articles', [])
-            
-            # Priority based on sentiment score only (more negative = higher priority)
-            if sentiment_score <= -0.3:
-                priority = "HIGH"
-                status = "⚠️ ATTENTION REQUIRED"
-            elif sentiment_score <= -0.1:
-                priority = "MEDIUM"
-                status = "👁️ MONITOR CLOSELY"
-            elif sentiment_score >= 0.3:
-                priority = "LOW"
-                status = "✅ POSITIVE OUTLOOK"
+        # Extract sentiment info
+        summary = sentiment_data.get('summary', {})
+        articles = sentiment_data.get('articles', [])
+        avg_score = summary.get('average_score', 0)
+        total_articles = summary.get('total_articles', 0)
+        
+        # Determine overall sentiment
+        if avg_score > 0.2:
+            sentiment_label = "POSITIVE"
+            sentiment_color = "#27ae60"
+            sentiment_emoji = "📈"
+        elif avg_score < -0.2:
+            sentiment_label = "NEGATIVE"
+            sentiment_color = "#e74c3c"
+            sentiment_emoji = "📉"
+        else:
+            sentiment_label = "NEUTRAL"
+            sentiment_color = "#3498db"
+            sentiment_emoji = "➡️"
+        
+        # Build articles HTML (top 3)
+        articles_html = ""
+        for article in articles[:3]:
+            # Check for multiple possible score field names
+            score = article.get('final_score') or article.get('sentiment_score') or article.get('score', 0)
+            if score > 0.1:
+                badge_color = "#27ae60"
+                badge_text = "Positive"
+            elif score < -0.1:
+                badge_color = "#e74c3c"
+                badge_text = "Negative"
             else:
-                priority = "MEDIUM"
-                status = "👁️ NEUTRAL - MONITOR"
+                badge_color = "#7f8c8d"
+                badge_text = "Neutral"
             
-            # Determine sentiment label
-            if sentiment_score > 0.1:
-                sentiment_label = "POSITIVE"
-                sentiment_color = "#27ae60"
-            elif sentiment_score < -0.1:
-                sentiment_label = "NEGATIVE"
-                sentiment_color = "#e74c3c"
-            else:
-                sentiment_label = "NEUTRAL"
-                sentiment_color = "#7f8c8d"
+            # Get the headline - check both 'title' and 'headline' keys
+            headline = article.get('title') or article.get('headline') or 'No headline available'
+            url = article.get('url', '#')
+            source = article.get('source', 'Unknown')
             
-            entity_analysis.append({
-                "entity": entity,
-                "country": country_info['country'],
-                "sentiment_score": sentiment_score,
-                "sentiment_label": sentiment_label,
-                "sentiment_color": sentiment_color,
-                "priority": priority,
-                "status": status,
-                "articles": articles,
-                "article_count": len(articles)
-            })
-        
-        # Sort by sentiment score (most negative first)
-        entity_analysis.sort(key=lambda x: x["sentiment_score"])
-        
-        # Build JSON data for JavaScript
-        import json
-        entity_data_json = json.dumps({
-            ea['entity']: {
-                'country': ea['country'],
-                'sentiment_score': ea['sentiment_score'],
-                'sentiment_label': ea['sentiment_label'],
-                'articles': ea['articles']
-            }
-            for ea in entity_analysis
-        })
-        
-        # Generate entity cards HTML
-        entity_cards_html = ""
-        for i, ea in enumerate(entity_analysis):
-            if ea["priority"] == "HIGH":
-                card_border, card_bg = "#e74c3c", "#fef9f9"
-            elif ea["priority"] == "MEDIUM":
-                card_border, card_bg = "#f39c12", "#fffbf5"
-            else:
-                card_border, card_bg = "#27ae60", "#f5fdf8"
+            # Truncate headline if too long
+            display_headline = headline if len(headline) <= 100 else headline[:97] + '...'
             
-            active_class = "active" if i == 0 else ""
-            
-            entity_cards_html += f'''
-            <div class="entity-card {active_class}" data-entity="{ea['entity']}" 
-                 onclick="selectEntity('{ea['entity']}')"
-                 style="background: {card_bg}; border-left: 4px solid {card_border}; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 1.1rem;">{ea['entity']}</strong>
-                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: {card_border}20; color: {card_border}; border-radius: 12px; font-weight: 500;">{ea['priority']} Priority</span>
-                </div>
-                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">{ea['status']}</div>
-                <div style="font-size: 0.85rem; color: #666;">
-                    <span style="margin-right: 1rem;">📍 {ea['country']}</span>
-                    <span style="margin-right: 1rem; color: {ea['sentiment_color']}; font-weight: 500;">
-                        Score: {ea['sentiment_score']:.2f}
-                    </span>
-                    <span>📰 {ea['article_count']} articles</span>
+            articles_html += f'''
+            <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid {badge_color};">
+                <a href="{url}" target="_blank" style="text-decoration: none;">
+                    <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                        {display_headline}
+                    </div>
+                </a>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                    <span>{source}</span>
+                    <span style="color: {badge_color}; font-weight: 500;">{badge_text}</span>
                 </div>
             </div>
             '''
         
-        # Default selected entity (first one)
-        default_entity = entity_analysis[0] if entity_analysis else None
-        default_articles_html = ""
-        if default_entity and default_entity['articles']:
-            for article in default_entity['articles'][:5]:
-                score = article.get('final_score', 0)
-                if score > 0.1:
-                    badge_color = "#27ae60"
-                    badge_text = "Positive"
-                elif score < -0.1:
-                    badge_color = "#e74c3c"
-                    badge_text = "Negative"
-                else:
-                    badge_color = "#7f8c8d"
-                    badge_text = "Neutral"
-                
-                title = article.get('title', 'No title')
-                url = article.get('url', '#')
-                source = article.get('source', 'Unknown')
-                
-                default_articles_html += f'''
-                <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid {badge_color};">
-                    <a href="{url}" target="_blank" style="text-decoration: none;">
-                        <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                            {title[:100]}{'...' if len(title) > 100 else ''}
-                        </div>
-                    </a>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                        <span>{source}</span>
-                        <span style="color: {badge_color}; font-weight: 500;">{badge_text} ({score:.2f})</span>
-                    </div>
-                </div>
-                '''
-        
-        default_country = default_entity['country'] if default_entity else 'Select a country'
-        default_score = default_entity['sentiment_score'] if default_entity else 0
-        default_label = default_entity['sentiment_label'] if default_entity else 'N/A'
+        # Generate entity analysis using the default method's logic
+        entity_analysis = self._analyze_entity_trends(entity_frames)
+        entity_cards_html = self._generate_entity_cards_html(entity_analysis)
         
         return f'''
         <!-- Market Insights & Recommendations Section -->
@@ -3058,47 +2848,48 @@ class InteractiveDashboardBuilder:
             <h2 class="summary-title" style="display: flex; align-items: center; gap: 0.5rem;">
                 🌐 Market Insights & Strategic Recommendations
                 <span style="font-size: 0.8rem; font-weight: normal; color: #888; margin-left: auto;">
-                    FinBERT Sentiment Analysis | Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+                    News Sentiment Analysis | Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
                 </span>
             </h2>
             
-            <!-- Info Banner -->
-            <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d1e8fa 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid #b3d4f0;">
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <span style="font-size: 1.5rem;">💡</span>
-                    <p style="color: #2c5282; margin: 0; font-size: 0.95rem;">
-                        <strong>Priority is based on sentiment score:</strong> More negative scores indicate higher attention needed. 
-                        Click on any country card to view its news analysis.
-                    </p>
+            <!-- Overall Outlook Banner -->
+            <div style="background: linear-gradient(135deg, #ebf5fb 0%, #d4e6f1 100%); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; border: 1px solid {sentiment_color}30;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 3rem;">{sentiment_emoji}</span>
+                    <div>
+                        <h3 style="color: {sentiment_color}; font-size: 1.5rem; margin: 0;">
+                            Market Sentiment: {sentiment_label}
+                        </h3>
+                        <p style="color: #555; margin: 0.5rem 0 0 0; font-size: 1rem;">
+                            Score: <strong>{avg_score:.2f}</strong> | 
+                            Based on {total_articles} news articles analyzed
+                        </p>
+                    </div>
+                    <div style="margin-left: auto; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Confidence</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: {sentiment_color};">
+                            {min(total_articles * 10, 100)}%
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
                 
-                <!-- News Analysis (Left Panel) -->
+                <!-- News Analysis -->
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
-                    <h4 style="color: var(--az-mulberry); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        📰 News Analysis: <span id="selected-country-name">{default_country}</span>
+                    <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        📰 Latest News Analysis
                     </h4>
-                    <div style="margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px;">
-                        <span style="font-size: 0.9rem; color: #666;">Sentiment Score: </span>
-                        <span id="selected-country-score" style="font-weight: 600; font-size: 1.1rem; color: {default_entity['sentiment_color'] if default_entity else '#666'};">{default_score:.2f}</span>
-                        <span id="selected-country-label" style="margin-left: 0.5rem; padding: 0.2rem 0.6rem; background: {default_entity['sentiment_color'] if default_entity else '#666'}20; color: {default_entity['sentiment_color'] if default_entity else '#666'}; border-radius: 12px; font-size: 0.8rem;">{default_label}</span>
-                    </div>
-                    <div id="articles-container" style="max-height: 400px; overflow-y: auto;">
-                        {default_articles_html if default_articles_html else '<p style="color: #666; text-align: center; padding: 2rem;">No articles available for this country.</p>'}
-                    </div>
+                    {articles_html if articles_html else '<p style="color: #666;">No recent articles available.</p>'}
                 </div>
                 
-                <!-- Entity Priority Matrix (Right Panel) -->
+                <!-- Entity Priority Matrix -->
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
                     <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         🎯 Entity Priority Matrix
-                        <span style="font-size: 0.75rem; font-weight: normal; color: #888; margin-left: auto;">
-                            (Click to view news)
-                        </span>
                     </h4>
-                    <div id="entity-cards-container" style="max-height: 450px; overflow-y: auto;">
+                    <div style="max-height: 350px; overflow-y: auto;">
                         {entity_cards_html}
                     </div>
                 </div>
@@ -3106,109 +2897,98 @@ class InteractiveDashboardBuilder:
             
             <!-- Disclaimer -->
             <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; font-size: 0.8rem; color: #666;">
-                <strong>⚠️ Disclaimer:</strong> Sentiment analysis is performed using FinBERT on recent news articles. 
-                Priority levels are determined by sentiment scores: HIGH (≤-0.3), MEDIUM (-0.3 to 0.3), LOW (≥0.3).
+                <strong>⚠️ Disclaimer:</strong> These insights combine news sentiment analysis with cash flow forecast data. 
+                They should be used as supplementary insights alongside professional judgment.
             </div>
         </section>
-        
-        <!-- JavaScript for interactivity -->
-        <script>
-        const entityData = {entity_data_json};
-        
-        function selectEntity(entityId) {{
-            // Update active card styling
-            document.querySelectorAll('.entity-card').forEach(card => {{
-                card.classList.remove('active');
-                card.style.boxShadow = 'none';
-            }});
-            const activeCard = document.querySelector(`.entity-card[data-entity="${{entityId}}"]`);
-            if (activeCard) {{
-                activeCard.classList.add('active');
-                activeCard.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            }}
-            
-            // Get entity data
-            const data = entityData[entityId];
-            if (!data) return;
-            
-            // Update header
-            document.getElementById('selected-country-name').textContent = data.country;
-            
-            // Update score display
-            const scoreEl = document.getElementById('selected-country-score');
-            const labelEl = document.getElementById('selected-country-label');
-            
-            let color = '#7f8c8d';
-            let label = 'NEUTRAL';
-            if (data.sentiment_score > 0.1) {{
-                color = '#27ae60';
-                label = 'POSITIVE';
-            }} else if (data.sentiment_score < -0.1) {{
-                color = '#e74c3c';
-                label = 'NEGATIVE';
-            }}
-            
-            scoreEl.textContent = data.sentiment_score.toFixed(2);
-            scoreEl.style.color = color;
-            labelEl.textContent = label;
-            labelEl.style.background = color + '20';
-            labelEl.style.color = color;
-            
-            // Update articles
-            const container = document.getElementById('articles-container');
-            if (data.articles && data.articles.length > 0) {{
-                let html = '';
-                data.articles.slice(0, 5).forEach(article => {{
-                    const score = article.final_score || 0;
-                    let badgeColor = '#7f8c8d';
-                    let badgeText = 'Neutral';
-                    if (score > 0.1) {{
-                        badgeColor = '#27ae60';
-                        badgeText = 'Positive';
-                    }} else if (score < -0.1) {{
-                        badgeColor = '#e74c3c';
-                        badgeText = 'Negative';
-                    }}
-                    
-                    const title = article.title || 'No title';
-                    const displayTitle = title.length > 100 ? title.substring(0, 100) + '...' : title;
-                    const url = article.url || '#';
-                    const source = article.source || 'Unknown';
-                    
-                    html += `
-                    <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid ${{badgeColor}};">
-                        <a href="${{url}}" target="_blank" style="text-decoration: none;">
-                            <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                                ${{displayTitle}}
-                            </div>
-                        </a>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                            <span>${{source}}</span>
-                            <span style="color: ${{badgeColor}}; font-weight: 500;">${{badgeText}} (${{score.toFixed(2)}})</span>
-                        </div>
-                    </div>
-                    `;
-                }});
-                container.innerHTML = html;
-            }} else {{
-                container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No articles available for this country.</p>';
-            }}
-        }}
-        
-        // Style for active card
-        document.head.insertAdjacentHTML('beforeend', `
-            <style>
-                .entity-card:hover {{
-                    transform: translateX(4px);
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                }}
-                .entity-card.active {{
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                }}
-            </style>
-        `);
-        </script>
         '''
+    
+    def _analyze_entity_trends(self, entity_frames: Dict[str, pd.DataFrame]) -> List[Dict]:
+        """Analyze trends from entity data for the priority matrix."""
+        entity_regions = {
+            "TW10": {"country": "Taiwan", "region": "East Asia"},
+            "PH10": {"country": "Philippines", "region": "Southeast Asia"},
+            "TH10": {"country": "Thailand", "region": "Southeast Asia"},
+            "ID10": {"country": "Indonesia", "region": "Southeast Asia"},
+            "SS10": {"country": "Singapore", "region": "Southeast Asia"},
+            "MY10": {"country": "Malaysia", "region": "Southeast Asia"},
+            "VN20": {"country": "Vietnam", "region": "Southeast Asia"},
+            "KR10": {"country": "South Korea", "region": "East Asia"},
+        }
+        
+        entity_analysis = []
+        for entity, df in entity_frames.items():
+            net_col = 'Net' if 'Net' in df.columns else 'Total_Net' if 'Total_Net' in df.columns else None
+            if net_col is None or len(df) < 4:
+                continue
+            
+            recent = df.tail(8)[net_col].values
+            if len(recent) >= 4:
+                first_half = recent[:len(recent)//2].mean()
+                second_half = recent[len(recent)//2:].mean()
+                
+                if second_half > first_half * 1.1:
+                    trend = "UPWARD"
+                elif second_half < first_half * 0.9:
+                    trend = "DOWNWARD"
+                else:
+                    trend = "STABLE"
+            else:
+                trend = "STABLE"
+            
+            volatility = abs(recent.std() / recent.mean()) * 100 if recent.mean() != 0 else 0
+            vol_level = "HIGH" if volatility > 50 else "MODERATE" if volatility > 25 else "LOW"
+            
+            risk_score = 0
+            if trend == "DOWNWARD":
+                risk_score += 2
+            if vol_level == "HIGH":
+                risk_score += 2
+            elif vol_level == "MODERATE":
+                risk_score += 1
+            
+            priority = "HIGH" if risk_score >= 4 else "MEDIUM" if risk_score >= 2 else "LOW"
+            status = "⚠️ ATTENTION" if priority == "HIGH" else "👁️ MONITOR" if priority == "MEDIUM" else "✅ STABLE"
+            
+            entity_analysis.append({
+                "entity": entity,
+                "country": entity_regions.get(entity, {}).get("country", "Unknown"),
+                "trend": trend,
+                "volatility": vol_level,
+                "priority": priority,
+                "status": status,
+                "risk_score": risk_score
+            })
+        
+        entity_analysis.sort(key=lambda x: -x["risk_score"])
+        return entity_analysis
+    
+    def _generate_entity_cards_html(self, entity_analysis: List[Dict]) -> str:
+        """Generate HTML cards for entity priority matrix."""
+        entity_cards_html = ""
+        for ea in entity_analysis:
+            if ea["priority"] == "HIGH":
+                card_border, card_bg = "#e74c3c", "#fef9f9"
+            elif ea["priority"] == "MEDIUM":
+                card_border, card_bg = "#f39c12", "#fffbf5"
+            else:
+                card_border, card_bg = "#27ae60", "#f5fdf8"
+            
+            entity_cards_html += f'''
+            <div style="background: {card_bg}; border-left: 4px solid {card_border}; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 1.1rem;">{ea["entity"]}</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: {card_border}20; color: {card_border}; border-radius: 12px; font-weight: 500;">{ea["priority"]} Priority</span>
+                </div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">{ea["status"]}</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                    <span style="margin-right: 1rem;">📍 {ea["country"]}</span>
+                    <span style="margin-right: 1rem;">📈 {ea["trend"]}</span>
+                    <span>🔄 {ea["volatility"]} volatility</span>
+                </div>
+            </div>
+            '''
+        return entity_cards_html
     
     def _generate_default_market_insights(
         self,

@@ -37,21 +37,21 @@ class RuleAgent(BaseDetectorAgent):
         super().__init__(agent_id, name, knowledge_base)
         
         self.config = {
-            # Amount thresholds (can be entity-specific)
-            'large_transaction_threshold': 100000,
-            'very_large_threshold': 500000,
+            # Amount thresholds - based on P95 of weekly data distribution
+            'large_transaction_threshold': 2500000,     # ~P95-P99 of weekly data
+            'very_large_threshold': 4000000,            # Above P99 of weekly data
             'small_transaction_threshold': 1,
             
             # Duplicate detection
             'duplicate_time_window_hours': 24,
             'duplicate_amount_tolerance': 0.01,  # 1%
             
-            # Category rules
-            'unusual_category_ratio_threshold': 0.5,  # 50% of typical
+            # Category rules - disable as CategoryAgent handles this
+            'unusual_category_ratio_threshold': 0.05,  # Very strict (only 5% deviation)
             
-            # Transaction count thresholds
-            'high_transaction_count_threshold': 100,
-            'low_transaction_count_threshold': 5
+            # Transaction count thresholds - raise significantly for weekly data
+            'high_transaction_count_threshold': 500,   # Weekly aggregates have many txns
+            'low_transaction_count_threshold': 2
         }
         
         # Entity-specific overrides
@@ -405,6 +405,13 @@ class RuleAgent(BaseDetectorAgent):
                 else:
                     continue
                 
+                # Calculate dynamic confidence based on how much threshold is exceeded
+                # Base confidence + bonus based on ratio of amount to threshold
+                threshold_used = very_large if severity == Severity.CRITICAL else large
+                excess_ratio = (amount - threshold_used) / threshold_used if threshold_used > 0 else 0
+                # Confidence ranges from 0.75 (just over threshold) to 0.98 (way over)
+                confidence = min(0.98, 0.75 + excess_ratio * 0.15)
+                
                 timestamp = row.get('Week_Start') or row.get('Pstng Date') or row.get('timestamp')
                 if isinstance(timestamp, str):
                     try:
@@ -426,23 +433,24 @@ class RuleAgent(BaseDetectorAgent):
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.RULE_VIOLATION,
                     severity=severity,
-                    confidence=0.95,
+                    confidence=confidence,
                     metric_name=f"large_{amount_col}",
                     metric_value=amount,
-                    threshold=very_large if severity == Severity.CRITICAL else large,
+                    threshold=threshold_used,
                     description=f"Large transaction detected{week_context}: ${amount:,.2f}",
                     explanation=f"The {amount_col} of ${amount:,.2f} exceeds the threshold of "
-                               f"${very_large if severity == Severity.CRITICAL else large:,.2f}. "
+                               f"${threshold_used:,.2f} by {excess_ratio:.1%}. "
                                f"This transaction requires review.",
                     rule_id="rule_large_txn",
                     decision_path=[
                         f"Check amount: ${amount:,.2f}",
-                        f"{'Very large' if severity == Severity.CRITICAL else 'Large'} threshold exceeded"
+                        f"{'Very large' if severity == Severity.CRITICAL else 'Large'} threshold exceeded by {excess_ratio:.1%}"
                     ],
                     contributing_factors={
                         'amount_column': amount_col,
                         'amount': amount,
-                        'threshold': very_large if severity == Severity.CRITICAL else large,
+                        'threshold': threshold_used,
+                        'excess_ratio': excess_ratio,
                         'week_num': week_num,
                         'week_start': str(week_start) if week_start is not None else None
                     }
@@ -468,6 +476,13 @@ class RuleAgent(BaseDetectorAgent):
             if count > high_threshold or count < low_threshold:
                 is_high = count > high_threshold
                 
+                # Calculate dynamic confidence based on deviation
+                if is_high:
+                    deviation_ratio = (count - high_threshold) / high_threshold if high_threshold > 0 else 0
+                else:
+                    deviation_ratio = (low_threshold - count) / low_threshold if low_threshold > 0 else 0
+                confidence = min(0.95, 0.70 + deviation_ratio * 0.15)
+                
                 timestamp = row.get('Week_Start') or row.get('timestamp')
                 if isinstance(timestamp, str):
                     timestamp = datetime.fromisoformat(timestamp)
@@ -479,7 +494,7 @@ class RuleAgent(BaseDetectorAgent):
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.RULE_VIOLATION,
                     severity=Severity.MEDIUM if is_high else Severity.LOW,
-                    confidence=0.8,
+                    confidence=confidence,
                     metric_name="transaction_count",
                     metric_value=count,
                     threshold=high_threshold if is_high else low_threshold,
@@ -491,7 +506,8 @@ class RuleAgent(BaseDetectorAgent):
                     contributing_factors={
                         'transaction_count': count,
                         'high_threshold': high_threshold,
-                        'low_threshold': low_threshold
+                        'low_threshold': low_threshold,
+                        'deviation_ratio': deviation_ratio
                     }
                 )
                 flags.append(flag)
@@ -527,6 +543,11 @@ class RuleAgent(BaseDetectorAgent):
             if unusual_categories:
                 max_cat = max(unusual_categories, key=lambda x: x[1])
                 
+                # Dynamic confidence based on concentration level
+                threshold = self.config['unusual_category_ratio_threshold'] / modifier
+                excess_ratio = (max_cat[1] - threshold) / threshold if threshold > 0 else 0
+                confidence = min(0.92, 0.65 + excess_ratio * 0.20)
+                
                 timestamp = row.get('Week_Start') or row.get('timestamp')
                 if isinstance(timestamp, str):
                     timestamp = datetime.fromisoformat(timestamp)
@@ -538,10 +559,10 @@ class RuleAgent(BaseDetectorAgent):
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.RULE_VIOLATION,
                     severity=Severity.LOW,
-                    confidence=0.7,
+                    confidence=confidence,
                     metric_name=f"category_ratio_{max_cat[0]}",
                     metric_value=max_cat[1],
-                    threshold=self.config['unusual_category_ratio_threshold'] / modifier,
+                    threshold=threshold,
                     description=f"Unusual category concentration: {max_cat[0]} ({max_cat[1]:.1%})",
                     explanation=f"The {max_cat[0]} category represents {max_cat[1]:.1%} of total "
                                f"cash flow (${max_cat[2]:,.2f} of ${total:,.2f}). "

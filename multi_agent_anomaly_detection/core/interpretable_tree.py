@@ -12,6 +12,7 @@ import pandas as pd
 from datetime import datetime
 import json
 import uuid
+import warnings
 
 try:
     from sklearn.tree import DecisionTreeClassifier, export_text
@@ -101,9 +102,15 @@ class InterpretableTreeAgent:
         self.training_samples = len(y)
         self.training_accuracy = self.tree.score(X_clean, y)
         
-        # Cross-validation
+        # Cross-validation (suppress warnings for small imbalanced datasets)
         try:
-            self.cv_scores = list(cross_val_score(self.tree, X_clean, y, cv=min(5, len(y) // 10 or 2)))
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', category=UserWarning, 
+                                       message='.*least populated class.*')
+                # Use minimum 2 folds, max 5, based on minority class size
+                min_class_count = min(sum(y == 0), sum(y == 1)) if len(np.unique(y)) > 1 else len(y)
+                n_splits = max(2, min(5, min_class_count))
+                self.cv_scores = list(cross_val_score(self.tree, X_clean, y, cv=n_splits))
         except Exception:
             self.cv_scores = [self.training_accuracy]
         
