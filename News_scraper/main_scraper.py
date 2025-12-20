@@ -322,7 +322,7 @@ async def main():
         keywords=["US economy"],
         max_articles=3,
         print_report=True,
-        save_json=True
+        save_json=False
     )
 
 
