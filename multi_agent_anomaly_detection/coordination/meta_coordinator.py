@@ -24,7 +24,6 @@ from ..agents.pattern_agent import PatternAgent
 from ..agents.rule_agent import RuleAgent
 from ..agents.temporal_agent import TemporalAgent
 from ..agents.category_agent import CategoryAgent
-from ..agents.external_context_agent import ExternalContextAgent
 from ..evolution.rule_evolution import RuleEvolutionAgent
 from ..evolution.feedback import FeedbackCollector, PerformanceTracker
 
@@ -80,7 +79,6 @@ class MetaCoordinator:
         
         # Initialize agents
         self.agents: Dict[str, BaseDetectorAgent] = {}
-        self.external_context_agent: Optional[ExternalContextAgent] = None
         
         # Evolution and feedback
         self.evolution_agent = RuleEvolutionAgent(knowledge_base=self.kb)
@@ -91,7 +89,6 @@ class MetaCoordinator:
         self.config = {
             'min_agents_for_ensemble': 2,
             'confidence_weight_by_performance': True,
-            'escalate_on_external_stress': True,
             'default_context_modifier': 1.0
         }
         
@@ -129,13 +126,6 @@ class MetaCoordinator:
             knowledge_base=self.kb,
             name="Category Detector"
         )
-        
-        # External context agent
-        self.external_context_agent = ExternalContextAgent(
-            knowledge_base=self.kb,
-            name="External Context"
-        )
-        self.agents['external'] = self.external_context_agent
     
     def add_agent(self, agent: BaseDetectorAgent) -> None:
         """Add a custom agent to the coordinator."""
@@ -149,18 +139,15 @@ class MetaCoordinator:
     def get_context(self, entity: str = None, 
                     timestamp: datetime = None) -> DetectionContext:
         """
-        Get detection context, including external signals.
+        Get detection context.
         
         Args:
             entity: Entity being analyzed
             timestamp: Timestamp of the data
         
         Returns:
-            DetectionContext with all signals
+            DetectionContext with default signals
         """
-        if self.external_context_agent:
-            return self.external_context_agent.get_detection_context(entity, timestamp)
-        
         return DetectionContext(
             entity=entity or 'unknown',
             timestamp=timestamp or datetime.now(),
@@ -419,12 +406,6 @@ class MetaCoordinator:
         else:
             is_anomaly = False
             confidence = 0.9
-        
-        # External context escalation
-        if self.config['escalate_on_external_stress'] and context.market_stress in ['HIGH', 'ELEVATED']:
-            if primary_level in ['MEDIUM', 'LOW'] and detecting_agents:
-                is_anomaly = True
-                confidence = min(confidence + 0.1, 0.95)
         
         # Determine severity
         if primary_level == 'HIGH':

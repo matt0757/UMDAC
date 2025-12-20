@@ -1,0 +1,61 @@
+{
+  "generated_at": "2025-12-20T16:18:18.539841",
+  "entities": {
+    "ID10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 272,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "KR10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 323,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "MY10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 229,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "PH10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 253,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "SS10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 195,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "TH10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 250,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "TW10": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 299,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    },
+    "VN20": {
+      "is_anomaly": true,
+      "confidence": 0.85,
+      "severity": "high",
+      "num_flags": 274,
+      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+    }
+  }
+}

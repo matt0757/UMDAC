@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Anomaly Detection Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --az-mulberry: #830051;
+            --az-lime: #C4D600;
+            --az-navy: #003865;
+            --az-graphite: #3F4444;
+            --az-light-blue: #68D2DF;
+            --az-magenta: #D0006F;
+            --az-purple: #3C1053;
+            --az-gold: #F0AB00;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--az-graphite);
+            line-height: 1.6;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--az-mulberry) 0%, var(--az-purple) 100%);
+            color: white;
+            padding: 2rem 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .header-stat {
+            text-align: center;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+        }
+
+        .header-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header-stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .nav-bar {
+            background: white;
+            padding: 1rem 3rem;
+            border-bottom: 3px solid var(--az-mulberry);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-label {
+            font-weight: 600;
+            color: var(--az-mulberry);
+            margin-right: 1rem;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1.2rem;
+            background: #f1f3f4;
+            border-radius: 25px;
+            text-decoration: none;
+            color: var(--az-graphite);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: var(--az-mulberry);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.anomaly {
+            background: rgba(208, 0, 111, 0.1);
+            border: 2px solid var(--az-magenta);
+        }
+
+        .nav-link.anomaly:hover {
+            background: var(--az-magenta);
+        }
+
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .summary-title {
+            font-size: 1.5rem;
+            color: var(--az-mulberry);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #f8f9fa, #ffffff);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .severity-critical { color: var(--az-magenta); }
+        .severity-high { color: var(--az-mulberry); }
+        .severity-medium { color: var(--az-gold); }
+        .severity-low { color: var(--az-light-blue); }
+
+        /* Charts Section */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .chart-container.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-container h3 {
+            font-size: 1.1rem;
+            color: var(--az-navy);
+            margin-bottom: 1rem;
+        }
+
+        .chart {
+            width: 100%;
+            min-height: 300px;
+        }
+
+        /* Agent Overview */
+        .agent-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .agent-section h2 {
+            font-size: 1.5rem;
+            color: var(--az-mulberry);
+            margin-bottom: 1.5rem;
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .agent-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--az-mulberry);
+            background: linear-gradient(145deg, #f8f9fa, #ffffff);
+            transition: transform 0.3s ease;
+        }
+
+        .agent-card:hover {
+            transform: translateX(5px);
+        }
+
+        .agent-card h4 {
+            color: var(--az-navy);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .agent-card p {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.75rem;
+        }
+
+        .agent-stats {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .agent-stat {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(131, 0, 81, 0.1);
+            border-radius: 15px;
+            color: var(--az-mulberry);
+        }
+
+        /* Entity Section */
+        .entity-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .entity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .entity-header h2 {
+            font-size: 1.75rem;
+            color: var(--az-graphite);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .entity-badge {
+            background: var(--az-mulberry);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-anomaly {
+            background: linear-gradient(135deg, var(--az-magenta), var(--az-mulberry));
+            color: white;
+        }
+
+        .status-normal {
+            background: linear-gradient(135deg, var(--az-lime), #98c93c);
+            color: var(--az-graphite);
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .kpi-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        /* Flags List */
+        .flags-section {
+            margin-top: 1.5rem;
+        }
+
+        .flags-section h3 {
+            font-size: 1.1rem;
+            color: var(--az-navy);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .flag-card {
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--az-mulberry);
+            background: #f8f9fa;
+            transition: transform 0.2s ease;
+        }
+
+        .flag-card:hover {
+            transform: translateX(5px);
+        }
+
+        .flag-card.severity-critical { border-left-color: var(--az-magenta); }
+        .flag-card.severity-high { border-left-color: var(--az-mulberry); }
+        .flag-card.severity-medium { border-left-color: var(--az-gold); }
+        .flag-card.severity-low { border-left-color: var(--az-light-blue); }
+
+        .flag-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .flag-title {
+            font-weight: 600;
+            color: var(--az-graphite);
+        }
+
+        .flag-severity {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .flag-severity.critical {
+            background: var(--az-magenta);
+            color: white;
+        }
+
+        .flag-severity.high {
+            background: var(--az-mulberry);
+            color: white;
+        }
+
+        .flag-severity.medium {
+            background: var(--az-gold);
+            color: var(--az-graphite);
+        }
+
+        .flag-severity.low {
+            background: var(--az-light-blue);
+            color: var(--az-graphite);
+        }
+
+        .flag-description {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .flag-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .flag-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Recommendation Box */
+        .recommendation-box {
+            background: linear-gradient(135deg, rgba(131, 0, 81, 0.05), rgba(60, 16, 83, 0.05));
+            border: 1px solid rgba(131, 0, 81, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .recommendation-box h4 {
+            color: var(--az-mulberry);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .recommendation-box p {
+            color: var(--az-graphite);
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .dashboard-footer a {
+            color: var(--az-mulberry);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+            
+            .dashboard-title {
+                font-size: 1.75rem;
+            }
+            
+            .header-stats {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .nav-bar {
+                padding: 0.75rem 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div>
+                <h1 class="dashboard-title">🔍 Multi-Agent Anomaly Detection</h1>
+                <p class="dashboard-subtitle">AstraZeneca Cash Flow Analysis | Generated: 2025-12-20 16:18:18</p>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value">8</div>
+                    <div class="header-stat-label">Entities Analyzed</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">8</div>
+                    <div class="header-stat-label">With Anomalies</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">2095</div>
+                    <div class="header-stat-label">Total Flags</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <span class="nav-label">🏢 Entities:</span>
+            <a href="#ID10" class="nav-link anomaly">⚠️ ID10</a>
+            <a href="#KR10" class="nav-link anomaly">⚠️ KR10</a>
+            <a href="#MY10" class="nav-link anomaly">⚠️ MY10</a>
+            <a href="#PH10" class="nav-link anomaly">⚠️ PH10</a>
+            <a href="#SS10" class="nav-link anomaly">⚠️ SS10</a>
+            <a href="#TH10" class="nav-link anomaly">⚠️ TH10</a>
+            <a href="#TW10" class="nav-link anomaly">⚠️ TW10</a>
+            <a href="#VN20" class="nav-link anomaly">⚠️ VN20</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Executive Summary -->
+        <section class="executive-summary">
+            <h2 class="summary-title">📊 Executive Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-value" style="color: var(--az-mulberry);">100.0%</div>
+                    <div class="summary-label">Anomaly Rate</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value severity-critical">261</div>
+                    <div class="summary-label">Critical Flags</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value severity-high">564</div>
+                    <div class="summary-label">High Severity</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value severity-medium">573</div>
+                    <div class="summary-label">Medium Severity</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value severity-low">697</div>
+                    <div class="summary-label">Low Severity</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" style="color: var(--az-navy);">5</div>
+                    <div class="summary-label">Active Agents</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-container">
+                <h3>🎯 Severity Distribution</h3>
+                <div id="severityChart" class="chart"></div>
+            </div>
+            <div class="chart-container">
+                <h3>🤖 Flags by Agent</h3>
+                <div id="agentChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Detection Timeline -->
+        <div class="charts-row">
+            <div class="chart-container full-width">
+                <h3>📈 Entity Detection Overview</h3>
+                <div id="timelineChart" class="chart" style="min-height: 400px;"></div>
+            </div>
+        </div>
+
+        <!-- Agent Overview -->
+        
+        <section class="agent-section">
+            <h2>🤖 Detection Agents</h2>
+            <div class="agent-grid">
+                
+            <div class="agent-card" style="border-left-color: #830051;">
+                <h4>📊 Statistical Agent</h4>
+                <p>Detects outliers using Z-scores, IQR, and rolling statistics</p>
+                <div class="agent-stats">
+                    <span class="agent-stat">Confidence: 50%</span>
+                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">2 rule graphs</span>
+                </div>
+            </div>
+            <div class="agent-card" style="border-left-color: #3C1053;">
+                <h4>🔄 Pattern Agent</h4>
+                <p>Identifies violations in seasonal and temporal patterns</p>
+                <div class="agent-stats">
+                    <span class="agent-stat">Confidence: 50%</span>
+                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">1 rule graphs</span>
+                </div>
+            </div>
+            <div class="agent-card" style="border-left-color: #003865;">
+                <h4>📋 Rule Agent</h4>
+                <p>Enforces business rules for transactions and amounts</p>
+                <div class="agent-stats">
+                    <span class="agent-stat">Confidence: 50%</span>
+                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">4 rule graphs</span>
+                </div>
+            </div>
+            <div class="agent-card" style="border-left-color: #68D2DF;">
+                <h4>⏰ Temporal Agent</h4>
+                <p>Analyzes week-over-week and month-over-month changes</p>
+                <div class="agent-stats">
+                    <span class="agent-stat">Confidence: 50%</span>
+                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">3 rule graphs</span>
+                </div>
+            </div>
+            <div class="agent-card" style="border-left-color: #F0AB00;">
+                <h4>🏷️ Category Agent</h4>
+                <p>Monitors category-specific patterns (AP, AR, Payroll, etc.)</p>
+                <div class="agent-stats">
+                    <span class="agent-stat">Confidence: 50%</span>
+                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">1 rule graphs</span>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Entity Sections -->
+        
+        <section class="entity-section" id="ID10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">ID10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 44): $576,340.70</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 576,340.70</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $516,995.85</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 516,995.85</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 22): $819,963.84</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 819,963.84</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 26): $832,381.29</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 832,381.29</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 31): $524,961.53</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 524,961.53</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 35): $558,613.37</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 558,613.37</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 39): $564,755.22</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 564,755.22</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 44): $1,094,112.45</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,094,112.45</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Outflow_Abs</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 22): $704,802.50</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 704,802.50</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Outflow_Abs</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 26): $769,134.25</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 769,134.25</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="KR10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">KR10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 5): $1,543,694.40</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,543,694.40</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 8): $2,305,388.61</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 2,305,388.61</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $1,369,569.29</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,369,569.29</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 13): $1,704,359.35</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,704,359.35</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 17): $608,328.30</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 608,328.30</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 18): $567,519.38</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 567,519.38</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 21): $1,616,040.22</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,616,040.22</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 22): $2,904,710.15</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 2,904,710.15</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 25): $962,764.86</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 962,764.86</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 30): $3,546,581.97</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 3,546,581.97</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="MY10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">MY10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 8): $583,521.39</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 583,521.39</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $679,250.06</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 679,250.06</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 17): $803,688.34</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 803,688.34</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 21): $649,530.19</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 649,530.19</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 22): $685,092.05</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 685,092.05</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 35): $721,348.65</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 721,348.65</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 43): $925,379.06</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 925,379.06</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 44): $809,093.71</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 809,093.71</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 4): $875,678.05</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 875,678.05</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $699,443.21</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 699,443.21</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="PH10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">PH10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 26): $600,632.83</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 600,632.83</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Outflow_Abs</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 30): $588,166.00</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 588,166.00</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Outflow_Abs</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 35): $593,635.52</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 593,635.52</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">Tax_payable_zscore</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Unusual Tax_payable: -6.33σ from mean</div>
+                    <div class="flag-meta">
+                        <span>🤖 CategoryAgent_2fac25</span>
+                        <span>📊 Confidence: 90.0%</span>
+                        <span>📍 Value: -6.33</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">Interest_charges_zscore</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Unusual Interest_charges: -5.92σ from mean</div>
+                    <div class="flag-meta">
+                        <span>🤖 CategoryAgent_2fac25</span>
+                        <span>📊 Confidence: 90.0%</span>
+                        <span>📍 Value: -5.92</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">Other_receipt_zscore</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Unusual Other_receipt: 6.48σ from mean</div>
+                    <div class="flag-meta">
+                        <span>🤖 CategoryAgent_2fac25</span>
+                        <span>📊 Confidence: 90.0%</span>
+                        <span>📍 Value: 6.48</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: -39384.47σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -39,384.47</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: -5.31σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -5.31</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 12.55σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 12.55</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 8.35σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 8.35</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="SS10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">SS10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 21): $525,145.28</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 525,145.28</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">Statutory_contribution_zscore</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Unusual Statutory_contribution: -5.35σ from mean</div>
+                    <div class="flag-meta">
+                        <span>🤖 CategoryAgent_2fac25</span>
+                        <span>📊 Confidence: 90.0%</span>
+                        <span>📍 Value: -5.35</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">Netting_AP_zscore</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Unusual Netting_AP: -6.17σ from mean</div>
+                    <div class="flag-meta">
+                        <span>🤖 CategoryAgent_2fac25</span>
+                        <span>📊 Confidence: 90.0%</span>
+                        <span>📍 Value: -6.17</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: -798.23σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -798.23</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: -54.24σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -54.24</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 5.36σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 5.36</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 5.59σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 5.59</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: -5.42σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -5.42</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 9.09σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 9.09</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 7.90σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_d28fd8</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 7.90</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="TH10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">TH10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $633,960.14</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 633,960.14</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 15): $740,165.84</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 740,165.84</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 17): $1,001,071.56</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,001,071.56</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 21): $1,539,050.22</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,539,050.22</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 22): $591,838.14</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 591,838.14</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 27): $703,705.15</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 703,705.15</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 39): $522,421.76</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 522,421.76</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 4): $598,704.23</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 598,704.23</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $727,597.28</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 727,597.28</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 13): $830,205.75</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 830,205.75</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="TW10">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">TW10</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 8): $1,771,320.75</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,771,320.75</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 9): $2,611,713.87</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 2,611,713.87</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 13): $1,940,380.56</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,940,380.56</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 14): $3,276,856.87</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 3,276,856.87</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 17): $1,843,779.01</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,843,779.01</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 18): $2,514,589.27</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 2,514,589.27</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 21): $1,110,650.30</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,110,650.30</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 22): $1,355,442.99</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,355,442.99</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 26): $1,844,318.00</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,844,318.00</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 27): $693,515.31</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 693,515.31</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+        <section class="entity-section" id="VN20">
+            <div class="entity-header">
+                <h2>
+                    <span class="entity-badge">VN20</span>
+                    Cash Flow Anomaly Analysis
+                </h2>
+                <span class="status-anomaly">⚠️ ANOMALY DETECTED</span>
+            </div>
+            
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">85.0%</div>
+                    <div class="kpi-label">Confidence</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Primary Flags</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤖</div>
+                    <div class="kpi-value">4/5</div>
+                    <div class="kpi-label">Agents Detecting</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">44</div>
+                    <div class="kpi-label">Weeks Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Net Flow</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value">$0.0M</div>
+                    <div class="kpi-label">Total Inflow</div>
+                </div>
+            </div>
+            
+            <div class="flags-section">
+                <h3>🚩 Detected Anomaly Flags</h3>
+                
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 5): $993,605.40</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 993,605.40</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 8): $934,187.24</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 934,187.24</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 17): $565,258.54</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 565,258.54</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 26): $895,661.57</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 895,661.57</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 28): $537,012.98</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 537,012.98</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 30): $737,626.53</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 737,626.53</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 34): $839,198.48</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 839,198.48</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 37): $744,723.72</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 744,723.72</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 43): $845,517.93</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 845,517.93</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Inflow</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 5): $1,100,268.16</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_bfd40d</span>
+                        <span>📊 Confidence: 95.0%</span>
+                        <span>📍 Value: 1,100,268.16</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation-box">
+                <h4>📋 Recommended Action</h4>
+                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <p>Multi-Agent Anomaly Detection System | AstraZeneca Datathon 2025</p>
+        <p>Powered by 6 specialized detection agents with ensemble decision-making</p>
+    </footer>
+
+    <!-- Plotly Charts -->
+    <script>
+        // AstraZeneca Color Palette
+        const AZ_COLORS = {
+            mulberry: '#830051',
+            lime: '#C4D600',
+            navy: '#003865',
+            graphite: '#3F4444',
+            lightBlue: '#68D2DF',
+            magenta: '#D0006F',
+            purple: '#3C1053',
+            gold: '#F0AB00'
+        };
+
+        // Severity Chart
+        
+        Plotly.newPlot('severityChart', [{
+            values: [261, 564, 573, 697],
+            labels: ['Critical', 'High', 'Medium', 'Low'],
+            type: 'pie',
+            hole: 0.5,
+            marker: {
+                colors: ['#D0006F', '#830051', '#F0AB00', '#68D2DF']
+            },
+            textinfo: 'label+value',
+            textposition: 'outside'
+        }], {
+            showlegend: true,
+            legend: { orientation: 'h', y: -0.1 },
+            margin: { t: 20, b: 40, l: 20, r: 20 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, { responsive: true });
+        
+
+        // Agent Chart
+        
+        Plotly.newPlot('agentChart', [{
+            x: ["RuleAgent", "CategoryAgent", "TemporalAgent", "StatisticalAgent"],
+            y: [1153, 377, 489, 76],
+            type: 'bar',
+            marker: {
+                color: ["#830051", "#830051", "#830051", "#830051"],
+                line: { color: '#3F4444', width: 1 }
+            }
+        }], {
+            margin: { t: 20, b: 60, l: 50, r: 20 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            yaxis: { title: 'Number of Flags', gridcolor: '#e9ecef' },
+            xaxis: { tickangle: -30 }
+        }, { responsive: true });
+        
+
+        // Timeline Chart
+        
+        Plotly.newPlot('timelineChart', [
+            {
+                x: ["ID10", "KR10", "MY10", "PH10", "SS10", "TH10", "TW10", "VN20"],
+                y: [85.0, 85.0, 85.0, 85.0, 85.0, 85.0, 85.0, 85.0],
+                type: 'bar',
+                name: 'Confidence %',
+                marker: { color: ["#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F"], opacity: 0.8 },
+                text: ["Anomaly", "Anomaly", "Anomaly", "Anomaly", "Anomaly", "Anomaly", "Anomaly", "Anomaly"],
+                hovertemplate: '<b>%{x}</b><br>Confidence: %{y:.1f}%<br>Status: %{text}<extra></extra>'
+            },
+            {
+                x: ["ID10", "KR10", "MY10", "PH10", "SS10", "TH10", "TW10", "VN20"],
+                y: [272, 323, 229, 253, 195, 250, 299, 274],
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Flag Count',
+                yaxis: 'y2',
+                line: { color: '#003865', width: 3 },
+                marker: { size: 10, color: '#003865' }
+            }
+        ], {
+            margin: { t: 30, b: 80, l: 60, r: 60 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            yaxis: { 
+                title: 'Confidence %', 
+                gridcolor: '#e9ecef',
+                range: [0, 100]
+            },
+            yaxis2: {
+                title: 'Number of Flags',
+                overlaying: 'y',
+                side: 'right',
+                gridcolor: 'rgba(0,0,0,0)'
+            },
+            xaxis: { tickangle: -45 },
+            legend: { orientation: 'h', y: 1.15 },
+            barmode: 'group'
+        }, { responsive: true });
+        
+    </script>
+</body>
+</html>
