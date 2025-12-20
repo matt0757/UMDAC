@@ -2848,7 +2848,7 @@ class InteractiveDashboardBuilder:
                 # Use the existing FinBERT-based scraper
                 results = analyze_news_sync(
                     keywords=[search_term],
-                    max_articles=5,
+                    max_articles=3,
                     print_report=False,
                     save_json=False
                 )
