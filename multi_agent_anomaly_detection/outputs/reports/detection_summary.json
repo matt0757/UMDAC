@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-20T17:07:11.196910",
+  "generated_at": "2025-12-21T00:32:29.329522",
   "entities": {
     "ID10": {
       "is_anomaly": true,
@@ -38,7 +38,7 @@
     },
     "TH10": {
       "is_anomaly": true,
-      "confidence": 0.9462497936804132,
+      "confidence": 0.9462497936804134,
       "severity": "high",
       "num_flags": 245,
       "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"

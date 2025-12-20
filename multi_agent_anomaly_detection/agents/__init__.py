@@ -6,7 +6,6 @@ from .statistical_agent import StatisticalAgent
 from .rule_agent import RuleAgent
 from .temporal_agent import TemporalAgent
 from .category_agent import CategoryAgent
-from .external_context_agent import ExternalContextAgent
 
 __all__ = [
     'BaseDetectorAgent',
@@ -14,7 +13,6 @@ __all__ = [
     'StatisticalAgent',
     'RuleAgent',
     'TemporalAgent',
-    'CategoryAgent',
-    'ExternalContextAgent'
+    'CategoryAgent'
 ]
 

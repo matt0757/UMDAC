@@ -185,7 +185,7 @@ class DataProcessor:
         clean_txn_path = self.data_dir / "clean_transactions.csv"
         if clean_txn_path.exists():
             try:
-                self.transactions_df = pd.read_csv(clean_txn_path)
+                self.transactions_df = pd.read_csv(clean_txn_path, low_memory=False)
                 print(f"  ✓ Loaded transactions: {len(self.transactions_df)} records")
             except Exception as e:
                 self.transactions_df = None

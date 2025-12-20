@@ -29,7 +29,6 @@ from .agents.statistical_agent import StatisticalAgent
 from .agents.rule_agent import RuleAgent
 from .agents.temporal_agent import TemporalAgent
 from .agents.category_agent import CategoryAgent
-from .agents.external_context_agent import ExternalContextAgent
 
 from .evolution.rule_evolution import RuleEvolutionAgent
 from .evolution.feedback import FeedbackCollector, PerformanceTracker
@@ -42,7 +41,7 @@ __all__ = [
     'AnomalyFlag', 'Feedback', 'RuleScore', 'Mutation',
     # Agents
     'BaseDetectorAgent', 'PatternAgent', 'StatisticalAgent',
-    'RuleAgent', 'TemporalAgent', 'CategoryAgent', 'ExternalContextAgent',
+    'RuleAgent', 'TemporalAgent', 'CategoryAgent',
     # Evolution
     'RuleEvolutionAgent', 'FeedbackCollector', 'PerformanceTracker',
     # Coordination
