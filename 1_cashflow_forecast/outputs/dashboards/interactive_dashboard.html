@@ -108,12 +108,9 @@
         }
 
         .summary-title {
-            font-size: 1.5rem;
+            font-size: 2rem;
             color: var(--az-mulberry);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .summary-grid {
@@ -554,7 +551,7 @@
     <header class="dashboard-header">
         <div class="header-content">
             <h1 class="dashboard-title">💰 Cash Flow Forecasting Dashboard</h1>
-            <p class="dashboard-subtitle">Time-Series Analysis & ML-Based Predictions | Generated: 2025-12-20 18:34</p>
+            <p class="dashboard-subtitle">Time-Series Analysis & ML-Based Predictions | Generated: 2025-12-20 21:54</p>
         </div>
     </header>
 
@@ -622,171 +619,98 @@
             <h2 class="summary-title" style="display: flex; align-items: center; gap: 0.5rem;">
                 🌐 Market Insights & Strategic Recommendations
                 <span style="font-size: 0.8rem; font-weight: normal; color: #888; margin-left: auto;">
-                    FinBERT Sentiment Analysis | Updated: 2025-12-20 18:34
+                    Based on Forecast Analysis | Updated: 2025-12-20 21:54
                 </span>
             </h2>
             
-            <!-- Info Banner -->
-            <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d1e8fa 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid #b3d4f0;">
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <span style="font-size: 1.5rem;">💡</span>
-                    <p style="color: #2c5282; margin: 0; font-size: 0.95rem;">
-                        <strong>Priority is based on sentiment score:</strong> More negative scores indicate higher attention needed. 
-                        Click on any country card to view its news analysis.
-                    </p>
+            <!-- Overall Outlook Banner -->
+            <div style="background: linear-gradient(135deg, #ebf5fb 0%, #d4e6f1 100%); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; border: 1px solid #3498db30;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 3rem;">📊</span>
+                    <div>
+                        <h3 style="color: #3498db; font-size: 1.5rem; margin: 0;">
+                            Overall Outlook: MONITOR
+                        </h3>
+                        <p style="color: #555; margin: 0.5rem 0 0 0; font-size: 1rem;">
+                            Risk Assessment: <strong>MODERATE</strong> | 
+                            Based on cash flow forecast analysis
+                        </p>
+                    </div>
+                    <div style="margin-left: auto; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Entities Analyzed</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #3498db;">
+                            8
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
                 
-                <!-- News Analysis (Left Panel) -->
-                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
-                    <h4 style="color: var(--az-mulberry); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        📰 News Analysis: <span id="selected-country-name">Thailand</span>
+                <!-- Article Details Panel (Left Side) -->
+                <div id="article-details-panel" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+                    <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        📰 News Articles for <span id="selected-entity-name" style="color: #3498db;">Select an entity →</span>
+                        <span id="selected-sentiment-badge" style="font-size: 0.85rem; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 500; margin-left: 0.5rem;"></span>
                     </h4>
-                    <div style="margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px;">
-                        <span style="font-size: 0.9rem; color: #666;">Sentiment Score: </span>
-                        <span id="selected-country-score" style="font-weight: 600; font-size: 1.1rem; color: #7f8c8d;">0.00</span>
-                        <span id="selected-country-label" style="margin-left: 0.5rem; padding: 0.2rem 0.6rem; background: #7f8c8d20; color: #7f8c8d; border-radius: 12px; font-size: 0.8rem;">NEUTRAL</span>
-                    </div>
-                    <div id="articles-container" style="max-height: 400px; overflow-y: auto;">
-                        
-                <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #7f8c8d;">
-                    <a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxPcVZlR3c4S1FkU1A4bmtHbkZVZWxrajd0QlJWcTJjOHEtR0M1aGN4QjItM1U2cEM1SUhWUkFJV0hmam5TdnFBNExZc3pTckVDTGNBQnRVZS04LUNUTkpMZ2xmMmhac3lTd0xTc2cyczlBNlFNNDg0ZG9fS05VLVJ1bUNHOVd4cFlvY09vMUFpdDZjLUt3d1hmcXBCTFNmaEtpdFNSVzB5elhfY0dY?oc=5" target="_blank" style="text-decoration: none;">
-                        <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                            Thai central bank cuts rates, open to more cuts after trimming 2026 GDP outlook - Reuters
-                        </div>
-                    </a>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                        <span>google_news_rss</span>
-                        <span style="color: #7f8c8d; font-weight: 500;">Neutral (0.00)</span>
+                    <div id="articles-container" style="max-height: 350px; overflow-y: auto;">
+                        <p style="color: #888; text-align: center; padding: 2rem;">👈 Click on an entity card to view its news articles</p>
                     </div>
                 </div>
                 
-                <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #7f8c8d;">
-                    <a href="https://news.google.com/rss/articles/CBMikANBVV95cUxOUXBiVjNyNWlmeVN4S1FsaDdyNEZnR0dZcVlVX09VUmY5cjZOdzk0NFp1R1hhbkRmU2hUWU5tRzlUOEV2dklEekVJeDAzaS01dzlKeVdmOU1KU0lyaHJuWWdVWFZ3QVFGaHlkVWczZWtIS3VyZGE2SGpmdXpNRUJpVy1xMmVrY2ZzRThZS3hWVmZqWUw1ODg1WVFIbENIOHMyMnZMVUxtVHdhZEtKVlY2Y1l0RlloQU45NWMxNC0tcmxXMVdGNEIydlZMMWZESm5GQlRnYkxJTUM4d0RDclVEamZyZmV0LVdLS252dk9fYmRudDVsSEhMT3dwc3o0dDZTWl9yQVo2YnhmQkdyRFZvdnlXbjVpUUV4bEJUc0NvVzRwMklWc096VjMxM0ZvQ21sMExKVHR4dG5kay1Bd1NZa0l4RFE0YWNhaEZxb3d4eVE1LXVxdEZzbGgyd3FVaWpZaXJWTDNCcXIwVHRtcVlCcWNhWXE2REtfSjljbkU3eWRWNmpTVjJrTVBXc3N0d0Nz?oc=5" target="_blank" style="text-decoration: none;">
-                        <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                            Bank of Thailand Resumes Rate Cuts as Economy Wilts - The Wall Street Journal
-                        </div>
-                    </a>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                        <span>google_news_rss</span>
-                        <span style="color: #7f8c8d; font-weight: 500;">Neutral (0.00)</span>
-                    </div>
-                </div>
-                
-                <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #e74c3c;">
-                    <a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxPTHFXTFN1TWpsUUVUS1VrRFdJTnc4T0JkU3Axd2loNnBIX0tyTkVjbUxDbmQwNnFYTGNka3ZJTzRJTVdaSHhtdVNkN2NPUHJUeWtfc3VLcjFvZk1PWXBRSUx6RnJlVEptaTgtcHBSMmJ0OTNWSFFqQkc2UHBpc3JpYVNUbnF6UGVYQ3h1UHZnMlppT1FwME5fbGdTRUc0aTlFUnFXazAyckpHeGxOTFQwXy1aeUZibWVhQzFxR3NaR3lvTF82?oc=5" target="_blank" style="text-decoration: none;">
-                        <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                            THD: Tourism Headwinds And Stagnant, Aging Population Will Weigh Down Thailand's Economy - Seeking A...
-                        </div>
-                    </a>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                        <span>google_news_rss</span>
-                        <span style="color: #e74c3c; font-weight: 500;">Negative (-0.50)</span>
-                    </div>
-                </div>
-                
-                <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #27ae60;">
-                    <a href="https://news.google.com/rss/articles/CBMiXkFVX3lxTE5ueXVURUVDM1J2NGxiTHdVUGVSamhSYmtfUEdIcEpRSlZwQThGMWs0cnN0UVBFNk1Xc2dqUk8zM2ZqZXVHOWFUM05jZkNWbDh4YlMyOHhST0pJbEN2NHc?oc=5" target="_blank" style="text-decoration: none;">
-                        <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                            Thailand - World Bank Group
-                        </div>
-                    </a>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                        <span>google_news_rss</span>
-                        <span style="color: #27ae60; font-weight: 500;">Positive (0.50)</span>
-                    </div>
-                </div>
-                
-                <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #7f8c8d;">
-                    <a href="https://news.google.com/rss/articles/CBMi2AFBVV95cUxQMWZxVUNiZllGdXV2VmlPTEJHQjl2WGZ4NHZ1b3o2UXZiX3c2UTJVX29BVXZqbDhLSVhCeVBsbTJ3MVF5VExBREJhNjVhUGNDRzBxOUp4YWhhcGlZd1JmdEpONlVxdG1SaS1yMEhhQVBqTmxpNXM2MklLeC1TRDA3QjJJZWNfcWVYTDczU0dXRUFzcVZXTTdnTklqWlYwZXN0bWxxWW9jMzNNZjZoWWgxS0xDb1M4S1FoZWIzU2FGRG5VemxSNlVnaE9KTGdaaHpUMjRnUy1uVVU?oc=5" target="_blank" style="text-decoration: none;">
-                        <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                            Improving productivity and addressing informality can boost Thailand’s economy - OECD
-                        </div>
-                    </a>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                        <span>google_news_rss</span>
-                        <span style="color: #7f8c8d; font-weight: 500;">Neutral (0.00)</span>
-                    </div>
-                </div>
-                
-                    </div>
-                </div>
-                
-                <!-- Entity Priority Matrix (Right Panel) -->
+                <!-- Entity Priority Matrix -->
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
                     <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         🎯 Entity Priority Matrix
-                        <span style="font-size: 0.75rem; font-weight: normal; color: #888; margin-left: auto;">
-                            (Click to view news)
-                        </span>
                     </h4>
-                    <div id="entity-cards-container" style="max-height: 450px; overflow-y: auto;">
+                    <div style="max-height: 350px; overflow-y: auto;">
                         
             <div class="entity-card active" data-entity="TH10" 
                  onclick="selectEntity('TH10')"
-                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
+                 style="background: #fef9f9; border-left: 4px solid #e74c3c; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <strong style="font-size: 1.1rem;">TH10</strong>
-                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #e74c3c20; color: #e74c3c; border-radius: 12px; font-weight: 500;">HIGH Priority</span>
                 </div>
-                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ NEUTRAL - MONITOR</div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">⚠️ ATTENTION REQUIRED</div>
                 <div style="font-size: 0.85rem; color: #666;">
                     <span style="margin-right: 1rem;">📍 Thailand</span>
+                    <span style="margin-right: 1rem; color: #e74c3c; font-weight: 500;">
+                        Score: -0.39
+                    </span>
+                    <span>📰 5 articles</span>
+                </div>
+            </div>
+            
+            <div class="entity-card " data-entity="PH10" 
+                 onclick="selectEntity('PH10')"
+                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 1.1rem;">PH10</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
+                </div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ MONITOR CLOSELY</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                    <span style="margin-right: 1rem;">📍 Philippines</span>
+                    <span style="margin-right: 1rem; color: #e74c3c; font-weight: 500;">
+                        Score: -0.21
+                    </span>
+                    <span>📰 5 articles</span>
+                </div>
+            </div>
+            
+            <div class="entity-card " data-entity="TW10" 
+                 onclick="selectEntity('TW10')"
+                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 1.1rem;">TW10</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
+                </div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ NEUTRAL - MONITOR</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                    <span style="margin-right: 1rem;">📍 Taiwan</span>
                     <span style="margin-right: 1rem; color: #7f8c8d; font-weight: 500;">
                         Score: 0.00
-                    </span>
-                    <span>📰 5 articles</span>
-                </div>
-            </div>
-            
-            <div class="entity-card " data-entity="MY10" 
-                 onclick="selectEntity('MY10')"
-                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 1.1rem;">MY10</strong>
-                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
-                </div>
-                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ NEUTRAL - MONITOR</div>
-                <div style="font-size: 0.85rem; color: #666;">
-                    <span style="margin-right: 1rem;">📍 Malaysia</span>
-                    <span style="margin-right: 1rem; color: #7f8c8d; font-weight: 500;">
-                        Score: 0.10
-                    </span>
-                    <span>📰 5 articles</span>
-                </div>
-            </div>
-            
-            <div class="entity-card " data-entity="ID10" 
-                 onclick="selectEntity('ID10')"
-                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 1.1rem;">ID10</strong>
-                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
-                </div>
-                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ NEUTRAL - MONITOR</div>
-                <div style="font-size: 0.85rem; color: #666;">
-                    <span style="margin-right: 1rem;">📍 Indonesia</span>
-                    <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
-                        Score: 0.20
-                    </span>
-                    <span>📰 5 articles</span>
-                </div>
-            </div>
-            
-            <div class="entity-card " data-entity="SS10" 
-                 onclick="selectEntity('SS10')"
-                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 1.1rem;">SS10</strong>
-                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
-                </div>
-                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ NEUTRAL - MONITOR</div>
-                <div style="font-size: 0.85rem; color: #666;">
-                    <span style="margin-right: 1rem;">📍 Singapore</span>
-                    <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
-                        Score: 0.20
                     </span>
                     <span>📰 5 articles</span>
                 </div>
@@ -803,7 +727,7 @@
                 <div style="font-size: 0.85rem; color: #666;">
                     <span style="margin-right: 1rem;">📍 Vietnam</span>
                     <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
-                        Score: 0.20
+                        Score: 0.13
                     </span>
                     <span>📰 5 articles</span>
                 </div>
@@ -820,41 +744,58 @@
                 <div style="font-size: 0.85rem; color: #666;">
                     <span style="margin-right: 1rem;">📍 South Korea</span>
                     <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
-                        Score: 0.20
+                        Score: 0.19
                     </span>
                     <span>📰 5 articles</span>
                 </div>
             </div>
             
-            <div class="entity-card " data-entity="TW10" 
-                 onclick="selectEntity('TW10')"
-                 style="background: #f5fdf8; border-left: 4px solid #27ae60; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
+            <div class="entity-card " data-entity="ID10" 
+                 onclick="selectEntity('ID10')"
+                 style="background: #fffbf5; border-left: 4px solid #f39c12; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 1.1rem;">TW10</strong>
-                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #27ae6020; color: #27ae60; border-radius: 12px; font-weight: 500;">LOW Priority</span>
+                    <strong style="font-size: 1.1rem;">ID10</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #f39c1220; color: #f39c12; border-radius: 12px; font-weight: 500;">MEDIUM Priority</span>
                 </div>
-                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">✅ POSITIVE OUTLOOK</div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">👁️ NEUTRAL - MONITOR</div>
                 <div style="font-size: 0.85rem; color: #666;">
-                    <span style="margin-right: 1rem;">📍 Taiwan</span>
+                    <span style="margin-right: 1rem;">📍 Indonesia</span>
                     <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
-                        Score: 0.30
+                        Score: 0.29
                     </span>
                     <span>📰 5 articles</span>
                 </div>
             </div>
             
-            <div class="entity-card " data-entity="PH10" 
-                 onclick="selectEntity('PH10')"
+            <div class="entity-card " data-entity="SS10" 
+                 onclick="selectEntity('SS10')"
                  style="background: #f5fdf8; border-left: 4px solid #27ae60; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 1.1rem;">PH10</strong>
+                    <strong style="font-size: 1.1rem;">SS10</strong>
                     <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #27ae6020; color: #27ae60; border-radius: 12px; font-weight: 500;">LOW Priority</span>
                 </div>
                 <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">✅ POSITIVE OUTLOOK</div>
                 <div style="font-size: 0.85rem; color: #666;">
-                    <span style="margin-right: 1rem;">📍 Philippines</span>
+                    <span style="margin-right: 1rem;">📍 Singapore</span>
                     <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
-                        Score: 0.30
+                        Score: 0.47
+                    </span>
+                    <span>📰 5 articles</span>
+                </div>
+            </div>
+            
+            <div class="entity-card " data-entity="MY10" 
+                 onclick="selectEntity('MY10')"
+                 style="background: #f5fdf8; border-left: 4px solid #27ae60; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 1.1rem;">MY10</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: #27ae6020; color: #27ae60; border-radius: 12px; font-weight: 500;">LOW Priority</span>
+                </div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">✅ POSITIVE OUTLOOK</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                    <span style="margin-right: 1rem;">📍 Malaysia</span>
+                    <span style="margin-right: 1rem; color: #27ae60; font-weight: 500;">
+                        Score: 0.69
                     </span>
                     <span>📰 5 articles</span>
                 </div>
@@ -866,108 +807,105 @@
             
             <!-- Disclaimer -->
             <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; font-size: 0.8rem; color: #666;">
-                <strong>⚠️ Disclaimer:</strong> Sentiment analysis is performed using FinBERT on recent news articles. 
-                Priority levels are determined by sentiment scores: HIGH (≤-0.3), MEDIUM (-0.3 to 0.3), LOW (≥0.3).
+                <strong>⚠️ Disclaimer:</strong> These recommendations are based on historical cash flow patterns and ML forecast analysis. 
+                They should be used as supplementary insights alongside professional judgment. Market conditions can change rapidly.
             </div>
-        </section>
-        
-        <!-- JavaScript for interactivity -->
-        <script>
-        const entityData = {"TH10": {"country": "Thailand", "sentiment_score": 0.0, "sentiment_label": "NEUTRAL", "articles": [{"title": "Thai central bank cuts rates, open to more cuts after trimming 2026 GDP outlook - Reuters", "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPcVZlR3c4S1FkU1A4bmtHbkZVZWxrajd0QlJWcTJjOHEtR0M1aGN4QjItM1U2cEM1SUhWUkFJV0hmam5TdnFBNExZc3pTckVDTGNBQnRVZS04LUNUTkpMZ2xmMmhac3lTd0xTc2cyczlBNlFNNDg0ZG9fS05VLVJ1bUNHOVd4cFlvY09vMUFpdDZjLUt3d1hmcXBCTFNmaEtpdFNSVzB5elhfY0dY?oc=5", "publish_date": "Wed, 17 Dec 2025 10:15:12 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Bank of Thailand Resumes Rate Cuts as Economy Wilts - The Wall Street Journal", "url": "https://news.google.com/rss/articles/CBMikANBVV95cUxOUXBiVjNyNWlmeVN4S1FsaDdyNEZnR0dZcVlVX09VUmY5cjZOdzk0NFp1R1hhbkRmU2hUWU5tRzlUOEV2dklEekVJeDAzaS01dzlKeVdmOU1KU0lyaHJuWWdVWFZ3QVFGaHlkVWczZWtIS3VyZGE2SGpmdXpNRUJpVy1xMmVrY2ZzRThZS3hWVmZqWUw1ODg1WVFIbENIOHMyMnZMVUxtVHdhZEtKVlY2Y1l0RlloQU45NWMxNC0tcmxXMVdGNEIydlZMMWZESm5GQlRnYkxJTUM4d0RDclVEamZyZmV0LVdLS252dk9fYmRudDVsSEhMT3dwc3o0dDZTWl9yQVo2YnhmQkdyRFZvdnlXbjVpUUV4bEJUc0NvVzRwMklWc096VjMxM0ZvQ21sMExKVHR4dG5kay1Bd1NZa0l4RFE0YWNhaEZxb3d4eVE1LXVxdEZzbGgyd3FVaWpZaXJWTDNCcXIwVHRtcVlCcWNhWXE2REtfSjljbkU3eWRWNmpTVjJrTVBXc3N0d0Nz?oc=5", "publish_date": "Wed, 17 Dec 2025 08:43:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "THD: Tourism Headwinds And Stagnant, Aging Population Will Weigh Down Thailand's Economy - Seeking Alpha", "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPTHFXTFN1TWpsUUVUS1VrRFdJTnc4T0JkU3Axd2loNnBIX0tyTkVjbUxDbmQwNnFYTGNka3ZJTzRJTVdaSHhtdVNkN2NPUHJUeWtfc3VLcjFvZk1PWXBRSUx6RnJlVEptaTgtcHBSMmJ0OTNWSFFqQkc2UHBpc3JpYVNUbnF6UGVYQ3h1UHZnMlppT1FwME5fbGdTRUc0aTlFUnFXazAyckpHeGxOTFQwXy1aeUZibWVhQzFxR3NaR3lvTF82?oc=5", "publish_date": "Thu, 18 Dec 2025 16:43:38 GMT", "final_score": -0.5, "source": "google_news_rss"}, {"title": "Thailand - World Bank Group", "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE5ueXVURUVDM1J2NGxiTHdVUGVSamhSYmtfUEdIcEpRSlZwQThGMWs0cnN0UVBFNk1Xc2dqUk8zM2ZqZXVHOWFUM05jZkNWbDh4YlMyOHhST0pJbEN2NHc?oc=5", "publish_date": "Wed, 03 Dec 2025 19:38:33 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Improving productivity and addressing informality can boost Thailand\u2019s economy - OECD", "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQMWZxVUNiZllGdXV2VmlPTEJHQjl2WGZ4NHZ1b3o2UXZiX3c2UTJVX29BVXZqbDhLSVhCeVBsbTJ3MVF5VExBREJhNjVhUGNDRzBxOUp4YWhhcGlZd1JmdEpONlVxdG1SaS1yMEhhQVBqTmxpNXM2MklLeC1TRDA3QjJJZWNfcWVYTDczU0dXRUFzcVZXTTdnTklqWlYwZXN0bWxxWW9jMzNNZjZoWWgxS0xDb1M4S1FoZWIzU2FGRG5VemxSNlVnaE9KTGdaaHpUMjRnUy1uVVU?oc=5", "publish_date": "Mon, 08 Dec 2025 03:49:53 GMT", "final_score": 0, "source": "google_news_rss"}]}, "MY10": {"country": "Malaysia", "sentiment_score": 0.1, "sentiment_label": "NEUTRAL", "articles": [{"title": "Malaysian PM Anwar names new trade, economy ministers in cabinet reshuffle - Reuters", "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPZlNsQnIxSFF1YjFfbEM1SVl4ZWE1YkVZMUZkUmdkYkRGZ29PNkFvV2kwa2N6b3o4QlJTQzNuaU44Uk8yeGJlQWhwMjBKRnJwSEROcThzVGltYVJHM2ZDMEs1RXBHNGd2OE43RDZpT2dqcUJuWURuR2l6eGw5VEp3QURZMlhwRHN1N2w0SWJEUWtTR0lMNzZXcmxrQWt4bzhJVU80TEgtdTJPU2lkQldxZjBDeTVaY3BrUml6Rg?oc=5", "publish_date": "Tue, 16 Dec 2025 09:23:48 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Malaysia PM Names New Trade, Economy Chiefs in Cabinet Reset - Bloomberg.com", "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPa2FmZmxPc3FNVEhPTldkT0N1UUJnd3Q3cWs5cXZlSWx2RTNlYkdBN0tabjJOT0xDTmQzTXQ1a29LX08yN3N0T2hPUmRTa3NkV2FnREItbUVYeU5NY3Z2aVZtdDh4bTZmUUJLdVBEeVlCTDlvdGZHbHI1dGxTZ21WS2x6clBZTFNTTkxkSS1VWWNFdU9BZVlMeEhiS2YwTTJ6NEhMaTdxSHFsYTRQQ0ZydHlyTUg?oc=5", "publish_date": "Tue, 16 Dec 2025 09:39:24 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Malaysia - World Bank Group", "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1yNVFkR214bVF4Y0RZd19mdnFIbUI1NjBUVklndDZqMTBzZ3l4MlJzX0V5N040ekMzNFNUU08yZkFvRjI0b3ZkTVZxekRwdDhCU1JzLTR6QVRwSmhPWWc?oc=5", "publish_date": "Thu, 04 Dec 2025 16:43:39 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Can Malaysia\u2019s Neutrality Survive the Great Mineral Divide? - China-US Focus", "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQWlBTa3ZoMG9fQ0FCdGhaNEYyTGR2VWw1NFpFSWZuUGNjd18xZGZmRnpyUlN4Wkh2cFU3SmE1ZW54ZDAzVHNGRjBOd0hrVG9uVkhpcFhiaTVYWXkycEVzNkwzNDVacDBwR0dPd0ZaSWFYYndaeVNDa0RDU2hkRUFkaXRnVk81NDJzaUhsNTNaZWV2U1BpUXh3R3N4blBHUzhWa2V3MQ?oc=5", "publish_date": "Mon, 15 Dec 2025 09:10:24 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "PM Anwar welcomes IMF nod, says focus now on jobs and rebuilding public confidence - Malay Mail", "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOOFQtTmJ1NExJR3p0ZEpVYjNaYmNYdDR3bWZvdmFrWnR3SzduVEN5Vlg5d1NQelY0U3kyUlhZUWtqUHBMMURmb2N4bnhoVVRPN1dUcGhxRTFiOS16S2FXc3YySkV5bVdXdFFUVUhFSWs5QWxuUUhYVXV2YUhyTk9FNkQyMnZib3hEMjdzeVNEbVNIOHNCVUVOdlY0TEJvMjZaTDM5OGVDNklvX1ZnNkdYTElyWHFaZHNOV0F0ZERyTExEN1Z6dTU4OVVMOU43alZ0M0hZeENR0gHbAUFVX3lxTE1mM1dKbGo0THRkbENKaGRpTGNZb0RjUlpsaFQ2V3JjYXE5bUZwNkNtYTFqYWgzYXk5ZmZXTnNucGU5UWptMjF1VVFtM1BOTnlUbXgxc1RJQTcyQjhKV0d4VWF6SmVac0JLa1pZQ1Fuc3hkUm91bWRYcVFWT0FaTkpJNjNYc1ZRYjRBem4zRWtnUjR3QVdUTS1qVUF3b3NWRDVkWUhSOUMzZFNmXzJjMVlkV2lBQmVsQ3RoUkhGMGNkMElTV2F6NXV1V01mX2ZMYm42YTV5Vld2NThzQQ?oc=5", "publish_date": "Sat, 20 Dec 2025 00:46:14 GMT", "final_score": 0, "source": "google_news_rss"}]}, "ID10": {"country": "Indonesia", "sentiment_score": 0.2, "sentiment_label": "POSITIVE", "articles": [{"title": "Indonesia\u2019s Economy Maintains Resilience Amid Global Uncertainty - World Bank Group", "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNbGlTTVVOZWt0dUYybGRKOG15ekRZSHl5WFFBNExXWWFHbk9BdlVRSEdoS2R6b3NMUms4M2ZNYmZiMTBHX3hBZ1Z2blVaYXQ3bDFCc0FZbURMVWdrdTh5UktGTGg1YWdhM0l1VXl0SjlVTklQaFd5aS1aV2s2Y211SzJDUTEtR2F1Xzk5WlVjbi1pQ0xKaW9FOGFrRnlkUzFyLUNIbHduUHhjZldjblV3V0d4OGJaOXdwb3pEWWVveDA?oc=5", "publish_date": "Wed, 17 Dec 2025 05:15:54 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Between Two Reefs: Indonesia\u2019s Strategic Culture in the Twenty-First Century - CSIS | Center for Strategic and International Studies", "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPekdjWjNDU3ZBWHFUbG1PTDZpc0V2Q01Yb1BhWUVQZHRYU0VOWWcxSmRKNzM0NmdLdE84YkJ0bjJFZzJNNFA2OEVxZWV2eEpYbmp1OXdndzBUR2l4ZDUzNVotT2x2LUN6VWZUc3QyV2t0SWh5ZmFvRVBCUnFja0ozakpVRllEXzZ5VkF4YzBsSGdGTF9jWjN2UFQxRXk0Zw?oc=5", "publish_date": "Tue, 02 Dec 2025 08:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "How China views its economic relations with Indonesia - Lowy Institute", "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOaG1mbHJLOW5ud1FSX292TEFfTlNvb0tfMnFxclZtbW4zeUZJdC1fTjU1VUdpVWk4OTA3MU5WYm5wUl9Vd1VLWXFKeG94S005Ukp5NlRLSHJvRy1FWHlwSUtFU2VmZXB6d3J2eUkta0lYSEdPbmwzSXk1VVZmVlVzVHcxbjBHTzhkNHJXSEJFUEl1N3Q4Y2FsY293?oc=5", "publish_date": "Mon, 01 Dec 2025 08:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Indonesia\u2019s industrial policy a double-edged sword - East Asia Forum", "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQb2dja1NYUGFlVVBQUmc1dHpFMXZIek5GQVUzT1JoNGV3ZW5DYnVvQWtUcTZmdjExNDJKbnAwalZtdjMtQkdiX0lzSlFtaG9wUWVNUmpWc2RDMGJGWW45Vms0QzFESi0zMFlJV0tFaWFORmFIbVZIZVd4THNNVUZ1QWU4SGJsd2pVZTZqa0JXeUU?oc=5", "publish_date": "Thu, 18 Dec 2025 23:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Indonesia plans major digital infrastructure investments to boost economy - Biometric Update", "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPbTB3anV3V29CSUVSOFUyMEtkXzhFNXlIbHFOdElYN3pWN0xEenRoaGdmdEFCanZiS3BsTUhPWU0zdVFadDZPTXE4SW1uaDdOUllJb1Z2VzdXZEx5dzJySGRnQXpwSjlJVVBRb09IRk1UdnlKVndsUWpUbVdwSV81aWVobXR5ajlTcy1PNFZVMVQ3aGNxek1fUDV1a1h5OWZzWXBHak1qbVc2Znd5Tk1wZ3V3?oc=5", "publish_date": "Tue, 16 Dec 2025 20:16:00 GMT", "final_score": 0.5, "source": "google_news_rss"}]}, "SS10": {"country": "Singapore", "sentiment_score": 0.2, "sentiment_label": "POSITIVE", "articles": [{"title": "SNAPSHOT: Malaysia Airlines 627 Kuala Lumpur to Singapore - Economy Class & Beyond -", "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxObjlCNFUxY1V1VHJKUVd1dnFSZjh4dzVUWXAySTVGT1VTUjNyWW1fMkJiQWh4Y2pwZ01VMlRhQ25nWmUwMTVqRUtab1VwTi0zenFJSkZaYWdaNWExN0hFUHFGWGNmQlRpZ0I2Q2FUYXR5b1NpQUp3OU5BcXdjZW92Mk54cEVIUHcweFdscHpnUnpwdVQ5MzRPMVZJX0JZN202S183WU0yZEQ3eV9IWi1qV3dJVlBpdw?oc=5", "publish_date": "Wed, 17 Dec 2025 16:00:18 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Singapore - World Bank Group", "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5mOG5KV2tWQlk1LVBHdUNCRUxOQ0tQbTFkUW1wQmU4OGhoSzZDOWFUTGlKN1hnNmJjT3YwczY4aGNObGtad01iQVVPaVJZSVIydFNyeDkxU3dPbXpGUWRN?oc=5", "publish_date": "Thu, 04 Dec 2025 07:31:17 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Singapore raises annual growth forecast as third-quarter GDP tops expectations - CNBC", "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQZ0pHNm1VVmtqMlR2VDJHVVR2aU84cUt4aHAwallFSm91VXJrWEN0RVNRTVlFT3Uyc2p2WnNnRGRncnBodlB0cjFRSEF0Wm5GdmlqSTVaLUtTVkM5aXVYMkUxRk1tWGYzQ0Voak16bGJoeHMzTUVaeEpORVBWQ0tkektOSW9jQXJUX1ZkT3BHdkJyRGp6ZjFjOVIydi01UnFyX2JvQUJCZmJyTGlDSS01SVpQRkh5STJRc2V3WUhWbVNOX2vSAcgBQVVfeXFMT3hHYkdqdXZkcFV6Z0hBRU5fcElRUE5lR053LXpKemVYbXowRXQ0ZDRBbjhoeXdnQkZ3RjlhbkJqbXBrZ2x6eGM0aFhGakNyWWxmMm81NzBncDhBRWhnRENidjBzXzVrRVJIRFpZaTJZdGFwZG5XS21kbGtLQzROb19CSTgtOU1yTGdGeFo4amZrX3NZM2djVWxfcnhTa3A4U3drZFI1RnBEMUlpMndPSDEzV19CemkzWWhyTHZwdEZ3MTkyVWxJVlc?oc=5", "publish_date": "Thu, 20 Nov 2025 08:00:00 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Budget 2026: MOF Calls for Public Input on Strengthening Singapore's Economy, Jobs and Social Support Systems - Entrepreneur", "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQam9aZmJERGYzcjJNRkQyM2Rzb1U5XzdCSF9xWHR0RE1DX2hORGV0TjBTblpNRWFUSWlPTGFwN2pFN0x3Q3Q0cVEyVWk2VEZqQmZ0R1pubHpfQUJ1REpidTMydVBCZG85ZE8yeUxUbEE4dC1tOUZVSnNucVFnVGhoWDFvZW1Od1d5ZDRyR3Rjeks2a21CYnVPZlRQM1ZlTnE3bUplZmZkR2VzSzVTWTNPWXdfZw?oc=5", "publish_date": "Wed, 03 Dec 2025 08:00:00 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Singapore economy grows 4.3% in second quarter, avoids technical recession, advance estimate shows - Reuters", "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOZ29RbHJ5dTVvc1hUNW1wY2VVMWdzbkNQdGhBTzduOEF1LU1pYmFrTnYtMTJoWHpwMUtHelB3cWNrQ0xsdGkydEUyYWk0SzZHU3dGSUVPQzl4WGhPX1U1bThFTnR3YktuSjZsNExHVnE1dGw1bXVxYmJGUExyM0JpQ3hvS0JGczFTOXR2UF83Y090R2hUUHlTaElMQUlVaU5qMmd1RVU2RVowdHM?oc=5", "publish_date": "Sun, 13 Jul 2025 07:00:00 GMT", "final_score": -0.5, "source": "google_news_rss"}]}, "VN20": {"country": "Vietnam", "sentiment_score": 0.2, "sentiment_label": "POSITIVE", "articles": [{"title": "Vietnam consolidates position as one of Asia\u2019s economic bright spots - OANANews", "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTFA1LS1tMDFkYWNYT1l1ZzhNMmszazl4bm9EWjJ4Z29aOXRJTTh2YlplSTNZMkZYdU1yQ2NiYnkyWHJjWWcyd045d2N5RDk?oc=5", "publish_date": "Thu, 18 Dec 2025 03:49:09 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Vietnam economy grows 8.22% in third quarter, despite US tariffs - Reuters", "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQWjZxcVRUWXBxS3Bxa1VHejZrZnFldmREMEQ2OXhFaE50MXRMY1RFZjFhaW5teDlPY2EteTJzVkcwSUlKaUVNMVZfVWFsczI0MjRfeVhLY1BKNDFDd0FydjJCOUVMWVlyTmJERnJHVW5KWlB6SXRJSHlPNWEteVVPU0EySnhYYzZXTVlReE0xUlNHNTFsOS1TdmpJQURTUQ?oc=5", "publish_date": "Sun, 05 Oct 2025 07:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Vietnam sees robust export growth in 2025 despite US tariffs - Fibre2Fashion", "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNemVFc0lZYlFoWW82cmJNREJfLXdlNThEeldPeUxzUDhKSWl5OVBzaGg3YkZVRUtTTTJZS29MM1lXSnEtcXZVYW1NZEtDSWdqck5KUUJMdzR1Q3Z2cnVqLWFIOWczYVNhZWk5ZmZ4bFFaa2ZDTGd4SnBQZHA5cWxTdC1XTHNLanJSeXRBd2ZQbXctc2VTMUdkbHlrRVcwekNMeEQyWGdja2duc0VaMHZUbGVWUEwwNXZncTNOZzlaWXlrQlo0V1NTd2ZnUQ?oc=5", "publish_date": "Sat, 20 Dec 2025 03:11:15 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers - The Conversation", "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPTm55cDltaTk3Q1dZR29zRXIzTkVkRmVIVUMyaEZvcThHQk5nWDFnTGZGdFJ1UDBGV1BNSEozUTd1WEhDUm9vVnZHUFh2bkVXYnBZUE50ZWptN0J5S0hBZzdZVm52REczRExramtjLWxBV1VUSG5lVXA0bkp0Vi1pUWE2RjZrMFFCTDl5TnBkWHhZeGhyRkNuRXR3TFFYQl9sUU04LVRWVEdINHdXLVQ2MjNKR2h0VFItT1FtNF9FVnRJNU90LXBPM0UzelIzZk5wWFE?oc=5", "publish_date": "Thu, 18 Dec 2025 11:01:08 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Vietnam\u2019s 8% growth making a mockery of Trump\u2019s tariffs - Asia Times", "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxON0daTlAyZFRsZno4Y19xbnF0ZjZuVnQ3SXYxLXNXQk96anJ4WnZGYnhXbXhMTGRSME5GdVJDMkwyMWJxdU5naXNENGNBWEN6djJ2NE5fR1hmb1JwaU9iMlFBdzhSajVNaWZnUFFtR0o0ZlVraXB1OHRKbmhqU3VWemM5bUlTRUVMQWI0?oc=5", "publish_date": "Wed, 03 Dec 2025 08:00:00 GMT", "final_score": 0.5, "source": "google_news_rss"}]}, "KR10": {"country": "South Korea", "sentiment_score": 0.2, "sentiment_label": "POSITIVE", "articles": [{"title": "South Korean economy grows at fastest pace in almost 4 years in Q3 - KED Global", "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1nZ09zLUZBN0k5TjVjWkhYQWhDendPeTN4LWc2NzNfcDc3TEY3OW9pVnYwb3JoUEdKOWdZRDI0V3E2Yk9NVEkzUWc2T2RMdUdtRmpTOHdRam0xYUJzcmJwZlBIVGE1U0I2bFE?oc=5", "publish_date": "Wed, 03 Dec 2025 08:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers - The Conversation", "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPTm55cDltaTk3Q1dZR29zRXIzTkVkRmVIVUMyaEZvcThHQk5nWDFnTGZGdFJ1UDBGV1BNSEozUTd1WEhDUm9vVnZHUFh2bkVXYnBZUE50ZWptN0J5S0hBZzdZVm52REczRExramtjLWxBV1VUSG5lVXA0bkp0Vi1pUWE2RjZrMFFCTDl5TnBkWHhZeGhyRkNuRXR3TFFYQl9sUU04LVRWVEdINHdXLVQ2MjNKR2h0VFItT1FtNF9FVnRJNU90LXBPM0UzelIzZk5wWFE?oc=5", "publish_date": "Thu, 18 Dec 2025 11:01:08 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "\u2018Largest investment in state history\u2019: Lee announces $6.6B deal with South Korea metals company - Tennessee Lookout", "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNOTNzWDVZV0lSTy1CTjNLd3FqRDlwN1k0cXM0SkxRcGFnZXRwNXM5TVdEV3FzV01jSFU2ZjdPSWx6WG9UQ29LbDFYaDV5VjdJdGdEckNKSEJuTWNOSkFzLXJCUmsweU9MelNhRm42Y3lQQjRhcWhURXBob3VYSnY2RmZjMFlYTGxWUlRJR0FGZGJRN2pGVmR4U1RqekRuTzJVWWNfY09pRERSN19yNEp6QUxOYW1GcEpyZlBwYVZzbGFfX25IcjFZWWQ3Sno?oc=5", "publish_date": "Thu, 18 Dec 2025 11:07:58 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Korea Policy Series: Building Up Japan-South Korea Rapprochement - Korea Economic Institute of America", "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQSXMwMzZFQURBYXVjRm9DSmY2N19tYkRIU3VEdC1HUUhkNVpxQVhtV0lXQXJZRDB1YmZnVHpVRGVUM05iencxV1ZrRndLM2kzTGEzbFF0QTA2X2pXZ1RKTWUwNTFCTlUxLUFYYzB4V3U2ZFV6UlMtV3VOMXhBV2g0eWRGTWsxM1lWc1k4eUw0dDhqb1ZGdEU3X2xXZw?oc=5", "publish_date": "Wed, 17 Dec 2025 14:53:12 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Republic of Korea - World Bank Group", "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBORWRuaDFGWWN4MVRRX2pSS3hieXhCUlhJeXY3R2UwLUJGYWtoamJyaHE4dFNpaEIwQ0x4bDNNWW54YUJtZGNRc3RHLTlGUzUtV0RhU3RrcUx6Zw?oc=5", "publish_date": "Wed, 03 Dec 2025 23:30:49 GMT", "final_score": 0.5, "source": "google_news_rss"}]}, "TW10": {"country": "Taiwan", "sentiment_score": 0.3, "sentiment_label": "POSITIVE", "articles": [{"title": "The global AI race is supercharging Taiwan\u2019s economy. But many don\u2019t feel better off - CNN", "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFA4MUJzamtWR1A4RTdzNjJPRlZ3Sm8yOUpES2ROcFBxTlk0cUpUYnkzS1pCR3JUX0dFeE92MDhxY19uTm5HUUZ1RFZlQ2F5RlZ1dFZYZS1ZTWh6WHpCLVdZSnR0ZFM5YWxveW5Fb2NWcU1vNkE?oc=5", "publish_date": "Fri, 28 Nov 2025 08:00:00 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Taiwan Central Bank Holds Rates Again as Economy Powers On - The Wall Street Journal", "url": "https://news.google.com/rss/articles/CBMiogNBVV95cUxPSWg5cDBJREFSZ3hDVzFDQWJYSzBVcXlDUHRJaEhmbjlTR1lFbmxMNzl3OXhzMTdoRmRhTGpPOFhnN0tWTWhJcGFpSTJpNlJOQ1U0ZVlQaVNEUmpjZ3I2NXE2TU1FekxmYVBJVy1KVDZNbk1JaEM2dzVkR05NUUl0MGEwSks5eTU2a3NUOEJTUHMwN2VvWTlDNTNMN2ludkpGdHp1ZDYtMmhMMVlfQnJnSDUyVERfMERCZWlZMjJCREdyci1lMlNWejJGS2NrWjJlSGVjSXlRU0ZVb2h6NVpLNHJaUVFHWkNKWmduellPZUNLa3QtT0lUX3FxSDJzaUpQTTh0bW5oMTdwZTBkVlFscFNzNjdtdDZDYlg4b2todllkZ3dCYWtwZzRBaEhOQ3RDM2tTVmJDUkF4RWR5WXQyY1dhd2dOakMyLVZvVC1CTnN1STdFRVdqcGV1RkFwQnh0TmcxcHpQTTA5QWt3NkVLdHJmWlkxVWNyMUx4WXV0N0lOLW82cXNDUjNvb0VjeEpoMFBzNHV0WGVrZlJGX2k1am5n?oc=5", "publish_date": "Thu, 18 Dec 2025 09:18:00 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Taiwan\u2019s economy roars ahead on back of AI demand - Financial Times", "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9BZUgyeURxSVRoMm1ZSlFvNDNfY3lTeE1Od0ExMEtmYmpTQ0hLSW5EMjI1Q0J0STBBWGJVdkZocjFxQlRxU1NFOF9mb3ZjZU5tMXMwcS1zUnoyaU9jZ2tQXzE3U3ZsMjVSdVJNeHozb2M?oc=5", "publish_date": "Fri, 28 Nov 2025 08:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Taiwan Expected to Hold Key Rate as Economy Roars on AI Frenzy - Bloomberg.com", "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOV1BJZUtIMGFFZnN0ZENjVFI4d0lKQ3BKYWJUZnFXbmNTelE3OXJuRUgzbGluRDlqT0sxNFh3S2RZS1pWSk9tWFVLQnhlOWhjU21tVzIxWHBwN0NpRV9aSHhIRE83RnJ0VWlSa1FoRUxNNXYwTnlHa3drRl9ubFR6aEVFb3h0VHRLYXl3UlZ1YlZTZDdVc0lLTE1RU3Z3QWw4YXQ4UkpncklMcWhHbmZLY0NQTQ?oc=5", "publish_date": "Thu, 18 Dec 2025 10:14:09 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "After a Strong 2025, Taiwan\u2019s Economy Faces Pressure in 2026\uff5cInsight\uff5c2025-12-17\uff5cweb only - \u5929\u4e0b\u96dc\u8a8c", "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1HbFVjZ1d3ellDeDBzQVI0U2hFMU15NUxmVnlxY3VhVk94TGtHZm4zMW9YVTRaalhJWDY2THYxZmxnN0E2OFpWN2xKNGNBUXRyV3AwdWJiTk8yeXIxc0d2cHNPTUwwMFE?oc=5", "publish_date": "Wed, 17 Dec 2025 00:36:44 GMT", "final_score": 0.5, "source": "google_news_rss"}]}, "PH10": {"country": "Philippines", "sentiment_score": 0.3, "sentiment_label": "POSITIVE", "articles": [{"title": "Opportunities for U.S. Agricultural Products in the Philippines - USDA Foreign Agricultural Service (.gov)", "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPRFdUeEZZMUZjQ0tGdnJMcXVlZnliZFlXV2g2VFR2MlRKSWxSQ09GWDFtN3dycFE2YTBtWkk3LTRkNnpRVnlzaWg4ZzBKU0dqX2Q5N0dLaHZJT0pEUkN4aldNMVk0MGdMc3AyMUxmaUhXN0JxUXZBWHlLV0RVa2dkajJsUUZURUE?oc=5", "publish_date": "Tue, 16 Dec 2025 15:00:00 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Philippines - World Bank Group", "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE1BYzIySUxNTWlPZXBRYXNSZFJyQ1NLdzU0UjItX3BnNDF0QUhDTW1NQVZnRTZNY2YtTUNJRUFlYWRnMkdleEQ5OHR4NTlvRUI5MTNacUllMnh4ZnRGNkN1dHNn?oc=5", "publish_date": "Thu, 04 Dec 2025 04:30:42 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Philippine growth slows sharply in Q3 as 'shocking' corruption scandal dents confidence - Reuters", "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNTVJDVVptVXNDVnV3SFZYUEdSME1EemUyREEwQWxZcUQ0alE2UnJwb1hySnZyWUw4ajFieWdRdzluY05helROSk1pakdfRzU0UFRDcHFMazJuYW1Cc0Z1cU5VTWtxNjAtQWNCZjExRVZPc1FndEQ4VUhRWGpLRnhFbXlKdHZxbENvQ3ExQXZHRnRLMmJHY0xfSXJSdjZjUVRiVXlBaGFFR1M2c1JUM29MaTlwNGpmTUQ4U3U0?oc=5", "publish_date": "Thu, 06 Nov 2025 08:00:00 GMT", "final_score": 0.5, "source": "google_news_rss"}, {"title": "Inside the $2 Billion Scandal That Paralyzed the Philippines - Bloomberg.com", "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQYlBSSVRJTTROZjFyVTVndkRCUmNReHpDZFlXU3pPSFRVa0hqLWZQMUhHRXpVVVFmNzVJNkFVbTl4d2pmT0JLX2NFN3dISkRzcDBwemtRaUF0c1QybE94S2JWbk5sajlGOU8yTXZYNjUzU1R1di1LTVE3SXlST0N6bEMwVmNHVTdYblU4M0VSbmJHR0xrRVpkMW44b3J6QVh3NnpuZU5IRjZNTllRLXRDZHh0TWJTbnZkRlF4elgzRUxUbG1aTXZfajJ3?oc=5", "publish_date": "Tue, 16 Dec 2025 23:00:05 GMT", "final_score": 0, "source": "google_news_rss"}, {"title": "Go: Philippines set to reach upper middle-income status - Inquirer.net", "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPeXZYQjRLTFl2YUFNT2puSjM1RUlaWUlOb05qLXVuWjJqbXQxeEUzQk5ZM2xMQlpsU2JVQmR0dUZfT3g5TUQtVWllLTNjOE9Zdlp2RzlaNXFUZEE1U3hlRy1BRDJLUjFPR1k2NnBsOTFwaFZXa0FyTkItWWxnQ245ckpvUFI0TEQxNnfSAY8BQVVfeXFMUGFZTmJvOU5hQXl0VlVrYWhHVi1XdExfMWRRVXN5cGhEMi1nemFsTXM2T1c0Vk5mQXFWaEFnXzJhWGdUSDVBQ0lFS3R5QllaRVJITkc4UXRrZXRnTWx4UmNCVndzT1B4VE5CcE1PVVlBdXZ1UC1kckswQlE3bmdFWXBHX3RUQXkzYUNLTUJDajg?oc=5", "publish_date": "Fri, 19 Dec 2025 18:05:00 GMT", "final_score": 0.5, "source": "google_news_rss"}]}};
-        
-        function selectEntity(entityId) {
-            // Update active card styling
-            document.querySelectorAll('.entity-card').forEach(card => {
-                card.classList.remove('active');
-                card.style.boxShadow = 'none';
-            });
-            const activeCard = document.querySelector(`.entity-card[data-entity="${entityId}"]`);
-            if (activeCard) {
-                activeCard.classList.add('active');
-                activeCard.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            }
             
-            // Get entity data
-            const data = entityData[entityId];
-            if (!data) return;
-            
-            // Update header
-            document.getElementById('selected-country-name').textContent = data.country;
-            
-            // Update score display
-            const scoreEl = document.getElementById('selected-country-score');
-            const labelEl = document.getElementById('selected-country-label');
-            
-            let color = '#7f8c8d';
-            let label = 'NEUTRAL';
-            if (data.sentiment_score > 0.1) {
-                color = '#27ae60';
-                label = 'POSITIVE';
-            } else if (data.sentiment_score < -0.1) {
-                color = '#e74c3c';
-                label = 'NEGATIVE';
-            }
-            
-            scoreEl.textContent = data.sentiment_score.toFixed(2);
-            scoreEl.style.color = color;
-            labelEl.textContent = label;
-            labelEl.style.background = color + '20';
-            labelEl.style.color = color;
-            
-            // Update articles
-            const container = document.getElementById('articles-container');
-            if (data.articles && data.articles.length > 0) {
-                let html = '';
-                data.articles.slice(0, 5).forEach(article => {
-                    const score = article.final_score || 0;
-                    let badgeColor = '#7f8c8d';
-                    let badgeText = 'Neutral';
-                    if (score > 0.1) {
-                        badgeColor = '#27ae60';
-                        badgeText = 'Positive';
-                    } else if (score < -0.1) {
-                        badgeColor = '#e74c3c';
-                        badgeText = 'Negative';
+            <script>
+                const entityData = {"TH10": {"country": "Thailand", "sentiment_score": -0.388, "sentiment_label": "NEGATIVE", "articles": [{"title": "Thailand and Laos discuss economic cooperation plan to boost trade to $11 billion by 2027", "url": "https://www.nationthailand.com/business/economy/40059973", "publish_date": "2025-12-18 10:19:00+07:00", "final_score": 0.76, "source": "google_news_rss"}, {"title": "Thai Economy Faces Severe Slump in 2026 as China Overcapacity and Floods Bite", "url": "https://www.nationthailand.com/business/economy/40059181", "publish_date": "2025-12-03 14:28:00+07:00", "final_score": -0.941, "source": "google_news_rss"}, {"title": "Thai central bank cuts rates, open to more cuts after trimming 2026 GDP outlook - Reuters", "url": "https://www.reuters.com/world/asia-pacific/thai-central-bank-cuts-policy-rate-by-25-bps-expected-2025-12-17/", "publish_date": null, "final_score": -0.792, "source": "google_news_rss"}, {"title": "THD: Tourism Headwinds And Stagnant, Aging Population Will Weigh Down Thailand's Economy - Seeking Alpha", "url": "https://seekingalpha.com/article/4854410-thd-tourism-headwinds-and-stagnant-aging-population-will-weigh-down-thailands-economy", "publish_date": null, "final_score": -0.966, "source": "google_news_rss"}, {"title": "Bank of Thailand Resumes Rate Cuts as Economy Wilts - The Wall Street Journal", "url": "https://www.wsj.com/articles/bank-of-thailand-lowers-rates-to-boost-growth-7e8ef987?gaa_at=eafs&gaa_n=AWEtsqc912QOdxkd8E9zNDFsz3kx6Xr0BmsrGQ6kjxhc1f2t9bgtib3O-fPX&gaa_ts=6946acd9&gaa_sig=1UMu8c1KPknsGdGYuBJUTulQz7SrtULhrhaqrn-OtcCpbUTN90FBsyMOLu6M-ABgxqjA8qN1EqB318YKo4g00g%3D%3D", "publish_date": null, "final_score": 0, "source": "google_news_rss"}]}, "PH10": {"country": "Philippines", "sentiment_score": -0.206, "sentiment_label": "NEGATIVE", "articles": [{"title": "World Bank Group", "url": "https://www.worldbank.org/ext/en/country/philippines", "publish_date": null, "final_score": 0, "source": "google_news_rss"}, {"title": "Five Key Takeaways from AMRO\u2019s 2025 Annual Consultation Report on the Philippines", "url": "https://amro-asia.org/five-key-takeaways-from-amros-2025-annual-consultation-report-on-the-philippines", "publish_date": "2025-11-24 02:00:49+00:00", "final_score": -0.879, "source": "google_news_rss"}, {"title": "Opportunity opens up in one of Southeast Asia\u2019s most dynamic economies \u2014 the Philippines", "url": "https://www.macquarie.com/us/en/insights/opportunity-opens-up-in-one-of-southeast-asias-most-dynamic-economies-the-philippines.html", "publish_date": "2025-07-10 00:00:00", "final_score": 0.812, "source": "google_news_rss"}, {"title": "Philippine growth slows sharply in Q3 as 'shocking' corruption scandal dents confidence - Reuters", "url": "https://www.reuters.com/world/asia-pacific/philippines-q3-gdp-grows-40-yy-slowest-rate-more-than-four-years-2025-11-07/", "publish_date": null, "final_score": -0.961, "source": "google_news_rss"}, {"title": "Inside the $2 Billion Scandal That Paralyzed the Philippines - Bloomberg.com", "url": "https://www.bloomberg.com/news/features/2025-12-16/philippines-corruption-scandal-risks-lives-drains-billions-and-deters-investors", "publish_date": null, "final_score": 0, "source": "google_news_rss"}]}, "TW10": {"country": "Taiwan", "sentiment_score": 0.0, "sentiment_label": "NEUTRAL", "articles": [{"title": "The global AI race is supercharging Taiwan\u2019s economy. But many don\u2019t feel better off", "url": "https://edition.cnn.com/2025/11/28/economy/taiwan-ai-economy-intl-hnk", "publish_date": "2025-11-28 00:00:00", "final_score": -0.881, "source": "google_news_rss"}, {"title": "Taiwan\u2019s economy roars ahead on back of AI demand", "url": "https://www.ft.com/content/f6b8fac5-1a70-4815-854b-a2670cb9ac00", "publish_date": "2025-11-28 11:17:48.487000+00:00", "final_score": 0, "source": "google_news_rss"}, {"title": "Taiwan economic success down to \u2018inclusive institutions\u2019: Nobel winner", "url": "https://www.taipeitimes.com/News/biz/archives/2025/12/17/2003849003", "publish_date": "2025-12-17 00:00:00", "final_score": 0, "source": "google_news_rss"}, {"title": "Yahoo is part of the Yahoo family of brands.", "url": "https://consent.yahoo.com/v2/collectConsent?sessionId=4_cc-session_cc243e32-5f1f-4116-82ec-d06fc7aa47d6", "publish_date": null, "final_score": 0, "source": "google_news_rss"}, {"title": "Taiwan\u2019s economy is doing well, but many of its workers are not", "url": "https://www.straitstimes.com/asia/east-asia/taiwans-economy-is-rich-but-its-workers-are-not", "publish_date": "2025-12-18 09:10:00+08:00", "final_score": 0.881, "source": "google_news_rss"}]}, "VN20": {"country": "Vietnam", "sentiment_score": 0.127, "sentiment_label": "POSITIVE", "articles": [{"title": "Vietnam consolidates position as one of Asia\u2019s economic bright spots", "url": "https://www.oananews.org/node/710474", "publish_date": null, "final_score": 0.953, "source": "google_news_rss"}, {"title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers", "url": "https://theconversation.com/south-korea-taiwan-and-vietnam-show-that-economic-statecraft-is-not-just-the-preserve-of-great-powers-272139", "publish_date": "2025-12-18 11:01:08+00:00", "final_score": 0, "source": "google_news_rss"}, {"title": "Vietnam sees robust export growth in 2025 despite US tariffs", "url": "https://www.fibre2fashion.com/news/textile-news/vietnam-sees-robust-export-growth-in-2025-despite-us-tariffs-307272-newsdetails.htm", "publish_date": null, "final_score": -0.825, "source": "google_news_rss"}, {"title": "Securing capital and efficiency for Vietnam\u2019s 2026-2030 growth ambitions", "url": "https://vir.com.vn/securing-capital-and-efficiency-for-vietnams-2026-2030-growth-ambitions-143160.html", "publish_date": "2025-12-17 10:00:02+07:00", "final_score": 0.505, "source": "google_news_rss"}, {"title": "Vietnam confronts the limits of its double-digit growth ambitions - East Asia Forum", "url": "https://eastasiaforum.org/2025/12/20/vietnam-confronts-the-limits-of-its-double-digit-growth-ambitions/", "publish_date": null, "final_score": 0, "source": "google_news_rss"}]}, "KR10": {"country": "South Korea", "sentiment_score": 0.193, "sentiment_label": "POSITIVE", "articles": [{"title": "South Korean economy grows at fastest pace in almost 4 years in Q3", "url": "https://www.kedglobal.com/economy/newsView/ked202512030003", "publish_date": "2025-12-03 22:11:32+09:00", "final_score": -0.524, "source": "google_news_rss"}, {"title": "South Korea, Taiwan and Vietnam show that economic statecraft is not just the preserve of great powers", "url": "https://theconversation.com/south-korea-taiwan-and-vietnam-show-that-economic-statecraft-is-not-just-the-preserve-of-great-powers-272139", "publish_date": "2025-12-18 11:01:08+00:00", "final_score": 0, "source": "google_news_rss"}, {"title": "Republic of Korea", "url": "https://www.worldbank.org/ext/en/country/korea", "publish_date": null, "final_score": 0, "source": "google_news_rss"}, {"title": "South Korea's third-quarter GDP clocks fastest growth in over a year as exports, manufacturing rise", "url": "https://www.cnbc.com/2025/10/28/south-koreas-gdp-q3-beats-expectations-.html", "publish_date": "2025-10-28 00:00:00", "final_score": 0.743, "source": "google_news_rss"}, {"title": "South Korea trade deal: Bentleys and Scottish salmon to benefit", "url": "https://www.bbc.com/news/articles/cewjzkw875vo", "publish_date": "2025-12-15 22:31:15.472000+00:00", "final_score": 0.744, "source": "google_news_rss"}]}, "ID10": {"country": "Indonesia", "sentiment_score": 0.29, "sentiment_label": "POSITIVE", "articles": [{"title": "Indonesia\u2019s Economy Maintains Resilience Amid Global Uncertainty", "url": "https://www.worldbank.org/en/news/press-release/2025/12/16/indonesia-s-economy-maintains-resilience-amid-global-uncertainty", "publish_date": "2025-12-16 00:00:00", "final_score": 0.908, "source": "google_news_rss"}, {"title": "Between Two Reefs: Indonesia\u2019s Strategic Culture in the Twenty-First Century", "url": "https://www.csis.org/analysis/between-two-reefs-indonesias-strategic-culture-twenty-first-century", "publish_date": null, "final_score": 0, "source": "google_news_rss"}, {"title": "How China views its economic relations with Indonesia", "url": "https://www.lowyinstitute.org/the-interpreter/how-china-views-its-economic-relations-indonesia", "publish_date": null, "final_score": 0.857, "source": "google_news_rss"}, {"title": "Indonesia plans major digital infrastructure investments to boost economy", "url": "https://www.biometricupdate.com/202512/indonesia-plans-major-digital-infrastructure-investments-to-boost-economy", "publish_date": "2025-12-16 15:16:28-05:00", "final_score": 0.654, "source": "google_news_rss"}, {"title": "Indonesia\u2019s thrifty window shoppers cast doubt on economic success story", "url": "https://www.aljazeera.com/economy/2025/9/25/indonesias-thrifty-window-shoppers-cast-doubt-on-economic-success-story", "publish_date": "2025-09-25 00:00:00", "final_score": -0.967, "source": "google_news_rss"}]}, "SS10": {"country": "Singapore", "sentiment_score": 0.471, "sentiment_label": "POSITIVE", "articles": [{"title": "World Bank Group", "url": "https://www.worldbank.org/ext/en/country/singapore", "publish_date": null, "final_score": 0, "source": "google_news_rss"}, {"title": "Singapore raises annual growth forecast as third-quarter GDP tops expectations", "url": "https://www.cnbc.com/2025/11/21/singapore-q3-gdp-forecast-mti-enterprise-exports-pharmaceuticals-drugs-tariffs-trade-mas.html", "publish_date": "2025-11-21 00:00:00", "final_score": 0.924, "source": "google_news_rss"}, {"title": "Budget 2026: MOF Calls for Public Input on Strengthening Singapore's Economy, Jobs and Social Support Systems", "url": "https://www.entrepreneur.com/en-au/news-and-trends/budget-2026-mof-calls-for-public-input-on-strengthening/500363", "publish_date": "2025-12-03 07:38:44+00:00", "final_score": 0.581, "source": "google_news_rss"}, {"title": "Why connectivity, not just AI, will power Singapore\u2019s next leap in competitiveness", "url": "https://sg.finance.yahoo.com/news/why-connectivity-not-just-ai-183851827.html", "publish_date": "2025-12-14 18:38:51+00:00", "final_score": 0, "source": "google_news_rss"}, {"title": "Economists raise their Singapore growth forecasts for 2025 and 2026: MAS survey", "url": "https://www.straitstimes.com/business/economists-raise-their-singapore-growth-forecasts-for-2025-and-2026-mas-survey", "publish_date": "2025-12-17 12:00:00+08:00", "final_score": 0.852, "source": "google_news_rss"}]}, "MY10": {"country": "Malaysia", "sentiment_score": 0.687, "sentiment_label": "POSITIVE", "articles": [{"title": "Can Malaysia\u2019s Neutrality Survive the Great Mineral Divide?", "url": "https://www.chinausfocus.com/finance-economy/can-malaysias-neutrality-survive-the-great-mineral-divide", "publish_date": "2025-12-15 17:10:24+08:00", "final_score": 0, "source": "google_news_rss"}, {"title": "PM Anwar welcomes IMF nod, says focus now on jobs and rebuilding public confidence", "url": "https://www.malaymail.com/news/malaysia/2025/12/20/pm-anwar-welcomes-imf-nod-says-focus-now-on-jobs-and-rebuilding-public-confidence/202575", "publish_date": "2025-12-20 00:00:00", "final_score": 0.952, "source": "google_news_rss"}, {"title": "Malaysian Stocks Rise As Local Economy Shows Strength", "url": "https://finimize.com/content/malaysian-stocks-rise-as-local-economy-shows-strength", "publish_date": "2025-12-15 10:04:54.787990+00:00", "final_score": 0.953, "source": "google_news_rss"}, {"title": "Laos cleared to export fresh durians to China as Malaysia, Thailand face new rival", "url": "https://www.scmp.com/economy/china-economy/article/3336771/laos-cleared-export-fresh-durians-china-malaysia-thailand-face-new-rival", "publish_date": "2025-12-17 17:15:10+08:00", "final_score": 0.576, "source": "google_news_rss"}, {"title": "Malaysia predicted to be ASEAN\u2019s second-fastest-growing economy, after Vietnam", "url": "https://theinvestor.vn/malaysia-predicted-to-be-aseans-second-fastest-growing-economy-after-vietnam-d17696.html", "publish_date": "2025-11-24 21:19:00+07:00", "final_score": 0.956, "source": "google_news_rss"}]}};
+                
+                function selectEntity(entityId) {
+                    // Update active card styling
+                    document.querySelectorAll('.entity-card').forEach(card => {
+                        card.classList.remove('active');
+                        card.style.boxShadow = 'none';
+                    });
+                    const activeCard = document.querySelector(`.entity-card[data-entity="${entityId}"]`);
+                    if (activeCard) {
+                        activeCard.classList.add('active');
+                        activeCard.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
                     }
                     
-                    const title = article.title || 'No title';
-                    const displayTitle = title.length > 100 ? title.substring(0, 100) + '...' : title;
-                    const url = article.url || '#';
-                    const source = article.source || 'Unknown';
+                    // Get entity data
+                    const data = entityData[entityId];
+                    if (!data) return;
                     
-                    html += `
-                    <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid ${badgeColor};">
-                        <a href="${url}" target="_blank" style="text-decoration: none;">
-                            <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                                ${displayTitle}
+                    // Update header
+                    document.getElementById('selected-entity-name').textContent = `${entityId} (${data.country})`;
+                    
+                    // Update sentiment badge
+                    const badge = document.getElementById('selected-sentiment-badge');
+                    const score = data.sentiment_score;
+                    if (score > 0.1) {
+                        badge.textContent = `POSITIVE (${score.toFixed(2)})`;
+                        badge.style.background = '#27ae6020';
+                        badge.style.color = '#27ae60';
+                    } else if (score < -0.1) {
+                        badge.textContent = `NEGATIVE (${score.toFixed(2)})`;
+                        badge.style.background = '#e74c3c20';
+                        badge.style.color = '#e74c3c';
+                    } else {
+                        badge.textContent = `NEUTRAL (${score.toFixed(2)})`;
+                        badge.style.background = '#7f8c8d20';
+                        badge.style.color = '#7f8c8d';
+                    }
+                    
+                    // Generate articles HTML
+                    const container = document.getElementById('articles-container');
+                    if (!data.articles || data.articles.length === 0) {
+                        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No articles available for this entity.</p>';
+                        return;
+                    }
+                    
+                    let articlesHtml = '';
+                    data.articles.forEach((article, idx) => {
+                        const articleScore = article.final_score || 0;
+                        let badgeColor, badgeText;
+                        if (articleScore > 0.1) {
+                            badgeColor = '#27ae60';
+                            badgeText = 'Positive';
+                        } else if (articleScore < -0.1) {
+                            badgeColor = '#e74c3c';
+                            badgeText = 'Negative';
+                        } else {
+                            badgeColor = '#7f8c8d';
+                            badgeText = 'Neutral';
+                        }
+                        
+                        const title = article.title || 'No title';
+                        const url = article.url || '#';
+                        const source = article.source || 'Unknown';
+                        const publishDate = article.publish_date || '';
+                        
+                        articlesHtml += `
+                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid ${badgeColor};">
+                                <a href="${url}" target="_blank" style="text-decoration: none;">
+                                    <div style="font-weight: 500; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; line-height: 1.4;">
+                                        ${idx + 1}. ${title}
+                                    </div>
+                                </a>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #666; flex-wrap: wrap; gap: 0.5rem;">
+                                    <div>
+                                        <span style="margin-right: 1rem;">📰 ${source}</span>
+                                        ${publishDate ? `<span>📅 ${publishDate}</span>` : ''}
+                                    </div>
+                                    <span style="color: ${badgeColor}; font-weight: 600; background: ${badgeColor}15; padding: 0.2rem 0.6rem; border-radius: 12px;">
+                                        ${badgeText} (${articleScore.toFixed(3)})
+                                    </span>
+                                </div>
+                                <div style="margin-top: 0.5rem;">
+                                    <a href="${url}" target="_blank" style="font-size: 0.8rem; color: #3498db; text-decoration: none;">
+                                        🔗 Read full article →
+                                    </a>
+                                </div>
                             </div>
-                        </a>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
-                            <span>${source}</span>
-                            <span style="color: ${badgeColor}; font-weight: 500;">${badgeText} (${score.toFixed(2)})</span>
-                        </div>
-                    </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No articles available for this country.</p>';
-            }
-        }
-        
-        // Style for active card
-        document.head.insertAdjacentHTML('beforeend', `
-            <style>
-                .entity-card:hover {
-                    transform: translateX(4px);
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        `;
+                    });
+                    
+                    container.innerHTML = articlesHtml;
                 }
-                .entity-card.active {
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                }
-            </style>
-        `);
-        </script>
+            </script>
+        </section>
         
         
         
@@ -1229,9 +1167,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$649.8K</td>
-                            <td>$664.6K</td>
-                            <td>103.7</td>
+                            <td>$650.7K</td>
+                            <td>$665.2K</td>
+                            <td>103.9</td>
                             <td>66.7</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -1259,8 +1197,8 @@
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>Ensemble </td>
-                            <td>$250.9K</td>
-                            <td>$274.0K</td>
+                            <td>$251.0K</td>
+                            <td>$274.1K</td>
                             <td>32.7</td>
                             <td>100.0</td>
                         </tr>
@@ -1449,7 +1387,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -1615,7 +1553,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -1884,8 +1822,8 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$175.3K</td>
-                            <td>$185.4K</td>
+                            <td>$175.2K</td>
+                            <td>$185.2K</td>
                             <td>174.7</td>
                             <td>66.7</td>
                         </tr><tr class="">
@@ -1915,7 +1853,7 @@
                         </tr><tr class="">
                             <td>Ensemble </td>
                             <td>$153.1K</td>
-                            <td>$164.4K</td>
+                            <td>$164.3K</td>
                             <td>148.2</td>
                             <td>66.7</td>
                         </tr>
@@ -2104,7 +2042,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -2270,7 +2208,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -2539,9 +2477,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$142.8K</td>
-                            <td>$237.9K</td>
-                            <td>311.3</td>
+                            <td>$143.3K</td>
+                            <td>$238.1K</td>
+                            <td>312.6</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -2569,7 +2507,7 @@
                             <td>66.7</td>
                         </tr><tr class="">
                             <td>Ensemble </td>
-                            <td>$9.8K</td>
+                            <td>$9.9K</td>
                             <td>$13.9K</td>
                             <td>56.2</td>
                             <td>100.0</td>
@@ -2759,7 +2697,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -2925,7 +2863,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -3194,9 +3132,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$120.0K</td>
-                            <td>$184.6K</td>
-                            <td>129.6</td>
+                            <td>$119.9K</td>
+                            <td>$184.7K</td>
+                            <td>128.0</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -3226,7 +3164,7 @@
                             <td>Ensemble </td>
                             <td>$98.8K</td>
                             <td>$140.2K</td>
-                            <td>167.0</td>
+                            <td>166.7</td>
                             <td>100.0</td>
                         </tr>
                     </tbody>
@@ -3414,7 +3352,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -3580,7 +3518,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -3639,7 +3577,7 @@
                         </div>
                         <div class="metric">
                             <span class="metric-label">MAPE</span>
-                            <span class="metric-value">199.9%</span>
+                            <span class="metric-value">200.5%</span>
                         </div>
                         <div class="metric">
                             <span class="metric-label">Direction Accuracy</span>
@@ -3849,9 +3787,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$4.1K</td>
-                            <td>$6.1K</td>
-                            <td>487.8</td>
+                            <td>$4.2K</td>
+                            <td>$6.2K</td>
+                            <td>495.3</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -3881,7 +3819,7 @@
                             <td>Ensemble ⭐</td>
                             <td>$2.1K</td>
                             <td>$2.6K</td>
-                            <td>199.9</td>
+                            <td>200.5</td>
                             <td>100.0</td>
                         </tr>
                     </tbody>
@@ -3913,7 +3851,7 @@
             },
             {
                 x: ["2025-10-08", "2025-10-15", "2025-10-22", "2025-10-29"],
-                y: [-8455.3115234375, 4893.193359375, -61150.0390625, -5185.52734375],
+                y: [-8456.8837890625, 4851.84619140625, -61124.18359375, -5193.85498046875],
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: '🔮 Model Prediction',
@@ -4069,7 +4007,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -4235,7 +4173,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -4505,8 +4443,8 @@
                         <tr class="">
                             <td>XGBoost </td>
                             <td>$144.2K</td>
-                            <td>$230.9K</td>
-                            <td>23.4</td>
+                            <td>$230.8K</td>
+                            <td>23.3</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -4724,7 +4662,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -4890,7 +4828,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -5159,9 +5097,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$254.9K</td>
-                            <td>$276.1K</td>
-                            <td>4871.9</td>
+                            <td>$255.4K</td>
+                            <td>$276.5K</td>
+                            <td>4877.8</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -5189,9 +5127,9 @@
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>Ensemble </td>
-                            <td>$147.5K</td>
+                            <td>$147.6K</td>
                             <td>$151.2K</td>
-                            <td>2130.6</td>
+                            <td>2130.9</td>
                             <td>100.0</td>
                         </tr>
                     </tbody>
@@ -5379,7 +5317,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -5545,7 +5483,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
@@ -5814,9 +5752,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$374.8K</td>
-                            <td>$395.5K</td>
-                            <td>380.5</td>
+                            <td>$375.1K</td>
+                            <td>$395.9K</td>
+                            <td>380.3</td>
                             <td>66.7</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -5846,7 +5784,7 @@
                             <td>Ensemble </td>
                             <td>$251.4K</td>
                             <td>$346.6K</td>
-                            <td>198.1</td>
+                            <td>198.0</td>
                             <td>66.7</td>
                         </tr>
                     </tbody>
@@ -6034,7 +5972,7 @@
                 font: {size: 10}
             },
             hovermode: 'x unified',
-            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 1, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
+            shapes: [{type: 'line', x0: lastHistDate, x1: lastHistDate, y0: 0, y1: 0, yref: 'paper', line: {color: '#888', width: 2, dash: 'dash'}}],
             plot_bgcolor: 'white',
             paper_bgcolor: 'white'
         }, {responsive: true});
@@ -6200,7 +6138,7 @@
                 y: 1.12,
                 xanchor: 'center',
                 orientation: 'h',
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'rgba(255,255,255,0.95)',
                 bordercolor: '#ddd',
                 borderwidth: 1,
                 font: {size: 11}
