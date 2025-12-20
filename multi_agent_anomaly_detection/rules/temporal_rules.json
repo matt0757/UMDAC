@@ -1,0 +1,67 @@
+{
+  "graph_id": "temp_wow",
+  "name": "Week-over-Week Change Detection",
+  "description": "Detects significant changes from the previous week",
+  "nodes": {
+    "wow_change": {
+      "node_id": "wow_change",
+      "node_type": "threshold",
+      "name": "WoW Change",
+      "description": "Check week-over-week percentage change",
+      "condition": "abs(wow_pct) > 0.5",
+      "threshold": {"base": 0.5, "min_value": 0.2, "max_value": 2.0, "adaptation_rate": 0.1},
+      "operator": "abs>",
+      "field_name": "wow_pct_change",
+      "children": [
+        {"edge_id": "wow_large", "source_id": "wow_change", "target_id": "large_wow", "edge_type": "CHAIN", "weight": 1.0},
+        {"edge_id": "wow_normal", "source_id": "wow_change", "target_id": "normal", "edge_type": "ELSE", "weight": 1.0}
+      ]
+    },
+    "large_wow": {
+      "node_id": "large_wow",
+      "node_type": "threshold",
+      "name": "Large WoW Change",
+      "description": "Check for very large change (>100%)",
+      "condition": "abs(wow_pct) > 1.0",
+      "threshold": {"base": 1.0},
+      "operator": "abs>",
+      "field_name": "wow_pct_change",
+      "children": [
+        {"edge_id": "large_flag", "source_id": "large_wow", "target_id": "flag_high", "edge_type": "ESCALATE", "weight": 1.0},
+        {"edge_id": "large_medium", "source_id": "large_wow", "target_id": "flag_medium", "edge_type": "ELSE", "weight": 1.0}
+      ]
+    },
+    "flag_high": {
+      "node_id": "flag_high",
+      "node_type": "action",
+      "name": "Flag High WoW",
+      "description": "Very large week-over-week change",
+      "action": "flag_anomaly",
+      "severity": "high",
+      "children": []
+    },
+    "flag_medium": {
+      "node_id": "flag_medium",
+      "node_type": "action",
+      "name": "Flag Medium WoW",
+      "description": "Notable week-over-week change",
+      "action": "flag_anomaly",
+      "severity": "medium",
+      "children": []
+    },
+    "normal": {
+      "node_id": "normal",
+      "node_type": "action",
+      "name": "Normal",
+      "description": "Normal week-over-week variation",
+      "action": "normal",
+      "severity": "low",
+      "children": []
+    }
+  },
+  "root_node_id": "wow_change",
+  "version": 1,
+  "author": "system",
+  "tags": ["temporal", "wow", "week-over-week"]
+}
+

@@ -1,0 +1,110 @@
+{
+  "graph_id": "stat_zscore",
+  "name": "Z-Score Anomaly Detection",
+  "description": "Detects statistical outliers based on Z-score deviation from mean",
+  "nodes": {
+    "zscore_check": {
+      "node_id": "zscore_check",
+      "node_type": "threshold",
+      "name": "Z-Score Threshold",
+      "description": "Check if absolute Z-score exceeds threshold",
+      "condition": "abs(zscore) > threshold",
+      "condition_code": "abs(data.get('zscore', 0)) > threshold",
+      "threshold": {
+        "base": 3.0,
+        "adjusted": null,
+        "min_value": 1.5,
+        "max_value": 5.0,
+        "adaptation_rate": 0.1
+      },
+      "operator": "abs>",
+      "field_name": "zscore",
+      "action": null,
+      "severity": null,
+      "metadata": {
+        "hits_last_30d": 0,
+        "false_positive_rate": 0.0,
+        "true_positive_rate": 0.0,
+        "version": 1
+      },
+      "children": [
+        {"edge_id": "zscore_check_critical_check", "source_id": "zscore_check", "target_id": "critical_check", "edge_type": "CHAIN", "weight": 1.0},
+        {"edge_id": "zscore_check_normal", "source_id": "zscore_check", "target_id": "normal", "edge_type": "ELSE", "weight": 1.0}
+      ],
+      "entity_overrides": {}
+    },
+    "critical_check": {
+      "node_id": "critical_check",
+      "node_type": "threshold",
+      "name": "Critical Threshold",
+      "description": "Check for critical anomaly (Z > 5)",
+      "condition": "abs(zscore) > 5.0",
+      "threshold": {"base": 5.0},
+      "operator": "abs>",
+      "field_name": "zscore",
+      "children": [
+        {"edge_id": "critical_check_flag_critical", "source_id": "critical_check", "target_id": "flag_critical", "edge_type": "ESCALATE", "weight": 1.0},
+        {"edge_id": "critical_check_high_check", "source_id": "critical_check", "target_id": "high_check", "edge_type": "ELSE", "weight": 1.0}
+      ]
+    },
+    "high_check": {
+      "node_id": "high_check",
+      "node_type": "threshold",
+      "name": "High Threshold",
+      "description": "Check for high anomaly (Z > 4)",
+      "condition": "abs(zscore) > 4.0",
+      "threshold": {"base": 4.0},
+      "operator": "abs>",
+      "field_name": "zscore",
+      "children": [
+        {"edge_id": "high_check_flag_high", "source_id": "high_check", "target_id": "flag_high", "edge_type": "ESCALATE", "weight": 1.0},
+        {"edge_id": "high_check_flag_medium", "source_id": "high_check", "target_id": "flag_medium", "edge_type": "ELSE", "weight": 1.0}
+      ]
+    },
+    "flag_critical": {
+      "node_id": "flag_critical",
+      "node_type": "action",
+      "name": "Flag Critical",
+      "description": "Critical statistical anomaly",
+      "condition": "Critical",
+      "action": "flag_anomaly",
+      "severity": "critical",
+      "children": []
+    },
+    "flag_high": {
+      "node_id": "flag_high",
+      "node_type": "action",
+      "name": "Flag High",
+      "description": "High statistical anomaly",
+      "condition": "High",
+      "action": "flag_anomaly",
+      "severity": "high",
+      "children": []
+    },
+    "flag_medium": {
+      "node_id": "flag_medium",
+      "node_type": "action",
+      "name": "Flag Medium",
+      "description": "Medium statistical anomaly",
+      "condition": "Medium",
+      "action": "flag_anomaly",
+      "severity": "medium",
+      "children": []
+    },
+    "normal": {
+      "node_id": "normal",
+      "node_type": "action",
+      "name": "Normal",
+      "description": "Normal value",
+      "condition": "Normal",
+      "action": "normal",
+      "severity": "low",
+      "children": []
+    }
+  },
+  "root_node_id": "zscore_check",
+  "version": 1,
+  "author": "system",
+  "tags": ["statistical", "zscore", "outlier"]
+}
+

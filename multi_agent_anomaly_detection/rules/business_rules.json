@@ -1,0 +1,67 @@
+{
+  "graph_id": "rule_large_txn",
+  "name": "Large Transaction Detection",
+  "description": "Flags unusually large transactions requiring review",
+  "nodes": {
+    "very_large_check": {
+      "node_id": "very_large_check",
+      "node_type": "threshold",
+      "name": "Very Large Transaction",
+      "description": "Check for very large amount (>$500k)",
+      "condition": "abs(amount) > 500000",
+      "threshold": {"base": 500000, "min_value": 100000, "max_value": 2000000},
+      "operator": ">",
+      "field_name": "abs_amount",
+      "children": [
+        {"edge_id": "very_large_flag", "source_id": "very_large_check", "target_id": "flag_critical", "edge_type": "ESCALATE", "weight": 1.0},
+        {"edge_id": "very_large_else", "source_id": "very_large_check", "target_id": "large_check", "edge_type": "ELSE", "weight": 1.0}
+      ]
+    },
+    "large_check": {
+      "node_id": "large_check",
+      "node_type": "threshold",
+      "name": "Large Transaction",
+      "description": "Check for large amount (>$100k)",
+      "condition": "abs(amount) > 100000",
+      "threshold": {"base": 100000, "min_value": 50000, "max_value": 500000},
+      "operator": ">",
+      "field_name": "abs_amount",
+      "children": [
+        {"edge_id": "large_flag", "source_id": "large_check", "target_id": "flag_high", "edge_type": "ESCALATE", "weight": 1.0},
+        {"edge_id": "large_else", "source_id": "large_check", "target_id": "normal", "edge_type": "ELSE", "weight": 1.0}
+      ]
+    },
+    "flag_critical": {
+      "node_id": "flag_critical",
+      "node_type": "action",
+      "name": "Flag Critical",
+      "description": "Very large transaction requiring immediate review",
+      "action": "flag_anomaly",
+      "severity": "critical",
+      "children": []
+    },
+    "flag_high": {
+      "node_id": "flag_high",
+      "node_type": "action",
+      "name": "Flag High",
+      "description": "Large transaction requiring review",
+      "action": "flag_anomaly",
+      "severity": "high",
+      "children": []
+    },
+    "normal": {
+      "node_id": "normal",
+      "node_type": "action",
+      "name": "Normal",
+      "description": "Normal transaction amount",
+      "action": "normal",
+      "severity": "low",
+      "children": []
+    }
+  },
+  "root_node_id": "very_large_check",
+  "version": 1,
+  "author": "system",
+  "tags": ["business", "amount", "transaction"]
+}
+
