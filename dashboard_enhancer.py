@@ -28,7 +28,7 @@ import re
 sys.path.insert(0, str(Path(__file__).parent / "News_scraper"))
 
 try:
-    from main_scraper import analyze_news_async, get_full_summary
+    from News_scraper.main_scraper import analyze_news_async, get_full_summary
     NEWS_SCRAPER_AVAILABLE = True
 except Exception as e:
     NEWS_SCRAPER_AVAILABLE = False

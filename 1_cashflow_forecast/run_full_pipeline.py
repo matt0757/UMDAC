@@ -336,8 +336,10 @@ TECHNICAL NOTES & BEST PRACTICES
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import os
+import sys
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -2725,6 +2727,425 @@ class InteractiveDashboardBuilder:
         </script>
         '''
 
+    def _generate_market_insights_section(
+        self,
+        entity_frames: Dict[str, pd.DataFrame],
+        forecast_results: Dict[str, ForecastArtifacts],
+    ) -> str:
+        """
+        Generate Market Insights & Recommendations section by integrating
+        news sentiment analysis with cashflow forecast data.
+        
+        Falls back to default insights if news scraper is unavailable.
+        """
+        print("  📊 Generating Market Insights section...")
+        
+        # First, check if we have a cached sentiment report to use
+        sentiment_report_path = self.paths.project_root / "News_scraper" / "sentiment_report.json"
+        
+        if sentiment_report_path.exists():
+            try:
+                import json
+                with open(sentiment_report_path, 'r') as f:
+                    sentiment_data = json.load(f)
+                print(f"  ✅ Loaded cached sentiment from {sentiment_report_path.name}")
+                return self._generate_market_insights_with_sentiment(
+                    entity_frames, forecast_results, sentiment_data
+                )
+            except Exception as e:
+                print(f"  ⚠️ Could not load cached sentiment: {e}")
+        
+        # Fall back to default insights based on forecast data only
+        print("  ℹ️ Generating Market Insights from forecast data analysis...")
+        return self._generate_default_market_insights(entity_frames, forecast_results)
+    
+    def _generate_market_insights_with_sentiment(
+        self,
+        entity_frames: Dict[str, pd.DataFrame],
+        forecast_results: Dict[str, ForecastArtifacts],
+        sentiment_data: Dict,
+    ) -> str:
+        """Generate market insights HTML using cached sentiment data."""
+        
+        # Extract sentiment info
+        summary = sentiment_data.get('summary', {})
+        articles = sentiment_data.get('articles', [])
+        avg_score = summary.get('average_score', 0)
+        total_articles = summary.get('total_articles', 0)
+        
+        # Determine overall sentiment
+        if avg_score > 0.2:
+            sentiment_label = "POSITIVE"
+            sentiment_color = "#27ae60"
+            sentiment_emoji = "📈"
+        elif avg_score < -0.2:
+            sentiment_label = "NEGATIVE"
+            sentiment_color = "#e74c3c"
+            sentiment_emoji = "📉"
+        else:
+            sentiment_label = "NEUTRAL"
+            sentiment_color = "#3498db"
+            sentiment_emoji = "➡️"
+        
+        # Build articles HTML (top 3)
+        articles_html = ""
+        for article in articles[:3]:
+            # Check for multiple possible score field names
+            score = article.get('final_score') or article.get('sentiment_score') or article.get('score', 0)
+            if score > 0.1:
+                badge_color = "#27ae60"
+                badge_text = "Positive"
+            elif score < -0.1:
+                badge_color = "#e74c3c"
+                badge_text = "Negative"
+            else:
+                badge_color = "#7f8c8d"
+                badge_text = "Neutral"
+            
+            # Get the headline - check both 'title' and 'headline' keys
+            headline = article.get('title') or article.get('headline') or 'No headline available'
+            url = article.get('url', '#')
+            source = article.get('source', 'Unknown')
+            
+            # Truncate headline if too long
+            display_headline = headline if len(headline) <= 100 else headline[:97] + '...'
+            
+            articles_html += f'''
+            <div style="padding: 0.8rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid {badge_color};">
+                <a href="{url}" target="_blank" style="text-decoration: none;">
+                    <div style="font-weight: 500; color: #333; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                        {display_headline}
+                    </div>
+                </a>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                    <span>{source}</span>
+                    <span style="color: {badge_color}; font-weight: 500;">{badge_text}</span>
+                </div>
+            </div>
+            '''
+        
+        # Generate entity analysis using the default method's logic
+        entity_analysis = self._analyze_entity_trends(entity_frames)
+        entity_cards_html = self._generate_entity_cards_html(entity_analysis)
+        
+        return f'''
+        <!-- Market Insights & Recommendations Section -->
+        <section class="executive-summary" id="market-insights" style="margin-bottom: 2rem;">
+            <h2 class="summary-title" style="display: flex; align-items: center; gap: 0.5rem;">
+                🌐 Market Insights & Strategic Recommendations
+                <span style="font-size: 0.8rem; font-weight: normal; color: #888; margin-left: auto;">
+                    News Sentiment Analysis | Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+                </span>
+            </h2>
+            
+            <!-- Overall Outlook Banner -->
+            <div style="background: linear-gradient(135deg, #ebf5fb 0%, #d4e6f1 100%); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; border: 1px solid {sentiment_color}30;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 3rem;">{sentiment_emoji}</span>
+                    <div>
+                        <h3 style="color: {sentiment_color}; font-size: 1.5rem; margin: 0;">
+                            Market Sentiment: {sentiment_label}
+                        </h3>
+                        <p style="color: #555; margin: 0.5rem 0 0 0; font-size: 1rem;">
+                            Score: <strong>{avg_score:.2f}</strong> | 
+                            Based on {total_articles} news articles analyzed
+                        </p>
+                    </div>
+                    <div style="margin-left: auto; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Confidence</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: {sentiment_color};">
+                            {min(total_articles * 10, 100)}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+                
+                <!-- News Analysis -->
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+                    <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        📰 Latest News Analysis
+                    </h4>
+                    {articles_html if articles_html else '<p style="color: #666;">No recent articles available.</p>'}
+                </div>
+                
+                <!-- Entity Priority Matrix -->
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+                    <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        🎯 Entity Priority Matrix
+                    </h4>
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        {entity_cards_html}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; font-size: 0.8rem; color: #666;">
+                <strong>⚠️ Disclaimer:</strong> These insights combine news sentiment analysis with cash flow forecast data. 
+                They should be used as supplementary insights alongside professional judgment.
+            </div>
+        </section>
+        '''
+    
+    def _analyze_entity_trends(self, entity_frames: Dict[str, pd.DataFrame]) -> List[Dict]:
+        """Analyze trends from entity data for the priority matrix."""
+        entity_regions = {
+            "TW10": {"country": "Taiwan", "region": "East Asia"},
+            "PH10": {"country": "Philippines", "region": "Southeast Asia"},
+            "TH10": {"country": "Thailand", "region": "Southeast Asia"},
+            "ID10": {"country": "Indonesia", "region": "Southeast Asia"},
+            "SS10": {"country": "Singapore", "region": "Southeast Asia"},
+            "MY10": {"country": "Malaysia", "region": "Southeast Asia"},
+            "VN20": {"country": "Vietnam", "region": "Southeast Asia"},
+            "KR10": {"country": "South Korea", "region": "East Asia"},
+        }
+        
+        entity_analysis = []
+        for entity, df in entity_frames.items():
+            net_col = 'Net' if 'Net' in df.columns else 'Total_Net' if 'Total_Net' in df.columns else None
+            if net_col is None or len(df) < 4:
+                continue
+            
+            recent = df.tail(8)[net_col].values
+            if len(recent) >= 4:
+                first_half = recent[:len(recent)//2].mean()
+                second_half = recent[len(recent)//2:].mean()
+                
+                if second_half > first_half * 1.1:
+                    trend = "UPWARD"
+                elif second_half < first_half * 0.9:
+                    trend = "DOWNWARD"
+                else:
+                    trend = "STABLE"
+            else:
+                trend = "STABLE"
+            
+            volatility = abs(recent.std() / recent.mean()) * 100 if recent.mean() != 0 else 0
+            vol_level = "HIGH" if volatility > 50 else "MODERATE" if volatility > 25 else "LOW"
+            
+            risk_score = 0
+            if trend == "DOWNWARD":
+                risk_score += 2
+            if vol_level == "HIGH":
+                risk_score += 2
+            elif vol_level == "MODERATE":
+                risk_score += 1
+            
+            priority = "HIGH" if risk_score >= 4 else "MEDIUM" if risk_score >= 2 else "LOW"
+            status = "⚠️ ATTENTION" if priority == "HIGH" else "👁️ MONITOR" if priority == "MEDIUM" else "✅ STABLE"
+            
+            entity_analysis.append({
+                "entity": entity,
+                "country": entity_regions.get(entity, {}).get("country", "Unknown"),
+                "trend": trend,
+                "volatility": vol_level,
+                "priority": priority,
+                "status": status,
+                "risk_score": risk_score
+            })
+        
+        entity_analysis.sort(key=lambda x: -x["risk_score"])
+        return entity_analysis
+    
+    def _generate_entity_cards_html(self, entity_analysis: List[Dict]) -> str:
+        """Generate HTML cards for entity priority matrix."""
+        entity_cards_html = ""
+        for ea in entity_analysis:
+            if ea["priority"] == "HIGH":
+                card_border, card_bg = "#e74c3c", "#fef9f9"
+            elif ea["priority"] == "MEDIUM":
+                card_border, card_bg = "#f39c12", "#fffbf5"
+            else:
+                card_border, card_bg = "#27ae60", "#f5fdf8"
+            
+            entity_cards_html += f'''
+            <div style="background: {card_bg}; border-left: 4px solid {card_border}; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 1.1rem;">{ea["entity"]}</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: {card_border}20; color: {card_border}; border-radius: 12px; font-weight: 500;">{ea["priority"]} Priority</span>
+                </div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">{ea["status"]}</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                    <span style="margin-right: 1rem;">📍 {ea["country"]}</span>
+                    <span style="margin-right: 1rem;">📈 {ea["trend"]}</span>
+                    <span>🔄 {ea["volatility"]} volatility</span>
+                </div>
+            </div>
+            '''
+        return entity_cards_html
+    
+    def _generate_default_market_insights(
+        self,
+        entity_frames: Dict[str, pd.DataFrame],
+        forecast_results: Dict[str, ForecastArtifacts],
+    ) -> str:
+        """Generate a default market insights section based on forecast data only."""
+        
+        # Entity region mapping
+        entity_regions = {
+            "TW10": {"country": "Taiwan", "region": "East Asia"},
+            "PH10": {"country": "Philippines", "region": "Southeast Asia"},
+            "TH10": {"country": "Thailand", "region": "Southeast Asia"},
+            "ID10": {"country": "Indonesia", "region": "Southeast Asia"},
+            "SS10": {"country": "Singapore", "region": "Southeast Asia"},
+            "MY10": {"country": "Malaysia", "region": "Southeast Asia"},
+            "VN20": {"country": "Vietnam", "region": "Southeast Asia"},
+            "KR10": {"country": "South Korea", "region": "East Asia"},
+        }
+        
+        # Analyze trends from forecast data
+        entity_analysis = []
+        for entity, df in entity_frames.items():
+            net_col = 'Net' if 'Net' in df.columns else 'Total_Net' if 'Total_Net' in df.columns else None
+            if net_col is None or len(df) < 4:
+                continue
+            
+            recent = df.tail(8)[net_col].values
+            if len(recent) >= 4:
+                first_half = recent[:len(recent)//2].mean()
+                second_half = recent[len(recent)//2:].mean()
+                
+                if second_half > first_half * 1.1:
+                    trend = "UPWARD"
+                elif second_half < first_half * 0.9:
+                    trend = "DOWNWARD"
+                else:
+                    trend = "STABLE"
+            else:
+                trend = "STABLE"
+            
+            volatility = abs(recent.std() / recent.mean()) * 100 if recent.mean() != 0 else 0
+            vol_level = "HIGH" if volatility > 50 else "MODERATE" if volatility > 25 else "LOW"
+            
+            # Determine priority
+            risk_score = 0
+            if trend == "DOWNWARD":
+                risk_score += 2
+            if vol_level == "HIGH":
+                risk_score += 2
+            elif vol_level == "MODERATE":
+                risk_score += 1
+            
+            priority = "HIGH" if risk_score >= 4 else "MEDIUM" if risk_score >= 2 else "LOW"
+            status = "⚠️ ATTENTION REQUIRED" if priority == "HIGH" else "👁️ MONITOR CLOSELY" if priority == "MEDIUM" else "✅ STABLE"
+            
+            entity_analysis.append({
+                "entity": entity,
+                "country": entity_regions.get(entity, {}).get("country", "Unknown"),
+                "trend": trend,
+                "volatility": vol_level,
+                "priority": priority,
+                "status": status,
+                "risk_score": risk_score
+            })
+        
+        # Sort by risk score
+        entity_analysis.sort(key=lambda x: -x["risk_score"])
+        
+        # Build entity cards HTML
+        entity_cards_html = ""
+        for ea in entity_analysis:
+            if ea["priority"] == "HIGH":
+                card_border, card_bg = "#e74c3c", "#fef9f9"
+            elif ea["priority"] == "MEDIUM":
+                card_border, card_bg = "#f39c12", "#fffbf5"
+            else:
+                card_border, card_bg = "#27ae60", "#f5fdf8"
+            
+            entity_cards_html += f'''
+            <div style="background: {card_bg}; border-left: 4px solid {card_border}; padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 1.1rem;">{ea["entity"]}</strong>
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; background: {card_border}20; color: {card_border}; border-radius: 12px; font-weight: 500;">{ea["priority"]} Priority</span>
+                </div>
+                <div style="color: #555; font-size: 0.95rem; margin-bottom: 0.5rem;">{ea["status"]}</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                    <span style="margin-right: 1rem;">📍 {ea["country"]}</span>
+                    <span style="margin-right: 1rem;">📈 {ea["trend"]}</span>
+                    <span>🔄 {ea["volatility"]} volatility</span>
+                </div>
+            </div>
+            '''
+        
+        # Default recommendations
+        recommendations_html = """
+            <li style="margin-bottom: 0.6rem; padding-left: 0.5rem;">Monitor high-priority entities with weekly reviews</li>
+            <li style="margin-bottom: 0.6rem; padding-left: 0.5rem;">Maintain adequate working capital reserves</li>
+            <li style="margin-bottom: 0.6rem; padding-left: 0.5rem;">Review forecast accuracy and adjust models as needed</li>
+            <li style="margin-bottom: 0.6rem; padding-left: 0.5rem;">Prepare contingency plans for volatile entities</li>
+        """
+        
+        return f'''
+        <!-- Market Insights & Recommendations Section -->
+        <section class="executive-summary" id="market-insights" style="margin-bottom: 2rem;">
+            <h2 class="summary-title" style="display: flex; align-items: center; gap: 0.5rem;">
+                🌐 Market Insights & Strategic Recommendations
+                <span style="font-size: 0.8rem; font-weight: normal; color: #888; margin-left: auto;">
+                    Based on Forecast Analysis | Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+                </span>
+            </h2>
+            
+            <!-- Overall Outlook Banner -->
+            <div style="background: linear-gradient(135deg, #ebf5fb 0%, #d4e6f1 100%); border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; border: 1px solid #3498db30;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 3rem;">📊</span>
+                    <div>
+                        <h3 style="color: #3498db; font-size: 1.5rem; margin: 0;">
+                            Overall Outlook: MONITOR
+                        </h3>
+                        <p style="color: #555; margin: 0.5rem 0 0 0; font-size: 1rem;">
+                            Risk Assessment: <strong>MODERATE</strong> | 
+                            Based on cash flow forecast analysis
+                        </p>
+                    </div>
+                    <div style="margin-left: auto; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Entities Analyzed</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #3498db;">
+                            {len(entity_analysis)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+                
+                <!-- Strategic Recommendations -->
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+                    <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        💡 Strategic Recommendations
+                    </h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: #444; line-height: 1.8;">
+                        {recommendations_html}
+                    </ul>
+                </div>
+                
+                <!-- Entity Priority Matrix -->
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+                    <h4 style="color: var(--az-mulberry); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        🎯 Entity Priority Matrix
+                    </h4>
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        {entity_cards_html}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Note about News Integration -->
+            <div style="margin-top: 1rem; padding: 1rem; background: #fff8e1; border-radius: 8px; font-size: 0.85rem; color: #8b6914; border: 1px solid #ffe082;">
+                <strong>💡 Tip:</strong> Run the news sentiment analyzer separately to get enhanced market insights with news article analysis. 
+                Execute: <code>python dashboard_enhancer.py</code> after running the pipeline.
+            </div>
+            
+            <!-- Disclaimer -->
+            <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; font-size: 0.8rem; color: #666;">
+                <strong>⚠️ Disclaimer:</strong> These recommendations are based on historical cash flow patterns and ML forecast analysis. 
+                They should be used as supplementary insights alongside professional judgment. Market conditions can change rapidly.
+            </div>
+        </section>
+        '''
+
     def build(
         self,
         entity_frames: Dict[str, pd.DataFrame],
@@ -2747,6 +3168,9 @@ class InteractiveDashboardBuilder:
             self._generate_entity_html(entity, entity_frames[entity], art)
             for entity, art in forecast_results.items()
         ])
+        
+        # Generate Market Insights section
+        market_insights_section = self._generate_market_insights_section(entity_frames, forecast_results)
 
         html_content = f'''<!DOCTYPE html>
 <html lang="en">
@@ -3310,7 +3734,9 @@ class InteractiveDashboardBuilder:
 
     <nav class="nav-bar">
         <div class="nav-content">
-            <span class="nav-label">Jump to Entity:</span>
+            <span class="nav-label">Quick Links:</span>
+            <a href="#market-insights" class="nav-link" style="background: linear-gradient(135deg, #830051 0%, #3C1053 100%); color: white;">🌐 Market Insights</a>
+            <span class="nav-label" style="margin-left: 1rem;">Entities:</span>
             {entity_links}
         </div>
     </nav>
@@ -3363,6 +3789,9 @@ class InteractiveDashboardBuilder:
         </section>
 
         <!-- Entity Sections -->
+
+        {market_insights_section}
+        
         {entity_sections}
 
     </main>
