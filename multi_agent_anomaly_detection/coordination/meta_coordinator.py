@@ -569,9 +569,26 @@ class MetaCoordinator:
         
         for flag in verdict.primary_flags:
             lines.append(f"\n  > {flag.description}")
+            # Show when this occurred
+            if flag.timestamp:
+                lines.append(f"    When: {flag.timestamp.strftime('%Y-%m-%d') if hasattr(flag.timestamp, 'strftime') else flag.timestamp}")
             lines.append(f"    Agent: {flag.agent_id}")
             lines.append(f"    Severity: {flag.severity.value}")
             lines.append(f"    Rule: {flag.rule_id}")
+            
+            # Show key contributing factors
+            if flag.contributing_factors:
+                key_factors = ['week_num', 'Week_Num', 'week_start', 'transaction_id', 'category', 
+                               'current_value', 'previous_value', 'amount_column']
+                relevant = {k: v for k, v in flag.contributing_factors.items() 
+                            if k in key_factors and v is not None}
+                if relevant:
+                    lines.append("    Details:")
+                    for k, v in relevant.items():
+                        if isinstance(v, float):
+                            lines.append(f"      {k}: {v:,.2f}")
+                        else:
+                            lines.append(f"      {k}: {v}")
             
             if flag.decision_path:
                 lines.append("    Decision Path:")

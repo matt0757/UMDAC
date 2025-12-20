@@ -414,6 +414,13 @@ class RuleAgent(BaseDetectorAgent):
                 elif not isinstance(timestamp, datetime):
                     timestamp = datetime.now()
                 
+                # Extract week info for context
+                week_num = row.get('Week_Num') or row.get('week_num') or idx
+                week_start = row.get('Week_Start')
+                
+                # Build description with week context
+                week_context = f" (Week {week_num})" if week_num else ""
+                
                 flag = self.create_flag(
                     entity=entity,
                     timestamp=timestamp,
@@ -423,7 +430,7 @@ class RuleAgent(BaseDetectorAgent):
                     metric_name=f"large_{amount_col}",
                     metric_value=amount,
                     threshold=very_large if severity == Severity.CRITICAL else large,
-                    description=f"Large transaction detected: ${amount:,.2f}",
+                    description=f"Large transaction detected{week_context}: ${amount:,.2f}",
                     explanation=f"The {amount_col} of ${amount:,.2f} exceeds the threshold of "
                                f"${very_large if severity == Severity.CRITICAL else large:,.2f}. "
                                f"This transaction requires review.",
@@ -435,7 +442,9 @@ class RuleAgent(BaseDetectorAgent):
                     contributing_factors={
                         'amount_column': amount_col,
                         'amount': amount,
-                        'threshold': very_large if severity == Severity.CRITICAL else large
+                        'threshold': very_large if severity == Severity.CRITICAL else large,
+                        'week_num': week_num,
+                        'week_start': str(week_start) if week_start is not None else None
                     }
                 )
                 flags.append(flag)
