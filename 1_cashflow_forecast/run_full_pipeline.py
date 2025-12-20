@@ -34,9 +34,9 @@ The pipeline follows a modular Object-Oriented Programming (OOP) design with
 four main components:
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           PIPELINE FLOW                                      │
+│                           PIPELINE FLOW                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
+│                                                                             │
 │  ┌──────────────┐    ┌──────────────────┐    ┌─────────────────┐            │
 │  │ DataCleaner  │───►│ WeeklyAggregator │───►│  MLForecaster   │            │
 │  │              │    │                  │    │                 │            │
@@ -44,17 +44,17 @@ four main components:
 │  │ • Type conv. │    │ • Lag features   │    │ • Backtest      │            │
 │  │ • Clean data │    │ • Rolling stats  │    │ • Forecast      │            │
 │  └──────────────┘    └──────────────────┘    └────────┬────────┘            │
-│                                                       │                      │
-│                                                       ▼                      │
-│                                          ┌────────────────────────┐          │
-│                                          │ InteractiveDashboard   │          │
-│                                          │ Builder                │          │
-│                                          │                        │          │
-│                                          │ • Plotly.js charts     │          │
-│                                          │ • HTML/CSS generation  │          │
-│                                          │ • AstraZeneca theme    │          │
-│                                          └────────────────────────┘          │
-│                                                                              │
+│                                                       │                     │
+│                                                       ▼                     │
+│                                          ┌────────────────────────┐         │
+│                                          │ InteractiveDashboard   │         │
+│                                          │ Builder                │         │
+│                                          │                        │         │
+│                                          │ • Plotly.js charts     │         │
+│                                          │ • HTML/CSS generation  │         │
+│                                          │ • AstraZeneca theme    │         │
+│                                          └────────────────────────┘         │
+│                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ================================================================================
@@ -484,7 +484,8 @@ class PathConfig:
     
     def __init__(self) -> None:
         self.base = Path(__file__).resolve().parent
-        self.data_dir = self.base / "Data"
+        self.project_root = self.base.parent  # Go up to UMDAC folder
+        self.data_dir = self.project_root / "Data"
         self.raw_main = self.data_dir / "Datathon Dataset.xlsx - Data - Main.csv"
         self.processed = self.base / "processed_data"
         self.outputs = self.base / "outputs"
