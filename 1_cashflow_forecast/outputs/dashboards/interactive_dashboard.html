@@ -554,7 +554,7 @@
     <header class="dashboard-header">
         <div class="header-content">
             <h1 class="dashboard-title">💰 Cash Flow Forecasting Dashboard</h1>
-            <p class="dashboard-subtitle">Time-Series Analysis & ML-Based Predictions | Generated: 2025-12-20 15:14</p>
+            <p class="dashboard-subtitle">Time-Series Analysis & ML-Based Predictions | Generated: 2025-12-20 16:31</p>
         </div>
     </header>
 
@@ -622,7 +622,7 @@
             <h2 class="summary-title" style="display: flex; align-items: center; gap: 0.5rem;">
                 🌐 Market Insights & Strategic Recommendations
                 <span style="font-size: 0.8rem; font-weight: normal; color: #888; margin-left: auto;">
-                    FinBERT Sentiment Analysis | Updated: 2025-12-20 15:14
+                    FinBERT Sentiment Analysis | Updated: 2025-12-20 16:31
                 </span>
             </h2>
             
@@ -1541,18 +1541,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-TW10', [
             {
@@ -1571,7 +1559,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -1593,16 +1581,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -2191,18 +2177,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-PH10', [
             {
@@ -2221,7 +2195,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -2243,16 +2217,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -2841,18 +2813,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-TH10', [
             {
@@ -2871,7 +2831,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -2893,16 +2853,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -3491,18 +3449,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-ID10', [
             {
@@ -3521,7 +3467,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -3543,16 +3489,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -4141,18 +4085,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-SS10', [
             {
@@ -4171,7 +4103,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -4193,16 +4125,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -4791,18 +4721,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-MY10', [
             {
@@ -4821,7 +4739,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -4843,16 +4761,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -5441,18 +5357,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-VN20', [
             {
@@ -5471,7 +5375,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -5493,16 +5397,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
@@ -6091,18 +5993,6 @@
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '#D0006F');
-        var cumulativeValues = monthlyData.map(m => m.cumulative);
-        
-        // Calculate proper axis ranges to prevent scaling issues
-        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
-        var minBar = Math.min(...monthlyTotals);
-        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
-        var barRange = [-maxBarRange, maxBarRange];
-        
-        var minCum = Math.min(...cumulativeValues);
-        var maxCum = Math.max(...cumulativeValues);
-        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
-        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-KR10', [
             {
@@ -6121,7 +6011,7 @@
             },
             {
                 x: monthlyLabels,
-                y: cumulativeValues,
+                y: monthlyData.map(m => m.cumulative),
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -6143,16 +6033,14 @@
                 tickfont: {size: 10},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2,
-                range: barRange
+                zerolinewidth: 2
             },
             yaxis2: {
                 title: {text: 'Cumulative (USD)', font: {size: 12, color: '#003865'}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {size: 10},
-                range: cumRange
+                tickfont: {size: 10}
             },
             showlegend: true,
             legend: {
