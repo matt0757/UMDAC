@@ -2660,6 +2660,18 @@ class InteractiveDashboardBuilder:
         var monthlyTotals = monthlyData.map(m => m.total);
         var monthlyLabels = monthlyData.map(m => 'Month ' + m.month_num);
         var monthlyBarColors = monthlyTotals.map((v, i) => v >= 0 ? monthColors[i] : '{AZ_COLORS["magenta"]}');
+        var cumulativeValues = monthlyData.map(m => m.cumulative);
+        
+        // Calculate proper axis ranges to prevent scaling issues
+        var maxBar = Math.max(...monthlyTotals.map(Math.abs));
+        var minBar = Math.min(...monthlyTotals);
+        var maxBarRange = Math.max(maxBar, Math.abs(minBar)) * 1.3;
+        var barRange = [-maxBarRange, maxBarRange];
+        
+        var minCum = Math.min(...cumulativeValues);
+        var maxCum = Math.max(...cumulativeValues);
+        var cumPadding = (maxCum - minCum) * 0.15 || maxBarRange * 0.5;
+        var cumRange = [minCum - cumPadding, maxCum + cumPadding];
         
         Plotly.newPlot('monthly-chart-{entity}', [
             {{
@@ -2678,7 +2690,7 @@ class InteractiveDashboardBuilder:
             }},
             {{
                 x: monthlyLabels,
-                y: monthlyData.map(m => m.cumulative),
+                y: cumulativeValues,
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Cumulative Total',
@@ -2700,14 +2712,16 @@ class InteractiveDashboardBuilder:
                 tickfont: {{size: 10}},
                 gridcolor: '#eee',
                 zerolinecolor: '#333',
-                zerolinewidth: 2
+                zerolinewidth: 2,
+                range: barRange
             }},
             yaxis2: {{
                 title: {{text: 'Cumulative (USD)', font: {{size: 12, color: '{AZ_COLORS["navy"]}'}}}},
                 overlaying: 'y',
                 side: 'right',
                 tickformat: ',.0f',
-                tickfont: {{size: 10}}
+                tickfont: {{size: 10}},
+                range: cumRange
             }},
             showlegend: true,
             legend: {{
