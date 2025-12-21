@@ -27,7 +27,6 @@ class RuleAgent(BaseDetectorAgent):
     Implements business rules for:
     - Duplicate transaction detection
     - Amount range violations
-    - Category-specific rules
     - Unusual transaction patterns
     """
     
@@ -45,10 +44,7 @@ class RuleAgent(BaseDetectorAgent):
             # Duplicate detection
             'duplicate_time_window_hours': 24,
             'duplicate_amount_tolerance': 0.01,  # 1%
-            
-            # Category rules - disable as CategoryAgent handles this
-            'unusual_category_ratio_threshold': 0.05,  # Very strict (only 5% deviation)
-            
+
             # Transaction count thresholds - raise significantly for weekly data
             'high_transaction_count_threshold': 500,   # Weekly aggregates have many txns
             'low_transaction_count_threshold': 2
@@ -76,8 +72,7 @@ class RuleAgent(BaseDetectorAgent):
         # Duplicate detection graph
         self.rule_graphs['duplicate'] = self._create_duplicate_graph()
         
-        # Category rules graph
-        self.rule_graphs['category'] = self._create_category_rules_graph()
+        # Note: Category detection disabled - handled by CategoryAgent
         
         # Volume rules graph
         self.rule_graphs['volume'] = self._create_volume_rules_graph()
@@ -220,56 +215,6 @@ class RuleAgent(BaseDetectorAgent):
         
         return graph
     
-    def _create_category_rules_graph(self) -> RuleGraph:
-        """Create rule graph for category-specific rules."""
-        graph = RuleGraph(
-            graph_id="rule_category",
-            name="Category Rules",
-            description="Category-specific business rules"
-        )
-        
-        # Check unusual category ratio
-        ratio_check = RuleNode(
-            node_id="unusual_ratio",
-            node_type=NodeType.THRESHOLD,
-            name="Unusual Category Ratio",
-            description="Check if category proportion is unusual",
-            condition="category_ratio deviates from typical",
-            field_name="category_ratio_deviation",
-            operator="abs>",
-            threshold=ThresholdConfig(base=self.config['unusual_category_ratio_threshold'])
-        )
-        graph.add_node(ratio_check, is_root=True)
-        
-        # Flag unusual
-        flag_unusual = RuleNode(
-            node_id="flag_unusual_category",
-            node_type=NodeType.ACTION,
-            name="Flag Unusual Category",
-            description="Unusual category distribution",
-            condition="Unusual category",
-            action="flag_anomaly",
-            severity="low"
-        )
-        graph.add_node(flag_unusual)
-        
-        # Normal
-        normal = RuleNode(
-            node_id="normal",
-            node_type=NodeType.ACTION,
-            name="Normal",
-            description="Normal category distribution",
-            condition="Normal categories",
-            action="normal",
-            severity="low"
-        )
-        graph.add_node(normal)
-        
-        graph.add_edge("unusual_ratio", "flag_unusual_category", EdgeType.ESCALATE)
-        graph.add_edge("unusual_ratio", "normal", EdgeType.ELSE)
-        
-        return graph
-    
     def _create_volume_rules_graph(self) -> RuleGraph:
         """Create rule graph for transaction volume rules."""
         graph = RuleGraph(
@@ -369,9 +314,7 @@ class RuleAgent(BaseDetectorAgent):
             volume_flags = self._detect_volume_anomalies(entity_data, entity, modifier)
             flags.extend(volume_flags)
             
-            # Category ratio detection
-            category_flags = self._detect_category_anomalies(entity_data, entity, modifier)
-            flags.extend(category_flags)
+            # Note: Category detection disabled - handled by CategoryAgent
             
             # Duplicate detection (if transaction-level data)
             if 'Amount in USD' in entity_data.columns:
@@ -508,71 +451,6 @@ class RuleAgent(BaseDetectorAgent):
                         'high_threshold': high_threshold,
                         'low_threshold': low_threshold,
                         'deviation_ratio': deviation_ratio
-                    }
-                )
-                flags.append(flag)
-        
-        return flags
-    
-    def _detect_category_anomalies(self, data: pd.DataFrame, entity: str,
-                                    modifier: float) -> List[AnomalyFlag]:
-        """Detect unusual category distributions."""
-        flags = []
-        
-        # Find category columns
-        category_cols = [c for c in data.columns if c.startswith('Cat_') and c.endswith('_Net')]
-        if not category_cols or 'Total_Net' not in data.columns:
-            return flags
-        
-        # Calculate expected category ratios
-        for idx, row in data.iterrows():
-            total = abs(row.get('Total_Net', 0))
-            if total == 0:
-                continue
-            
-            unusual_categories = []
-            for cat_col in category_cols:
-                cat_value = abs(row.get(cat_col, 0))
-                ratio = cat_value / total if total > 0 else 0
-                
-                # Check if ratio is unusually high (>50% by default)
-                if ratio > self.config['unusual_category_ratio_threshold'] / modifier:
-                    category_name = cat_col.replace('Cat_', '').replace('_Net', '')
-                    unusual_categories.append((category_name, ratio, cat_value))
-            
-            if unusual_categories:
-                max_cat = max(unusual_categories, key=lambda x: x[1])
-                
-                # Dynamic confidence based on concentration level
-                threshold = self.config['unusual_category_ratio_threshold'] / modifier
-                excess_ratio = (max_cat[1] - threshold) / threshold if threshold > 0 else 0
-                confidence = min(0.92, 0.65 + excess_ratio * 0.20)
-                
-                timestamp = row.get('Week_Start') or row.get('timestamp')
-                if isinstance(timestamp, str):
-                    timestamp = datetime.fromisoformat(timestamp)
-                elif not isinstance(timestamp, datetime):
-                    timestamp = datetime.now()
-                
-                flag = self.create_flag(
-                    entity=entity,
-                    timestamp=timestamp,
-                    anomaly_type=AnomalyType.RULE_VIOLATION,
-                    severity=Severity.LOW,
-                    confidence=confidence,
-                    metric_name=f"category_ratio_{max_cat[0]}",
-                    metric_value=max_cat[1],
-                    threshold=threshold,
-                    description=f"Unusual category concentration: {max_cat[0]} ({max_cat[1]:.1%})",
-                    explanation=f"The {max_cat[0]} category represents {max_cat[1]:.1%} of total "
-                               f"cash flow (${max_cat[2]:,.2f} of ${total:,.2f}). "
-                               f"This is an unusually high concentration.",
-                    rule_id="rule_category",
-                    contributing_factors={
-                        'category': max_cat[0],
-                        'ratio': max_cat[1],
-                        'category_value': max_cat[2],
-                        'total_value': total
                     }
                 )
                 flags.append(flag)

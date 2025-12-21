@@ -25,7 +25,7 @@ class CategoryAgent(BaseDetectorAgent):
     Agent for category-specific anomaly detection.
     
     Trains entity-specific decision trees for each cash flow category
-    to detect unusual patterns in AP, AR, Payroll, etc.
+    to detect unusual patterns in AP, AR, Payroll, etc.;
     """
     
     # Known cash flow categories from the data
