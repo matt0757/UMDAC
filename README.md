@@ -118,7 +118,7 @@ DataCleaner → WeeklyAggregator → MLForecaster → InteractiveDashboardBuilde
 
 - **Backtest Validation**: Last 4 weeks actual vs predicted
 - **Short-Term Forecast**: 4-week tactical projections
-- **Long-Term Forecast**: 26-week (6-month) strategic outlook
+- **Long-Term Forecast**: 24-week (6-month) strategic outlook
 
 ---
 
@@ -140,10 +140,10 @@ A sophisticated multi-agent system for detecting financial anomalies with interp
 │  │   Agent     │ │   Agent     │ │   Agent     │ │   Agent     │ │
 │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ │
 │                                                                   │
-│  ┌─────────────┐ ┌─────────────┐                                 │
-│  │  Category   │ │  External   │   ──► Ensemble Verdict          │
-│  │   Agent     │ │  Context    │                                 │
-│  └─────────────┘ └─────────────┘                                 │
+│  ┌─────────────┐                                                 │
+│  │  Category   │              ──► Ensemble Verdict               │
+│  │   Agent     │                                                 │
+│  └─────────────┘                                                 │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -157,8 +157,7 @@ multi_agent_anomaly_detection/
 │   ├── pattern_agent.py     # Pattern-based detection
 │   ├── rule_agent.py        # Business rule validation
 │   ├── temporal_agent.py    # Time-based anomalies
-│   ├── category_agent.py    # Category-specific detection
-│   └── external_context_agent.py  # External signals
+│   └── category_agent.py    # Category-specific detection
 ├── coordination/
 │   └── meta_coordinator.py  # Agent orchestration & conflict resolution
 ├── core/
@@ -187,7 +186,6 @@ multi_agent_anomaly_detection/
 | **Rule** | Business rules, thresholds | Violations of predefined limits |
 | **Temporal** | Time-based patterns | Unusual timing, sequences |
 | **Category** | Category-specific norms | Abnormal transaction categories |
-| **External** | Market conditions, news | Context-aware adjustments |
 
 #### Key Features
 
@@ -494,11 +492,7 @@ UMDAC/
 │   ├── Data - Cash Balance.csv  # Cash positions
 │   └── Others - *.csv           # Reference data
 │
-├── 📁 outputs/
-│   └── agent_reports/           # Agent-specific reports
-│
 ├── dashboard_enhancer.py        # Sentiment integration
-├── report.html                  # Sample anomaly report
 ├── requirements.txt             # Python dependencies
 └── README.md                    # This file
 ```
@@ -534,7 +528,7 @@ UMDAC/
 
 ### Anomaly Detection
 
-- **Agents**: 6 specialized detection agents
+- **Agents**: 5 specialized detection agents
 - **Resolution**: Consensus-based conflict resolution
 - **Confidence**: Weighted ensemble voting
 - **Evolution**: Automatic rule optimization via feedback
