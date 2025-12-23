@@ -25,7 +25,7 @@ class EconomicNewsSentimentAnalyzer:
         
         # Step 1: Scrape headlines (get extra in case some fail)
         buffer_multiplier = 3  # Get 3x more headlines as buffer for full article extraction
-        headlines = await self.scraper.search_headlines(keywords, max_articles * buffer_multiplier)
+        headlines = await self.scraper.search_headlines(keywords, (max_articles + 2) * buffer_multiplier)
         print(f"📰 Found {len(headlines)} headlines")
         
         # Step 2: Extract and analyze each article - prioritize full articles
