@@ -1017,6 +1017,32 @@ class DashboardGenerator:
             border-bottom: 2px solid #e9ecef;
         }}
 
+        .flags-container {{
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 0.5rem;
+            margin-top: 1rem;
+        }}
+
+        .flags-container::-webkit-scrollbar {{
+            width: 8px;
+        }}
+
+        .flags-container::-webkit-scrollbar-track {{
+            background: #f1f1f1;
+            border-radius: 10px;
+        }}
+
+        .flags-container::-webkit-scrollbar-thumb {{
+            background: var(--az-mulberry);
+            border-radius: 10px;
+        }}
+
+        .flags-container::-webkit-scrollbar-thumb:hover {{
+            background: var(--az-magenta);
+        }}
+
         .flag-card {{
             padding: 1rem 1.25rem;
             border-radius: 10px;
@@ -1401,8 +1427,157 @@ class DashboardGenerator:
         flags_html = ""
         all_flags = verdict.primary_flags + verdict.secondary_flags
         
+        # Build a mapping from timestamp to row data for quick lookup
+        data = entity_data.data
+        timestamp_to_row = {}
+        if 'Week_Start' in data.columns:
+            for idx, row in data.iterrows():
+                week_start = row.get('Week_Start')
+                if pd.notna(week_start):
+                    # Normalize timestamp to date for matching
+                    if isinstance(week_start, datetime):
+                        date_key = week_start.date()
+                    elif isinstance(week_start, pd.Timestamp):
+                        date_key = week_start.date()
+                    else:
+                        try:
+                            date_key = pd.to_datetime(week_start).date()
+                        except:
+                            continue
+                    timestamp_to_row[date_key] = row
+        
         if all_flags:
-            for flag in all_flags[:10]:  # Limit to 10 flags
+            for flag in all_flags:  # Show all flags
+                # Try to match flag to a specific row/transaction
+                week_info = ""
+                transaction_id_display = ""
+                transaction_value = None
+                matched_row = None
+                # Use flag_id as the primary key (each flag is unique)
+                primary_key_display = f"🔑 Primary Key: {flag.flag_id}"
+                
+                if flag.timestamp:
+                    # Normalize flag timestamp to date
+                    if isinstance(flag.timestamp, datetime):
+                        flag_date = flag.timestamp.date()
+                    elif isinstance(flag.timestamp, pd.Timestamp):
+                        flag_date = flag.timestamp.date()
+                    else:
+                        try:
+                            flag_date = pd.to_datetime(flag.timestamp).date()
+                        except:
+                            flag_date = None
+                    
+                    if flag_date and flag_date in timestamp_to_row:
+                        matched_row = timestamp_to_row[flag_date]
+                        week_num = matched_row.get('Week_Num', '')
+                        week_start = matched_row.get('Week_Start', '')
+                        
+                        # Format week information
+                        if pd.notna(week_num):
+                            if pd.notna(week_start):
+                                try:
+                                    if isinstance(week_start, (datetime, pd.Timestamp)):
+                                        week_start_str = week_start.strftime('%Y-%m-%d')
+                                    else:
+                                        week_start_str = str(week_start)
+                                    week_info = f"📅 Week {int(week_num)} ({week_start_str})"
+                                except:
+                                    week_info = f"📅 Week {int(week_num)}"
+                            else:
+                                week_info = f"📅 Week {int(week_num)}"
+                        elif pd.notna(week_start):
+                            try:
+                                if isinstance(week_start, (datetime, pd.Timestamp)):
+                                    week_start_str = week_start.strftime('%Y-%m-%d')
+                                else:
+                                    week_start_str = str(week_start)
+                                week_info = f"📅 {week_start_str}"
+                            except:
+                                week_info = f"📅 {str(week_start)}"
+                    
+                    # If no match found, try to format timestamp directly
+                    if not week_info and flag.timestamp:
+                        try:
+                            if isinstance(flag.timestamp, datetime):
+                                week_info = f"📅 {flag.timestamp.strftime('%Y-%m-%d')}"
+                            elif isinstance(flag.timestamp, pd.Timestamp):
+                                week_info = f"📅 {flag.timestamp.strftime('%Y-%m-%d')}"
+                            else:
+                                week_info = f"📅 {str(flag.timestamp)}"
+                        except:
+                            pass
+                
+                # Extract transaction value from matched row based on metric_name
+                if matched_row is not None:
+                    metric_name = flag.metric_name.lower()
+                    
+                    # Check for category-based metrics (e.g., "AP_zscore" -> "Cat_AP_Net")
+                    if '_zscore' in metric_name or '_tree' in metric_name or '_ratio' in metric_name:
+                        # Extract category name from metric_name
+                        cat_name = metric_name.replace('_zscore', '').replace('_tree', '').replace('_ratio', '')
+                        # Convert to title case (e.g., "other_receipt" -> "Other_Receipt")
+                        cat_name_title = '_'.join(word.capitalize() for word in cat_name.split('_'))
+                        # Try different formats of the category column name
+                        cat_col_variants = [
+                            f"Cat_{cat_name_title}_Net",  # Most common format
+                            f"Cat_{cat_name}_Net",
+                            f"Cat_{cat_name.upper()}_Net"
+                        ]
+                        for cat_col in cat_col_variants:
+                            if cat_col in data.columns:
+                                val = matched_row.get(cat_col)
+                                if val is not None and pd.notna(val):
+                                    transaction_value = val
+                                    break
+                    
+                    # Check for specific transaction types
+                    elif 'large_outflow' in metric_name or 'outflow' in metric_name:
+                        transaction_value = matched_row.get('Outflow_Abs') or matched_row.get('Total_Outflow')
+                    elif 'large_inflow' in metric_name or 'inflow' in metric_name:
+                        transaction_value = matched_row.get('Total_Inflow')
+                    elif 'large_total_net' in metric_name or 'net' in metric_name:
+                        transaction_value = matched_row.get('Total_Net')
+                    elif 'lag_deviation' in metric_name or 'mom_pct_change' in metric_name or 'month_end_deviation' in metric_name:
+                        # For temporal metrics, use Total_Net as transaction value
+                        transaction_value = matched_row.get('Total_Net')
+                    else:
+                        # Default: try Total_Net
+                        transaction_value = matched_row.get('Total_Net')
+                
+                # Show transaction_id if available
+                if flag.transaction_id:
+                    transaction_id_display = f"🆔 Transaction: {flag.transaction_id}"
+                
+                # Format transaction value display
+                transaction_value_display = ""
+                if transaction_value is not None and pd.notna(transaction_value):
+                    try:
+                        transaction_value_display = f"💰 Transaction Value: ${float(transaction_value):,.2f}"
+                    except:
+                        pass
+                
+                # Build flag metadata - Primary Key and Week first
+                flag_meta_parts = []
+                
+                # Primary Key and Week first
+                if primary_key_display:
+                    flag_meta_parts.append(f'<span>{primary_key_display}</span>')
+                if week_info:
+                    flag_meta_parts.append(f'<span>{week_info}</span>')
+                
+                # Then other information
+                flag_meta_parts.append(f'<span>🤖 {flag.agent_id}</span>')
+                flag_meta_parts.append(f'<span>📊 Confidence: {flag.confidence:.1%}</span>')
+                if transaction_value_display:
+                    flag_meta_parts.append(f'<span>{transaction_value_display}</span>')
+                else:
+                    flag_meta_parts.append(f'<span>📍 Value: {flag.metric_value:,.2f}</span>')
+                
+                # Transaction ID last if available
+                if transaction_id_display:
+                    flag_meta_parts.append(f'<span>{transaction_id_display}</span>')
+                
                 flags_html += f'''
                 <div class="flag-card severity-{flag.severity.value}">
                     <div class="flag-header">
@@ -1411,9 +1586,7 @@ class DashboardGenerator:
                     </div>
                     <div class="flag-description">{flag.description}</div>
                     <div class="flag-meta">
-                        <span>🤖 {flag.agent_id}</span>
-                        <span>📊 Confidence: {flag.confidence:.1%}</span>
-                        <span>📍 Value: {flag.metric_value:,.2f}</span>
+                        {''.join(flag_meta_parts)}
                     </div>
                 </div>'''
         else:
@@ -1475,7 +1648,9 @@ class DashboardGenerator:
             
             <div class="flags-section">
                 <h3>🚩 Detected Anomaly Flags</h3>
-                {flags_html}
+                <div class="flags-container">
+                    {flags_html}
+                </div>
             </div>
             
             <div class="recommendation-box">

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-24T14:17:45.124927",
+  "generated_at": "2025-12-24T14:51:30.725488",
   "entities": {
     "ID10": {
       "is_anomaly": true,
@@ -17,7 +17,7 @@
     },
     "MY10": {
       "is_anomaly": true,
-      "confidence": 0.810638019165017,
+      "confidence": 0.8106380191650168,
       "severity": "high",
       "num_flags": 50,
       "recommended_action": "REVIEW - Moderate-confidence finding requires verification"
@@ -52,7 +52,7 @@
     },
     "VN20": {
       "is_anomaly": true,
-      "confidence": 0.895467538375209,
+      "confidence": 0.8954675383752088,
       "severity": "high",
       "num_flags": 57,
       "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
