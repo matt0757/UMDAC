@@ -611,11 +611,35 @@ class DashboardGenerator:
                        system_status: Dict[str, Any]) -> str:
         """Generate the complete HTML dashboard."""
         
-        # Build entity sections
+        # Build entity tabs first to determine first entity
+        entity_tabs, first_entity_id = self._generate_entity_tabs(entities)
+        
+        # Build entity sections with wrappers for filtering
         entity_sections = ""
-        for entity_id, entity_data in sorted(entities.items()):
+        # Sort entities by severity (same order as tabs: CRITICAL, HIGH, MEDIUM, LOW)
+        def get_severity_order(entity_data: EntityData) -> int:
+            if not entity_data.verdict or not entity_data.verdict.is_anomaly:
+                return 3
+            severity = entity_data.verdict.severity.value if entity_data.verdict.severity else 'low'
+            if severity == 'critical':
+                return 0
+            elif severity == 'high':
+                return 1
+            elif severity == 'medium':
+                return 2
+            return 3
+        
+        sorted_entity_list = sorted(
+            entities.items(),
+            key=lambda x: (get_severity_order(x[1]), x[0])
+        )
+        
+        for entity_id, entity_data in sorted_entity_list:
             if entity_data.verdict:
+                is_active = "block" if entity_id == first_entity_id else "none"
+                entity_sections += f'<div class="entity-content-wrapper" id="content-{entity_id}" style="display: {is_active};">'
                 entity_sections += self._generate_entity_section(entity_data)
+                entity_sections += '</div>'
         
         # Build agent overview
         agent_overview = self._generate_agent_overview(system_status, overall_stats)
@@ -763,10 +787,207 @@ class DashboardGenerator:
             background: var(--az-magenta);
         }}
 
+        /* Main Tabs Navigation */
+        .main-tabs-nav {{
+            background: white;
+            padding: 1rem 3rem;
+            border-bottom: 3px solid var(--az-mulberry);
+            position: sticky;
+            top: 0;
+            z-index: 101;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+
+        .main-tabs-content {{
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }}
+
+        .main-tab {{
+            padding: 0.75rem 2rem;
+            background: #f1f3f4;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--az-graphite);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }}
+
+        .main-tab:hover {{
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }}
+
+        .main-tab.active {{
+            background: linear-gradient(135deg, var(--az-mulberry) 0%, var(--az-purple) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(131, 0, 81, 0.3);
+        }}
+
         .main-content {{
             max-width: 1600px;
             margin: 0 auto;
             padding: 2rem;
+        }}
+
+        /* Tab Content Sections */
+        .tab-content {{
+            display: none;
+        }}
+
+        .tab-content.active {{
+            display: block;
+        }}
+
+        /* Entity Tabs Container */
+        .entity-tabs-container {{
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }}
+
+        .entity-tabs-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }}
+
+        .entity-tabs-title {{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--az-mulberry);
+        }}
+
+        .priority-legend {{
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+        }}
+
+        .priority-legend-item {{
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }}
+
+        .entity-tabs {{
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding: 0.5rem 0;
+        }}
+
+        .entity-tab {{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem 1.25rem;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }}
+
+        .entity-tab::before {{
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--priority-color);
+            transition: width 0.3s ease;
+        }}
+
+        .entity-tab:hover {{
+            border-color: var(--priority-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }}
+
+        .entity-tab.active {{
+            background: white;
+            border-color: var(--priority-color);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }}
+
+        .entity-tab.active::before {{
+            width: 6px;
+        }}
+
+        .tab-priority-icon {{
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }}
+
+        .tab-entity-name {{
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--az-navy);
+        }}
+
+        .tab-country {{
+            font-size: 0.8rem;
+            color: #666;
+            margin: 0.25rem 0;
+        }}
+
+        .tab-priority-badge {{
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }}
+
+        /* Severity dots for entity tabs and legend */
+        .tab-priority-icon {{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-bottom: 0.25rem;
+            margin-right: 0.35rem;
+        }}
+
+        .severity-dot-critical {{
+            background: {AZColors.SEVERITY['critical']};
+        }}
+
+        .severity-dot-high {{
+            background: {AZColors.SEVERITY['high']};
+        }}
+
+        .severity-dot-medium {{
+            background: {AZColors.SEVERITY['medium']};
+        }}
+
+        .severity-dot-low {{
+            background: {AZColors.SEVERITY['low']};
+        }}
+
+        .entity-content-wrapper {{
+            display: none;
+        }}
+
+        .entity-content-wrapper.active {{
+            display: block;
         }}
 
         /* Executive Summary */
@@ -1207,73 +1428,87 @@ class DashboardGenerator:
         </div>
     </header>
 
-    <!-- Navigation -->
-    <nav class="nav-bar">
-        <div class="nav-content">
-            <span class="nav-label">🏢 Entities:</span>
-            {nav_links}
+    <!-- Main Tabs Navigation -->
+    <nav class="main-tabs-nav">
+        <div class="main-tabs-content">
+            <button class="main-tab active" onclick="switchMainTab('overview')">
+                📊 Overview
+            </button>
+            <button class="main-tab" onclick="switchMainTab('anomaly-analysis')">
+                🔍 Anomaly Analysis
+            </button>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Executive Summary -->
-        <section class="executive-summary">
-            <h2 class="summary-title">📊 Executive Summary</h2>
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-value" style="color: var(--az-mulberry);">{overall_stats['anomaly_rate'] * 100:.3f}%</div>
-                    <div class="summary-label">Anomaly Rate</div>
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <!-- Executive Summary -->
+            <section class="executive-summary">
+                <h2 class="summary-title">📊 Executive Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-value" style="color: var(--az-mulberry);">{overall_stats['anomaly_rate'] * 100:.3f}%</div>
+                        <div class="summary-label">Anomaly Rate</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value severity-critical">{overall_stats['severity_counts']['critical']}</div>
+                        <div class="summary-label">Critical Flags</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value severity-high">{overall_stats['severity_counts']['high']}</div>
+                        <div class="summary-label">High Severity</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value severity-medium">{overall_stats['severity_counts']['medium']}</div>
+                        <div class="summary-label">Medium Severity</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value severity-low">{overall_stats['severity_counts']['low']}</div>
+                        <div class="summary-label">Low Severity</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" style="color: var(--az-navy);">{system_status.get('active_agents', 6)}</div>
+                        <div class="summary-label">Active Agents</div>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-value severity-critical">{overall_stats['severity_counts']['critical']}</div>
-                    <div class="summary-label">Critical Flags</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value severity-high">{overall_stats['severity_counts']['high']}</div>
-                    <div class="summary-label">High Severity</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value severity-medium">{overall_stats['severity_counts']['medium']}</div>
-                    <div class="summary-label">Medium Severity</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value severity-low">{overall_stats['severity_counts']['low']}</div>
-                    <div class="summary-label">Low Severity</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value" style="color: var(--az-navy);">{system_status.get('active_agents', 6)}</div>
-                    <div class="summary-label">Active Agents</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Charts Row -->
-        <div class="charts-row">
-            <div class="chart-container">
-                <h3>🎯 Severity Distribution</h3>
-                <div id="severityChart" class="chart"></div>
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-container">
+                    <h3>🎯 Severity Distribution</h3>
+                    <div id="severityChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>🤖 Flags by Agent</h3>
+                    <div id="agentChart" class="chart"></div>
+                </div>
             </div>
-            <div class="chart-container">
-                <h3>🤖 Flags by Agent</h3>
-                <div id="agentChart" class="chart"></div>
+
+            <!-- Detection Timeline -->
+            <div class="charts-row">
+                <div class="chart-container full-width">
+                    <h3>📈 Entity Detection Overview</h3>
+                    <div id="timelineChart" class="chart" style="min-height: 400px;"></div>
+                </div>
             </div>
+
+            <!-- Agent Overview -->
+            {agent_overview}
         </div>
 
-        <!-- Detection Timeline -->
-        <div class="charts-row">
-            <div class="chart-container full-width">
-                <h3>📈 Entity Detection Overview</h3>
-                <div id="timelineChart" class="chart" style="min-height: 400px;"></div>
+        <!-- Anomaly Analysis Tab -->
+        <div id="anomaly-analysis" class="tab-content">
+            <!-- Entity Selection Tabs -->
+            {entity_tabs}
+
+            <!-- Entity Content Area -->
+            <div id="entity-content-area">
+                {entity_sections}
             </div>
         </div>
-
-        <!-- Agent Overview -->
-        {agent_overview}
-
-        <!-- Entity Sections -->
-        {entity_sections}
-
     </main>
 
     <!-- Footer -->
@@ -1304,6 +1539,80 @@ class DashboardGenerator:
 
         // Timeline Chart
         {timeline_data}
+
+        // Tab Switching Function
+        function switchMainTab(tabName) {{
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {{
+                content.classList.remove('active');
+            }});
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.main-tab').forEach(tab => {{
+                tab.classList.remove('active');
+            }});
+            
+            // Show selected tab content
+            const selectedContent = document.getElementById(tabName);
+            if (selectedContent) {{
+                selectedContent.classList.add('active');
+            }}
+            
+            // Add active class to the corresponding tab button
+            document.querySelectorAll('.main-tab').forEach(tab => {{
+                if (tab.getAttribute('onclick').includes(tabName)) {{
+                    tab.classList.add('active');
+                }}
+            }});
+            
+            // Re-render charts when switching to overview tab
+            if (tabName === 'overview') {{
+                setTimeout(() => {{
+                    // Re-render Plotly charts to ensure they display correctly
+                    window.dispatchEvent(new Event('resize'));
+                }}, 100);
+            }}
+        }}
+
+        // Entity Switching Function
+        function switchEntity(entityId) {{
+            // Update tab active states
+            document.querySelectorAll('.entity-tab').forEach(tab => {{
+                tab.classList.remove('active');
+            }});
+            const activeTab = document.querySelector(`.entity-tab[data-entity="${{entityId}}"]`);
+            if (activeTab) {{
+                activeTab.classList.add('active');
+            }}
+            
+            // Show/hide entity content
+            document.querySelectorAll('.entity-content-wrapper').forEach(content => {{
+                content.classList.remove('active');
+                content.style.display = 'none';
+            }});
+            const activeContent = document.getElementById(`content-${{entityId}}`);
+            if (activeContent) {{
+                activeContent.classList.add('active');
+                activeContent.style.display = 'block';
+                // Scroll to the entity content
+                activeContent.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+            }}
+        }}
+
+        // Initialize - show first entity by default
+        window.addEventListener('load', function() {{
+            const firstEntityTab = document.querySelector('.entity-tab.active');
+            if (firstEntityTab) {{
+                const firstEntityId = firstEntityTab.getAttribute('data-entity');
+                if (firstEntityId) {{
+                    switchEntity(firstEntityId);
+                }}
+            }}
+            // Trigger Plotly resize for charts
+            setTimeout(() => {{
+                window.dispatchEvent(new Event('resize'));
+            }}, 500);
+        }});
     </script>
 </body>
 </html>'''
@@ -1326,6 +1635,110 @@ class DashboardGenerator:
             )
         
         return "\n            ".join(links)
+    
+    def _get_entity_country_name(self, entity_id: str) -> str:
+        """Get country name for entity ID."""
+        country_map = {
+            'ID10': 'Indonesia',
+            'KR10': 'South Korea',
+            'MY10': 'Malaysia',
+            'PH10': 'Philippines',
+            'SS10': 'Singapore',
+            'TH10': 'Thailand',
+            'TW10': 'Taiwan',
+            'VN20': 'Vietnam'
+        }
+        return country_map.get(entity_id, entity_id)
+    
+    def _get_entity_priority(self, entity_data: EntityData) -> Tuple[str, str, str]:
+        """Determine severity label based on anomaly severity. Returns (severity_label, color, icon)."""
+        if not entity_data.verdict or not entity_data.verdict.is_anomaly:
+            return ('LOW', AZColors.SEVERITY['low'], '🟢')
+        
+        # Check flags directly to determine actual severity (more accurate than verdict.severity)
+        all_flags = entity_data.verdict.primary_flags + entity_data.verdict.secondary_flags
+        
+        if not all_flags:
+            return ('LOW', AZColors.SEVERITY['low'], '🟢')
+        
+        # Get the highest severity from all flags
+        severity_levels = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}
+        max_severity = max(
+            all_flags,
+            key=lambda f: severity_levels.get(f.severity.value, 0)
+        ).severity.value
+        
+        if max_severity == 'critical':
+            return ('CRITICAL', AZColors.SEVERITY['critical'], '🔴')
+        elif max_severity == 'high':
+            return ('HIGH', AZColors.SEVERITY['high'], '🔴')
+        elif max_severity == 'medium':
+            return ('MEDIUM', AZColors.SEVERITY['medium'], '🟡')
+        else:
+            return ('LOW', AZColors.SEVERITY['low'], '🟢')
+    
+    def _generate_entity_tabs(self, entities: Dict[str, EntityData]) -> Tuple[str, Optional[str]]:
+        """Generate entity selection tabs for Anomaly Analysis tab. Returns (html, first_entity_id)."""
+        # Sort entities by severity (CRITICAL first, then HIGH, MEDIUM, LOW)
+        def get_severity_order(entity_data: EntityData) -> int:
+            severity_label, _, _ = self._get_entity_priority(entity_data)
+            severity_order = {'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}
+            return severity_order.get(severity_label, 3)
+        
+        sorted_entities = sorted(
+            entities.items(),
+            key=lambda x: (get_severity_order(x[1]), x[0])
+        )
+        
+        tabs_html = ""
+        first_entity_id = None
+        
+        for entity_id, entity_data in sorted_entities:
+            if not entity_data.verdict:
+                continue
+            
+            if first_entity_id is None:
+                first_entity_id = entity_id
+            
+            country_name = self._get_entity_country_name(entity_id)
+            severity_label, severity_color, severity_icon = self._get_entity_priority(entity_data)
+            
+            # Determine if this is the first entity (will be active by default)
+            is_active = (entity_id == first_entity_id)
+            active_class = "active" if is_active else ""
+            
+            # Map severity label to CSS class suffix
+            severity_class = severity_label.lower()
+            
+            tabs_html += f'''
+            <button class="entity-tab {active_class}" data-entity="{entity_id}" onclick="switchEntity('{entity_id}')"
+                    style="--priority-color: {severity_color}">
+                <span class="tab-priority-icon severity-dot-{severity_class}"></span>
+                <span class="tab-entity-name">{entity_id}</span>
+                <span class="tab-country">{country_name}</span>
+                <span class="tab-priority-badge" style="background: {severity_color}20; color: {severity_color}">{severity_label}</span>
+            </button>'''
+        
+        html = f'''
+        <section class="entity-tabs-container">
+            <div class="entity-tabs-header">
+                <h2 class="entity-tabs-title">🏢 Select Entity to View Analysis</h2>
+                <div class="priority-legend">
+                    <span class="priority-legend-item"><span class="tab-priority-icon severity-dot-critical"></span>CRITICAL</span>
+                    <span class="priority-legend-item"><span class="tab-priority-icon severity-dot-high"></span>HIGH</span>
+                    <span class="priority-legend-item"><span class="tab-priority-icon severity-dot-medium"></span>MEDIUM</span>
+                    <span class="priority-legend-item"><span class="tab-priority-icon severity-dot-low"></span>LOW</span>
+                </div>
+            </div>
+            <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                Severity is based on anomaly detection. Click on an entity tab to view its detailed anomaly analysis.
+            </p>
+            <div class="entity-tabs">
+                {tabs_html}
+            </div>
+        </section>'''
+        
+        return html, first_entity_id
     
     def _generate_agent_overview(self, system_status: Dict[str, Any], 
                                   overall_stats: Dict[str, Any] = None) -> str:
