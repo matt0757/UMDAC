@@ -3364,6 +3364,113 @@ class InteractiveDashboardBuilder:
             font-size: 0.75rem;
         }}
 
+        /* News Fetch Control Panel */
+        .news-fetch-control {{
+            background: linear-gradient(145deg, #f0f4f8, #ffffff);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }}
+
+        .news-fetch-left {{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }}
+
+        .news-fetch-label {{
+            font-weight: 600;
+            color: var(--az-navy);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+
+        .news-fetch-input {{
+            width: 80px;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }}
+
+        .news-fetch-input:focus {{
+            outline: none;
+            border-color: var(--az-mulberry);
+            box-shadow: 0 0 0 3px rgba(131, 0, 81, 0.1);
+        }}
+
+        .news-fetch-btn {{
+            background: linear-gradient(135deg, var(--az-mulberry), var(--az-purple));
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+
+        .news-fetch-btn:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(131, 0, 81, 0.3);
+        }}
+
+        .news-fetch-btn:disabled {{
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }}
+
+        .news-fetch-status {{
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+
+        .news-fetch-status.loading {{
+            color: var(--az-mulberry);
+        }}
+
+        .news-fetch-status.success {{
+            color: #27ae60;
+        }}
+
+        .news-fetch-status.error {{
+            color: #e74c3c;
+        }}
+
+        .spinner {{
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--az-mulberry);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }}
+
+        @keyframes spin {{
+            0% {{ transform: rotate(0deg); }}
+            100% {{ transform: rotate(360deg); }}
+        }}
+
         .main-content {{
             max-width: 1600px;
             margin: 0 auto;
@@ -3951,6 +4058,23 @@ class InteractiveDashboardBuilder:
 
         <!-- ENTITY ANALYSIS PAGE SECTION -->
         <div id="entity-analysis-page" class="page-section">
+            <!-- News Fetch Control Panel -->
+            <div class="news-fetch-control">
+                <div class="news-fetch-left">
+                    <span class="news-fetch-label">📰 Market News</span>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #555;">
+                        Max articles per country:
+                        <input type="number" id="maxArticlesInput" class="news-fetch-input" value="5" min="1" max="20">
+                    </label>
+                    <button type="button" id="fetchNewsBtn" class="news-fetch-btn" onclick="fetchLatestNews(event)">
+                        🔄 Fetch Current News
+                    </button>
+                </div>
+                <div id="newsFetchStatus" class="news-fetch-status">
+                    Last updated: Dashboard generation time
+                </div>
+            </div>
+
             <!-- Entity Selection Tabs -->
             <section class="entity-tabs-container" id="entity-analysis">
                 <div class="entity-tabs-header">
@@ -4048,6 +4172,222 @@ class InteractiveDashboardBuilder:
                 window.dispatchEvent(new Event('resize'));
             }}, 500);
         }});
+
+        // News Fetch Functionality
+        const NEWS_SERVER_URL = 'http://localhost:5001';
+
+        // Entity to country mapping
+        const ENTITY_COUNTRY_MAP = {{
+            'TH10': 'Thailand',
+            'TW10': 'Taiwan',
+            'SS10': 'Singapore',
+            'MY10': 'Malaysia',
+            'VN20': 'Vietnam',
+            'KR10': 'South Korea',
+            'ID10': 'Indonesia',
+            'PH10': 'Philippines'
+        }};
+
+        async function fetchLatestNews(event) {{
+            // Prevent any default behavior or event bubbling
+            if (event) {{
+                event.preventDefault();
+                event.stopPropagation();
+            }}
+            
+            const fetchBtn = document.getElementById('fetchNewsBtn');
+            const statusDiv = document.getElementById('newsFetchStatus');
+            const maxArticles = parseInt(document.getElementById('maxArticlesInput').value) || 5;
+
+            // Validate input
+            if (maxArticles < 1 || maxArticles > 20) {{
+                statusDiv.className = 'news-fetch-status error';
+                statusDiv.innerHTML = '❌ Please enter a number between 1 and 20';
+                return;
+            }}
+
+            // Update UI to loading state
+            fetchBtn.disabled = true;
+            fetchBtn.innerHTML = '<span class="spinner"></span> Fetching...';
+            statusDiv.className = 'news-fetch-status loading';
+            statusDiv.innerHTML = '<span class="spinner"></span> Fetching news from multiple sources...';
+
+            try {{
+                const response = await fetch(`${{NEWS_SERVER_URL}}/api/fetch-news?max_articles=${{maxArticles}}`);
+                
+                if (!response.ok) {{
+                    throw new Error(`Server returned ${{response.status}}`);
+                }}
+
+                const result = await response.json();
+
+                if (result.success) {{
+                    // Update the news sections in the DOM
+                    updateNewsSections(result.data);
+                    
+                    const timestamp = new Date().toLocaleString();
+                    statusDiv.className = 'news-fetch-status success';
+                    statusDiv.innerHTML = `✅ Updated ${{Object.keys(result.data).length}} countries at ${{timestamp}}`;
+                }} else {{
+                    throw new Error(result.error || 'Unknown error');
+                }}
+
+            }} catch (error) {{
+                console.error('News fetch error:', error);
+                statusDiv.className = 'news-fetch-status error';
+                
+                if (error.message.includes('Failed to fetch')) {{
+                    statusDiv.innerHTML = '❌ Cannot connect to news server. Please start the server with: <code>python news_server.py</code>';
+                }} else {{
+                    statusDiv.innerHTML = `❌ Error: ${{error.message}}`;
+                }}
+            }} finally {{
+                fetchBtn.disabled = false;
+                fetchBtn.innerHTML = '🔄 Fetch Current News';
+            }}
+        }}
+
+        function getPriorityFromScore(score) {{
+            // Priority based on sentiment score (more negative = higher priority)
+            if (score <= -0.3) {{
+                return {{ priority: 'HIGH', color: '#e74c3c', icon: '🔴' }};
+            }} else if (score <= -0.1) {{
+                return {{ priority: 'MEDIUM', color: '#f39c12', icon: '🟡' }};
+            }} else if (score >= 0.3) {{
+                return {{ priority: 'LOW', color: '#27ae60', icon: '🟢' }};
+            }} else {{
+                return {{ priority: 'MEDIUM', color: '#f39c12', icon: '🟡' }};
+            }}
+        }}
+
+        function updateEntityTabPriority(entity, score) {{
+            // Find the entity tab button
+            const entityTab = document.querySelector(`.entity-tab[data-entity="${{entity}}"]`);
+            if (!entityTab) return;
+
+            const priorityInfo = getPriorityFromScore(score);
+
+            // Update the priority icon
+            const priorityIcon = entityTab.querySelector('.tab-priority-icon');
+            if (priorityIcon) {{
+                priorityIcon.textContent = priorityInfo.icon;
+            }}
+
+            // Update the priority badge
+            const priorityBadge = entityTab.querySelector('.tab-priority-badge');
+            if (priorityBadge) {{
+                priorityBadge.textContent = priorityInfo.priority;
+                priorityBadge.style.background = priorityInfo.color + '20';
+                priorityBadge.style.color = priorityInfo.color;
+            }}
+
+            // Update the tab's priority color CSS variable
+            entityTab.style.setProperty('--priority-color', priorityInfo.color);
+        }}
+
+        function updateNewsSections(newsData) {{
+            for (const [entity, data] of Object.entries(newsData)) {{
+                const country = ENTITY_COUNTRY_MAP[entity];
+                if (!country) continue;
+
+                // Update the entity tab priority based on new sentiment score
+                const score = data.average_score || 0;
+                updateEntityTabPriority(entity, score);
+
+                // Find the news section for this entity
+                const contentWrapper = document.getElementById(`content-${{entity}}`);
+                if (!contentWrapper) continue;
+
+                const newsSection = contentWrapper.querySelector('.entity-news-section');
+                if (!newsSection) continue;
+
+                // Generate new news HTML
+                const newNewsHtml = generateNewsHtml(country, data);
+                newsSection.innerHTML = newNewsHtml;
+            }}
+        }}
+
+        function generateNewsHtml(country, data) {{
+            const score = data.average_score || 0;
+            const articles = data.articles || [];
+
+            // Determine sentiment styling
+            let sentimentLabel, sentimentColor, sentimentBg;
+            if (score > 0.1) {{
+                sentimentLabel = 'POSITIVE';
+                sentimentColor = '#27ae60';
+                sentimentBg = '#27ae6020';
+            }} else if (score < -0.1) {{
+                sentimentLabel = 'NEGATIVE';
+                sentimentColor = '#e74c3c';
+                sentimentBg = '#e74c3c20';
+            }} else {{
+                sentimentLabel = 'NEUTRAL';
+                sentimentColor = '#7f8c8d';
+                sentimentBg = '#7f8c8d20';
+            }}
+
+            // Generate news cards - show all articles returned by API
+            let newsCardsHtml = '';
+            if (articles.length > 0) {{
+                for (const article of articles) {{
+                    const articleScore = article.score || article.final_score || 0;
+                    let cardColor, tagText, tagBg;
+                    
+                    if (articleScore > 0.1) {{
+                        cardColor = '#27ae60';
+                        tagText = 'Positive';
+                        tagBg = '#27ae6015';
+                    }} else if (articleScore < -0.1) {{
+                        cardColor = '#e74c3c';
+                        tagText = 'Negative';
+                        tagBg = '#e74c3c15';
+                    }} else {{
+                        cardColor = '#7f8c8d';
+                        tagText = 'Neutral';
+                        tagBg = '#7f8c8d15';
+                    }}
+
+                    const title = article.title || 'No title';
+                    const url = article.url || '#';
+                    const source = article.source || 'News';
+
+                    newsCardsHtml += `
+                    <div class="news-card" style="border-left-color: ${{cardColor}};">
+                        <div class="news-card-title">
+                            <a href="${{url}}" target="_blank">${{title.substring(0, 120)}}${{title.length > 120 ? '...' : ''}}</a>
+                        </div>
+                        <div class="news-card-meta">
+                            <span>📰 ${{source}}</span>
+                            <span class="news-sentiment-tag" style="background: ${{tagBg}}; color: ${{cardColor}};">
+                                ${{tagText}} (${{articleScore.toFixed(2)}})
+                            </span>
+                        </div>
+                    </div>
+                    `;
+                }}
+            }} else {{
+                newsCardsHtml = `
+                <div style="text-align: center; padding: 2rem; color: #888;">
+                    <p>📭 No recent news articles available for this country.</p>
+                </div>
+                `;
+            }}
+
+            return `
+            <div class="news-header">
+                <div class="news-title">
+                    📰 ${{country}} Market News
+                </div>
+                <div class="sentiment-badge" style="background: ${{sentimentBg}}; color: ${{sentimentColor}};">
+                    Sentiment: ${{sentimentLabel}} (${{score.toFixed(2)}})
+                </div>
+            </div>
+            <div class="news-grid">
+                ${{newsCardsHtml}}
+            </div>
+            `;
+        }}
     </script>
 </body>
 </html>'''

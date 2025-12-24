@@ -6,95 +6,157 @@ from typing import List, Optional
 import json
 
 class EconomicNewsSentimentAnalyzer:
-    def __init__(self):
+    def __init__(self, fast_mode: bool = True, headline_threshold: float = 0.5):
+        """
+        Initialize the analyzer.
+        
+        Args:
+            fast_mode: If True, headlines with strong sentiment (above threshold) 
+                      skip full article extraction for faster processing.
+            headline_threshold: Minimum sentiment magnitude (0-1) to accept a 
+                              headline without full article extraction.
+        """
         self.scraper = NewsScraper()
         self.extractor = ArticleExtractor()
         self.analyzer = SentimentAnalyzer()
+        self.fast_mode = fast_mode
+        self.headline_threshold = headline_threshold
         
     async def analyze_economic_news(
         self, 
         keywords: List[str] = None, 
-        max_articles: int = 10
+        max_articles: int = 10,
+        fast_mode: bool = None
     ) -> dict:
-        """Main method to scrape and analyze economic news."""
+        """Main method to scrape and analyze economic news.
+        
+        Args:
+            keywords: Search keywords
+            max_articles: Target number of articles
+            fast_mode: Override instance fast_mode setting
+        """
         
         if keywords is None:
             keywords = ["US"]
         
-        print(f"🔍 Searching for news with keywords: {keywords}")
+        use_fast_mode = fast_mode if fast_mode is not None else self.fast_mode
+        
+        if use_fast_mode:
+            print(f"🔍 Searching for news with keywords: {keywords} [FAST MODE - threshold: {self.headline_threshold}]")
+        else:
+            print(f"🔍 Searching for news with keywords: {keywords}")
         
         # Step 1: Scrape headlines (get extra in case some fail)
-        buffer_multiplier = 3  # Get 3x more headlines as buffer for full article extraction
+        buffer_multiplier = 2 if use_fast_mode else 3
         headlines = await self.scraper.search_headlines(keywords, (max_articles + 2) * buffer_multiplier)
         print(f"📰 Found {len(headlines)} headlines")
         
-        # Step 2: Extract and analyze each article - prioritize full articles
-        full_article_results = []
-        headline_only_results = []
+        # Step 2: Process headlines - fast mode pre-analyzes headlines first
+        results = []  # Strong results that count towards quota
+        backup_results = []  # Weak headline-only results stored as backup
         skipped = 0
+        full_extractions = 0
+        fast_accepts = 0
         
         for i, headline in enumerate(headlines):
-            # Stop if we have enough full articles
-            if len(full_article_results) >= max_articles:
+            # Stop if we have enough articles
+            if len(results) >= max_articles:
                 break
-                
-            current_full = len(full_article_results)
-            current_total = current_full + len(headline_only_results)
-            print(f"📄 Processing (full: {current_full}/{max_articles}, attempt {i+1}): {headline['headline'][:50]}...")
+            
+            headline_text = headline['headline']
+            print(f"📄 Processing ({len(results)}/{max_articles}, attempt {i+1}): {headline_text[:50]}...")
             
             try:
+                headline_sentiment = None
+                headline_score = 0
+                
+                # FAST MODE: Pre-analyze headline sentiment first
+                if use_fast_mode:
+                    headline_sentiment = self._quick_headline_analysis(headline_text)
+                    headline_score = abs(headline_sentiment.get('final_score', 0))
+                    
+                    # If headline has strong sentiment, accept it without full extraction
+                    if headline_score >= self.headline_threshold:
+                        headline_sentiment['url'] = headline.get('url', '')
+                        headline_sentiment['source'] = headline.get('source', 'unknown')
+                        headline_sentiment['analysis_type'] = 'headline_fast'
+                        headline_sentiment['text_length'] = len(headline_text)
+                        results.append(headline_sentiment)
+                        fast_accepts += 1
+                        print(f"   ⚡ FAST: {headline_sentiment['category']} (score: {headline_sentiment['final_score']}) [Strong headline - skipped extraction]")
+                        continue
+                    else:
+                        print(f"   🔍 Weak headline ({headline_score:.2f} < {self.headline_threshold}), trying full extraction...")
+                
                 # Get actual URL (follow redirect)
                 actual_url = await self.scraper.get_article_url(headline['url'])
                 
                 # Skip invalid URLs
-                if not actual_url or 'chrome-error' in actual_url or actual_url == headline['url'] and 'news.google.com' in headline['url']:
-                    print(f"   ⚠️ Invalid URL, skipping to next article...")
-                    skipped += 1
+                if not actual_url or 'chrome-error' in actual_url or (actual_url == headline['url'] and 'news.google.com' in headline['url']):
+                    # Store weak headline as backup, don't count towards quota
+                    if use_fast_mode and headline_sentiment:
+                        headline_sentiment['url'] = headline.get('url', '')
+                        headline_sentiment['source'] = headline.get('source', 'unknown')
+                        headline_sentiment['analysis_type'] = 'headline_backup'
+                        backup_results.append(headline_sentiment)
+                        print(f"   ⚠️ URL failed, stored as backup (score: {headline_sentiment['final_score']})")
+                    else:
+                        print(f"   ⚠️ Invalid URL, skipping...")
+                        skipped += 1
                     continue
                 
                 # Extract article content
                 article = self.extractor.extract(actual_url)
                 
-                if article and article.get('text'):
-                    # Analyze sentiment
+                if article and article.get('text') and len(article.get('text', '')) > 200:
+                    # Analyze full article sentiment - counts towards quota
                     sentiment = self.analyzer.analyze(article)
                     sentiment['source'] = headline.get('source', 'unknown')
-                    
-                    analysis_type = sentiment.get('analysis_type', 'unknown')
-                    text_len = sentiment.get('text_length', 0)
-                    
-                    if analysis_type == 'full_article':
-                        full_article_results.append(sentiment)
-                        print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Full article: {text_len} chars] ✓")
-                    else:
-                        # Store headline-only as backup
-                        headline_only_results.append(sentiment)
-                        print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Headline only - stored as backup]")
+                    sentiment['analysis_type'] = 'full_article'
+                    results.append(sentiment)
+                    full_extractions += 1
+                    print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Full: {sentiment.get('text_length', 0)} chars] ✓")
                 else:
-                    # Try headline fallback but store separately
-                    print(f"   ℹ️ Extraction failed, storing headline as backup")
-                    article = self.extractor.extract_basic(actual_url, headline['headline'])
-                    if article and article.get('text'):
-                        sentiment = self.analyzer.analyze(article)
-                        sentiment['source'] = headline.get('source', 'unknown')
-                        headline_only_results.append(sentiment)
-                        print(f"   → {sentiment['category']} (score: {sentiment['final_score']}) [Headline only - backup]")
+                    # Extraction failed - store as backup, don't count towards quota
+                    if use_fast_mode and headline_sentiment:
+                        headline_sentiment['url'] = actual_url or headline.get('url', '')
+                        headline_sentiment['source'] = headline.get('source', 'unknown')
+                        headline_sentiment['analysis_type'] = 'headline_backup'
+                        backup_results.append(headline_sentiment)
+                        print(f"   ℹ️ Extraction failed, stored as backup (score: {headline_sentiment['final_score']})")
                     else:
-                        skipped += 1
+                        # Standard mode - analyze headline now and store as backup
+                        article = self.extractor.extract_basic(actual_url, headline_text)
+                        if article:
+                            sentiment = self.analyzer.analyze(article)
+                            sentiment['source'] = headline.get('source', 'unknown')
+                            sentiment['analysis_type'] = 'headline_backup'
+                            backup_results.append(sentiment)
+                            print(f"   ℹ️ Extraction failed, stored as backup (score: {sentiment['final_score']})")
+                        else:
+                            skipped += 1
                     
             except Exception as e:
-                print(f"   ⚠️ Error: {e} - skipping to next article...")
+                print(f"   ⚠️ Error: {e} - skipping...")
                 skipped += 1
         
-        # Step 3: Combine results - full articles first, then fill with headline-only if needed
-        results = full_article_results.copy()
+        # Step 3: Fill remaining slots with backups if needed
         remaining_slots = max_articles - len(results)
+        if remaining_slots > 0 and backup_results:
+            # Sort backups by absolute score (strongest sentiment first)
+            backup_results.sort(key=lambda x: abs(x.get('final_score', 0)), reverse=True)
+            backups_used = backup_results[:remaining_slots]
+            for backup in backups_used:
+                backup['analysis_type'] = 'headline_only'  # Rename for final output
+            results.extend(backups_used)
+            print(f"📝 Added {len(backups_used)} backup headlines to fill remaining slots")
         
-        if remaining_slots > 0 and headline_only_results:
-            results.extend(headline_only_results[:remaining_slots])
-            print(f"📝 Added {min(remaining_slots, len(headline_only_results))} headline-only analyses to fill remaining slots")
-        
-        print(f"✅ Successfully processed {len(results)} articles ({len(full_article_results)} full, {len(results) - len(full_article_results)} headline-only, {skipped} skipped)")
+        # Summary
+        headline_only_count = len([r for r in results if r.get('analysis_type') in ['headline_fast', 'headline_only']])
+        if use_fast_mode:
+            print(f"✅ Processed {len(results)} articles: {fast_accepts} fast (strong headline), {full_extractions} full extraction, {len(results) - fast_accepts - full_extractions} from backup, {skipped} skipped")
+        else:
+            print(f"✅ Processed {len(results)} articles: {full_extractions} full, {headline_only_count} headline-only, {skipped} skipped")
         
         # Step 4: Generate summary
         summary = self.analyzer.summarize_results(results)
@@ -103,6 +165,23 @@ class EconomicNewsSentimentAnalyzer:
             'summary': summary,
             'articles': results
         }
+    
+    def _quick_headline_analysis(self, headline_text: str) -> dict:
+        """Quickly analyze a headline without full article extraction.
+        
+        Returns a sentiment dict that can be used directly if score is strong enough.
+        """
+        # Create a minimal article dict with just the headline
+        article = {
+            'title': headline_text,
+            'text': headline_text,
+            'url': '',
+            'publish_date': None
+        }
+        
+        # Use the same analyzer
+        sentiment = self.analyzer.analyze(article)
+        return sentiment
     
     def print_report(self, analysis: dict):
         """Print a formatted report."""
@@ -179,7 +258,9 @@ def analyze_news_sync(
     max_articles: int = 10,
     print_report: bool = False,
     save_json: bool = False,
-    json_path: str = 'sentiment_report.json'
+    json_path: str = 'sentiment_report.json',
+    fast_mode: bool = True,
+    headline_threshold: float = 0.5
 ) -> dict:
     """
     Synchronous wrapper for news sentiment analysis.
@@ -191,6 +272,8 @@ def analyze_news_sync(
         print_report: Whether to print formatted report
         save_json: Whether to save results to JSON file
         json_path: Path for JSON output
+        fast_mode: If True, headlines with strong sentiment skip full extraction
+        headline_threshold: Minimum sentiment magnitude (0-1) to skip extraction
     
     Returns:
         dict with 'summary' and 'articles' keys
@@ -198,14 +281,23 @@ def analyze_news_sync(
     Example:
         from main_scraper import analyze_news_sync
         
+        # Fast mode (default) - much faster
         results = analyze_news_sync(
-            keywords=["US economy", "Federal Reserve"],
-            max_articles=10
+            keywords=["US economy"],
+            max_articles=10,
+            fast_mode=True  # Headlines with score >= 0.5 skip extraction
         )
-        print(results['summary']['overall_assessment'])
+        
+        # Thorough mode - always extract full articles
+        results = analyze_news_sync(
+            keywords=["US economy"],
+            max_articles=10,
+            fast_mode=False
+        )
     """
     return asyncio.run(_analyze_news_async(
-        keywords, max_articles, print_report, save_json, json_path
+        keywords, max_articles, print_report, save_json, json_path,
+        fast_mode, headline_threshold
     ))
 
 
@@ -214,11 +306,22 @@ async def analyze_news_async(
     max_articles: int = 10,
     print_report: bool = False,
     save_json: bool = False,
-    json_path: str = 'sentiment_report.json'
+    json_path: str = 'sentiment_report.json',
+    fast_mode: bool = True,
+    headline_threshold: float = 0.5
 ) -> dict:
     """
     Async version for news sentiment analysis.
     Use this if your main app is already async.
+    
+    Args:
+        keywords: List of search terms
+        max_articles: Maximum articles to analyze
+        print_report: Whether to print formatted report
+        save_json: Whether to save results to JSON file
+        json_path: Path for JSON output
+        fast_mode: If True, headlines with strong sentiment skip full extraction
+        headline_threshold: Minimum sentiment magnitude (0-1) to skip extraction
     
     Example:
         from main_scraper import analyze_news_async
@@ -228,7 +331,8 @@ async def analyze_news_async(
             print(results['summary']['overall_assessment'])
     """
     return await _analyze_news_async(
-        keywords, max_articles, print_report, save_json, json_path
+        keywords, max_articles, print_report, save_json, json_path,
+        fast_mode, headline_threshold
     )
 
 
@@ -317,13 +421,18 @@ async def _analyze_news_async(
     max_articles: int = 10,
     print_report: bool = False,
     save_json: bool = False,
-    json_path: str = 'sentiment_report.json'
+    json_path: str = 'sentiment_report.json',
+    fast_mode: bool = True,
+    headline_threshold: float = 0.5
 ) -> dict:
     """Internal async implementation."""
     if keywords is None:
         keywords = ["US economy"]
     
-    analyzer = EconomicNewsSentimentAnalyzer()
+    analyzer = EconomicNewsSentimentAnalyzer(
+        fast_mode=fast_mode,
+        headline_threshold=headline_threshold
+    )
     results = await analyzer.analyze_economic_news(
         keywords=keywords, 
         max_articles=max_articles
