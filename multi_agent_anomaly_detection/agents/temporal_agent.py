@@ -33,8 +33,10 @@ class TemporalAgent(BaseDetectorAgent):
     
     def __init__(self, agent_id: str = None, name: str = "Temporal Agent",
                  knowledge_base: KnowledgeBase = None,
-                 wow_threshold: float = 1.0,
-                 mom_threshold: float = 0.75):
+                 wow_threshold: float = 2.0,  # Increased to 2.0 (200% change - only flag if tripled)
+                 mom_threshold: float = 1.5,   # Increased to 1.5 (150% change)
+                 min_absolute_value: float = 20000.0,  # Increased to $20,000 minimum
+                 max_flags_per_row: int = 1):  # Reduced to 1 flag per row
         """
         Initialize the temporal agent.
         
@@ -42,8 +44,10 @@ class TemporalAgent(BaseDetectorAgent):
             agent_id: Unique identifier
             name: Agent name
             knowledge_base: Shared knowledge base
-            wow_threshold: Week-over-week change threshold (100% - only flag if doubled)
-            mom_threshold: Month-over-month change threshold (75% - significant change)
+            wow_threshold: Week-over-week change threshold (default: 1.5 = 150% change)
+            mom_threshold: Month-over-month change threshold (default: 1.0 = 100% change)
+            min_absolute_value: Minimum absolute value to flag (default: $10,000)
+            max_flags_per_row: Maximum flags per row (default: 2)
         """
         super().__init__(agent_id, name, knowledge_base)
         
@@ -52,7 +56,9 @@ class TemporalAgent(BaseDetectorAgent):
             'mom_threshold': mom_threshold,  # Month-over-month
             'trend_window': 4,               # Weeks to consider for trend
             'min_historical_data': 4,        # Minimum weeks of history
-            'lag_deviation_threshold': 3.0   # Z-score for lag deviation (stricter)
+            'lag_deviation_threshold': 4.0,  # Increased from 3.5 to 4.0
+            'min_absolute_value': min_absolute_value,
+            'max_flags_per_row': max_flags_per_row
         }
         
         # Temporal trees per entity
@@ -292,7 +298,7 @@ class TemporalAgent(BaseDetectorAgent):
     
     def detect(self, data: pd.DataFrame, 
                context: DetectionContext = None) -> List[AnomalyFlag]:
-        """Detect temporal anomalies."""
+        """Detect temporal anomalies with global limits."""
         flags = []
         modifier = context.threshold_modifier if context else 1.0
         
@@ -301,33 +307,81 @@ class TemporalAgent(BaseDetectorAgent):
         else:
             entities = [context.entity if context else 'default']
         
+        # Global limit: max flags per entity (very aggressive)
+        max_flags_per_entity = 15  # Reduced from 25 to 15
+        
         for entity in entities:
             entity_data = data[data['Entity'] == entity] if 'Entity' in data.columns else data
             
             if len(entity_data) < self.config['min_historical_data']:
                 continue
             
+            entity_flags = []
+            
             # Week-over-week detection
             wow_flags = self._detect_wow_anomalies(entity_data, entity, modifier)
-            flags.extend(wow_flags)
+            entity_flags.extend(wow_flags)
             
             # Month-over-month detection (using lag4)
             mom_flags = self._detect_mom_anomalies(entity_data, entity, modifier)
-            flags.extend(mom_flags)
+            entity_flags.extend(mom_flags)
             
             # Trend detection
             trend_flags = self._detect_trend_anomalies(entity_data, entity, modifier)
-            flags.extend(trend_flags)
+            entity_flags.extend(trend_flags)
             
             # Lag-based anomalies
             lag_flags = self._detect_lag_anomalies(entity_data, entity, modifier)
-            flags.extend(lag_flags)
+            entity_flags.extend(lag_flags)
+            
+            # Deduplicate: Group flags by timestamp/row to avoid multiple flags for same period
+            flags_by_timestamp = {}
+            for flag in entity_flags:
+                # Create a unique key from timestamp (round to day to catch same-week flags)
+                if flag.timestamp:
+                    if isinstance(flag.timestamp, datetime):
+                        # Round to day for better deduplication
+                        key = flag.timestamp.date()
+                    else:
+                        key = str(flag.timestamp)
+                else:
+                    # Fallback: use current_value as key
+                    key = str(flag.contributing_factors.get('current_value', ''))
+                
+                if key not in flags_by_timestamp:
+                    flags_by_timestamp[key] = []
+                flags_by_timestamp[key].append(flag)
+            
+            # Keep only top flag per timestamp (most severe/highest confidence)
+            deduplicated_flags = []
+            for timestamp_key, flag_list in flags_by_timestamp.items():
+                flag_list.sort(
+                    key=lambda f: (
+                        {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(f.severity.value, 0),
+                        f.confidence
+                    ),
+                    reverse=True
+                )
+                deduplicated_flags.append(flag_list[0])  # Only keep the top flag per timestamp
+            
+            # Sort all entity flags by severity and confidence, keep only top N
+            if len(deduplicated_flags) > max_flags_per_entity:
+                deduplicated_flags.sort(
+                    key=lambda f: (
+                        {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(f.severity.value, 0),
+                        f.confidence
+                    ),
+                    reverse=True
+                )
+                deduplicated_flags = deduplicated_flags[:max_flags_per_entity]
+            
+            flags.extend(deduplicated_flags)
         
         return flags
     
     def _detect_wow_anomalies(self, data: pd.DataFrame, entity: str,
                                modifier: float) -> List[AnomalyFlag]:
-        """Detect week-over-week anomalies."""
+        """Detect week-over-week anomalies with filtering."""
         flags = []
         
         if 'Total_Net' not in data.columns or 'Net_Lag1' not in data.columns:
@@ -335,12 +389,25 @@ class TemporalAgent(BaseDetectorAgent):
         
         wow_graph = self.rule_graphs.get('wow')
         threshold = self.config['wow_threshold'] * modifier
+        min_abs_value = self.config['min_absolute_value']
+        max_per_row = self.config['max_flags_per_row']
+        
+        row_flags_dict = {}  # Group flags by row index
         
         for idx, row in data.iterrows():
             current = row.get('Total_Net', 0)
             previous = row.get('Net_Lag1', 0)
             
             if previous == 0:
+                continue
+            
+            # Filter: Minimum absolute value - require BOTH to be significant
+            if abs(current) < min_abs_value or abs(previous) < min_abs_value:
+                continue
+            
+            # Additional filter: Only flag if the change represents a significant absolute amount
+            abs_change = abs(current - previous)
+            if abs_change < min_abs_value * 0.5:  # Change must be at least 50% of min threshold
                 continue
             
             pct_change = (current - previous) / abs(previous)
@@ -358,12 +425,15 @@ class TemporalAgent(BaseDetectorAgent):
                         elif not isinstance(timestamp, datetime):
                             timestamp = datetime.now()
                         
+                        severity = Severity(result['severity'])
+                        confidence = result.get('confidence', 0.8)
+                        
                         flag = self.create_flag(
                             entity=entity,
                             timestamp=timestamp,
                             anomaly_type=AnomalyType.TEMPORAL,
-                            severity=Severity(result['severity']),
-                            confidence=result.get('confidence', 0.8),
+                            severity=severity,
+                            confidence=confidence,
                             metric_name="wow_pct_change",
                             metric_value=pct_change,
                             threshold=threshold,
@@ -379,25 +449,50 @@ class TemporalAgent(BaseDetectorAgent):
                                 'pct_change': pct_change
                             }
                         )
-                        flags.append(flag)
+                        
+                        if idx not in row_flags_dict:
+                            row_flags_dict[idx] = []
+                        row_flags_dict[idx].append((severity.value, confidence, flag))
+        
+        # Limit flags per row
+        for idx, flag_list in row_flags_dict.items():
+            flag_list.sort(key=lambda x: (
+                {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(x[0], 0),
+                x[1]
+            ), reverse=True)
+            for _, _, flag in flag_list[:max_per_row]:
+                flags.append(flag)
         
         return flags
     
     def _detect_mom_anomalies(self, data: pd.DataFrame, entity: str,
                                modifier: float) -> List[AnomalyFlag]:
-        """Detect month-over-month anomalies using lag4."""
+        """Detect month-over-month anomalies with filtering."""
         flags = []
         
         if 'Total_Net' not in data.columns or 'Net_Lag4' not in data.columns:
             return flags
         
         threshold = self.config['mom_threshold'] * modifier
+        min_abs_value = self.config['min_absolute_value']
+        max_per_row = self.config['max_flags_per_row']
+        
+        row_flags_dict = {}
         
         for idx, row in data.iterrows():
             current = row.get('Total_Net', 0)
             month_ago = row.get('Net_Lag4', 0)  # 4 weeks = ~1 month
             
             if month_ago == 0:
+                continue
+            
+            # Filter: Minimum absolute value - require BOTH to be significant
+            if abs(current) < min_abs_value or abs(month_ago) < min_abs_value:
+                continue
+            
+            # Additional filter: Only flag if the change represents a significant absolute amount
+            abs_change = abs(current - month_ago)
+            if abs_change < min_abs_value * 0.5:  # Change must be at least 50% of min threshold
                 continue
             
             pct_change = (current - month_ago) / abs(month_ago)
@@ -409,12 +504,15 @@ class TemporalAgent(BaseDetectorAgent):
                 elif not isinstance(timestamp, datetime):
                     timestamp = datetime.now()
                 
+                severity = Severity.MEDIUM if abs(pct_change) < threshold * 2 else Severity.HIGH
+                confidence = 0.75
+                
                 flag = self.create_flag(
                     entity=entity,
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.TEMPORAL,
-                    severity=Severity.MEDIUM if abs(pct_change) < threshold * 2 else Severity.HIGH,
-                    confidence=0.75,
+                    severity=severity,
+                    confidence=confidence,
                     metric_name="mom_pct_change",
                     metric_value=pct_change,
                     threshold=threshold,
@@ -428,13 +526,25 @@ class TemporalAgent(BaseDetectorAgent):
                         'pct_change': pct_change
                     }
                 )
+                
+                if idx not in row_flags_dict:
+                    row_flags_dict[idx] = []
+                row_flags_dict[idx].append((severity.value, confidence, flag))
+        
+        # Limit flags per row
+        for idx, flag_list in row_flags_dict.items():
+            flag_list.sort(key=lambda x: (
+                {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(x[0], 0),
+                x[1]
+            ), reverse=True)
+            for _, _, flag in flag_list[:max_per_row]:
                 flags.append(flag)
         
         return flags
     
     def _detect_trend_anomalies(self, data: pd.DataFrame, entity: str,
                                  modifier: float) -> List[AnomalyFlag]:
-        """Detect trend reversals and accelerations."""
+        """Detect trend reversals and accelerations with filtering."""
         flags = []
         
         if 'Total_Net' not in data.columns or len(data) < self.config['trend_window'] + 1:
@@ -442,8 +552,19 @@ class TemporalAgent(BaseDetectorAgent):
         
         values = data['Total_Net'].values
         window = self.config['trend_window']
+        min_abs_value = self.config['min_absolute_value']
+        max_per_row = self.config['max_flags_per_row']
+        acceleration_threshold = 4.0  # Increased from 3.0 to 4.0
+        
+        row_flags_dict = {}
         
         for i in range(window, len(values)):
+            current_value = values[i]
+            
+            # Filter: Minimum absolute value
+            if abs(current_value) < min_abs_value:
+                continue
+            
             # Calculate trend slope for current and previous windows
             current_window = values[i-window:i]
             prev_window = values[max(0, i-window*2):i-window] if i >= window*2 else None
@@ -456,8 +577,10 @@ class TemporalAgent(BaseDetectorAgent):
             current_slope = np.polyfit(x, current_window, 1)[0] if len(current_window) > 1 else 0
             prev_slope = np.polyfit(np.arange(len(prev_window)), prev_window, 1)[0] if len(prev_window) > 1 else 0
             
-            # Detect trend reversal (sign change in slope)
-            trend_reversal = (current_slope * prev_slope < 0) and (abs(current_slope) > 100 and abs(prev_slope) > 100)
+            # Stricter trend reversal detection - require larger slope changes
+            min_slope_magnitude = 1000  # Increased from 500 to 1000
+            trend_reversal = (current_slope * prev_slope < 0) and \
+                           (abs(current_slope) > min_slope_magnitude and abs(prev_slope) > min_slope_magnitude)
             
             # Detect acceleration
             if prev_slope != 0:
@@ -465,7 +588,7 @@ class TemporalAgent(BaseDetectorAgent):
             else:
                 acceleration = 0
             
-            if trend_reversal or abs(acceleration) > 2.0:
+            if trend_reversal or abs(acceleration) > acceleration_threshold:
                 row = data.iloc[i]
                 timestamp = row.get('Week_Start') or row.get('timestamp')
                 if isinstance(timestamp, str):
@@ -480,15 +603,17 @@ class TemporalAgent(BaseDetectorAgent):
                     description = f"Unusual trend acceleration: {acceleration:.1%}"
                     severity = Severity.LOW
                 
+                confidence = 0.7
+                
                 flag = self.create_flag(
                     entity=entity,
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.TEMPORAL,
                     severity=severity,
-                    confidence=0.7,
+                    confidence=confidence,
                     metric_name="trend_change",
                     metric_value=acceleration if not trend_reversal else current_slope - prev_slope,
-                    threshold=2.0,
+                    threshold=acceleration_threshold,
                     description=description,
                     explanation=f"The cash flow trend has {'reversed' if trend_reversal else 'accelerated significantly'}. "
                                f"Previous trend: {prev_slope:+.2f}/week, Current trend: {current_slope:+.2f}/week.",
@@ -500,13 +625,25 @@ class TemporalAgent(BaseDetectorAgent):
                         'acceleration': acceleration
                     }
                 )
+                
+                if i not in row_flags_dict:
+                    row_flags_dict[i] = []
+                row_flags_dict[i].append((severity.value, confidence, flag))
+        
+        # Limit flags per row
+        for idx, flag_list in row_flags_dict.items():
+            flag_list.sort(key=lambda x: (
+                {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(x[0], 0),
+                x[1]
+            ), reverse=True)
+            for _, _, flag in flag_list[:max_per_row]:
                 flags.append(flag)
         
         return flags
     
     def _detect_lag_anomalies(self, data: pd.DataFrame, entity: str,
                                modifier: float) -> List[AnomalyFlag]:
-        """Detect anomalies in lag relationships."""
+        """Detect anomalies in lag relationships with filtering."""
         flags = []
         
         lag_cols = ['Net_Lag1', 'Net_Lag2', 'Net_Lag4']
@@ -516,9 +653,20 @@ class TemporalAgent(BaseDetectorAgent):
             return flags
         
         threshold = self.config['lag_deviation_threshold'] * modifier
+        min_abs_value = self.config['min_absolute_value']
+        max_per_row = self.config['max_flags_per_row']
+        
+        row_flags_dict = {}
         
         for idx, row in data.iterrows():
             current = row.get('Total_Net', 0)
+            
+            # Filter: Minimum absolute value
+            if abs(current) < min_abs_value:
+                continue
+            
+            # Additional filter: Only flag if expected value is also significant
+            # (avoid flagging small deviations in small numbers)
             
             # Calculate expected value based on lags
             lag_values = [row.get(lag) for lag in available_lags if not pd.isna(row.get(lag))]
@@ -526,12 +674,22 @@ class TemporalAgent(BaseDetectorAgent):
                 continue
             
             expected = np.mean(lag_values)
+            
+            # Filter: Expected value must also be significant
+            if abs(expected) < min_abs_value:
+                continue
+            
             std_lags = np.std(lag_values) if len(lag_values) > 1 else abs(expected) * 0.2
             
             if std_lags == 0:
                 std_lags = abs(expected) * 0.2 or 1
             
             deviation = (current - expected) / std_lags
+            
+            # Additional filter: Only flag if absolute deviation is significant
+            abs_deviation_amount = abs(current - expected)
+            if abs_deviation_amount < min_abs_value * 0.5:
+                continue
             
             if abs(deviation) > threshold:
                 timestamp = row.get('Week_Start') or row.get('timestamp')
@@ -540,12 +698,15 @@ class TemporalAgent(BaseDetectorAgent):
                 elif not isinstance(timestamp, datetime):
                     timestamp = datetime.now()
                 
+                severity = self.severity_from_deviation(deviation)
+                confidence = 0.7
+                
                 flag = self.create_flag(
                     entity=entity,
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.TEMPORAL,
-                    severity=self.severity_from_deviation(deviation),
-                    confidence=0.7,
+                    severity=severity,
+                    confidence=confidence,
                     metric_name="lag_deviation",
                     metric_value=deviation,
                     threshold=threshold,
@@ -560,6 +721,18 @@ class TemporalAgent(BaseDetectorAgent):
                         'lag_values': lag_values
                     }
                 )
+                
+                if idx not in row_flags_dict:
+                    row_flags_dict[idx] = []
+                row_flags_dict[idx].append((severity.value, confidence, flag))
+        
+        # Limit flags per row
+        for idx, flag_list in row_flags_dict.items():
+            flag_list.sort(key=lambda x: (
+                {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(x[0], 0),
+                x[1]
+            ), reverse=True)
+            for _, _, flag in flag_list[:max_per_row]:
                 flags.append(flag)
         
         return flags

@@ -40,7 +40,10 @@ class CategoryAgent(BaseDetectorAgent):
     
     def __init__(self, agent_id: str = None, name: str = "Category Agent",
                  knowledge_base: KnowledgeBase = None,
-                 category_deviation_threshold: float = 4.0):
+                 category_deviation_threshold: float = 5.0,  # Increased from 4.5 to further reduce false positives
+                 min_category_absolute_value: float = 5000.0,  # Increased from 1000 to $5000 minimum
+                 min_category_percentage: float = 0.03,  # Increased from 2% to 3% of total flow
+                 max_flags_per_row: int = 2):  # Reduced from 3 to 2 flags per row
         """
         Initialize the category agent.
         
@@ -48,7 +51,10 @@ class CategoryAgent(BaseDetectorAgent):
             agent_id: Unique identifier
             name: Agent name
             knowledge_base: Shared knowledge base
-            category_deviation_threshold: Z-score threshold for category anomalies (4.0 - very strict)
+            category_deviation_threshold: Z-score threshold for category anomalies (default: 4.5)
+            min_category_absolute_value: Minimum absolute value to flag a category (default: $1000)
+            min_category_percentage: Minimum percentage of total flow to consider significant (default: 2%)
+            max_flags_per_row: Maximum number of category flags per row (default: 3)
         """
         super().__init__(agent_id, name, knowledge_base)
         
@@ -56,7 +62,10 @@ class CategoryAgent(BaseDetectorAgent):
             'category_deviation_threshold': category_deviation_threshold,
             'min_training_samples': 10,
             'tree_max_depth': 4,
-            'significant_category_threshold': 0.15  # 15% of total (stricter)
+            'significant_category_threshold': 0.15,  # 15% of total (stricter)
+            'min_category_absolute_value': min_category_absolute_value,
+            'min_category_percentage': min_category_percentage,
+            'max_flags_per_row': max_flags_per_row
         }
         
         # Decision trees per entity per category
@@ -255,7 +264,7 @@ class CategoryAgent(BaseDetectorAgent):
     
     def detect(self, data: pd.DataFrame, 
                context: DetectionContext = None) -> List[AnomalyFlag]:
-        """Detect category-specific anomalies."""
+        """Detect category-specific anomalies with global limits."""
         flags = []
         modifier = context.threshold_modifier if context else 1.0
         
@@ -264,26 +273,43 @@ class CategoryAgent(BaseDetectorAgent):
         else:
             entities = [context.entity if context else 'default']
         
+        # Global limit: max flags per entity (prevents one entity from dominating)
+        max_flags_per_entity = 50  # Reasonable limit per entity
+        
         for entity in entities:
             entity_data = data[data['Entity'] == entity] if 'Entity' in data.columns else data
+            entity_flags = []
             
             # Statistical category anomalies
             stat_flags = self._detect_category_deviations(entity_data, entity, modifier)
-            flags.extend(stat_flags)
+            entity_flags.extend(stat_flags)
             
             # Tree-based detection
             tree_flags = self._detect_with_trees(entity_data, entity)
-            flags.extend(tree_flags)
+            entity_flags.extend(tree_flags)
             
             # Ratio anomalies
             ratio_flags = self._detect_ratio_anomalies(entity_data, entity, modifier)
-            flags.extend(ratio_flags)
+            entity_flags.extend(ratio_flags)
+            
+            # Sort all entity flags by severity and confidence, keep only top N
+            if len(entity_flags) > max_flags_per_entity:
+                entity_flags.sort(
+                    key=lambda f: (
+                        {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(f.severity.value, 0),
+                        f.confidence
+                    ),
+                    reverse=True
+                )
+                entity_flags = entity_flags[:max_flags_per_entity]
+            
+            flags.extend(entity_flags)
         
         return flags
     
     def _detect_category_deviations(self, data: pd.DataFrame, entity: str,
                                      modifier: float) -> List[AnomalyFlag]:
-        """Detect statistical deviations in categories."""
+        """Detect statistical deviations in categories with filtering to prevent over-flagging."""
         flags = []
         
         entity_stats = self.category_stats.get(entity, {})
@@ -300,8 +326,29 @@ class CategoryAgent(BaseDetectorAgent):
                     }
         
         threshold = self.config['category_deviation_threshold'] * modifier
+        min_abs_value = self.config['min_category_absolute_value']
+        min_pct = self.config['min_category_percentage']
+        max_per_row = self.config['max_flags_per_row']
+        
+        # Calculate total flow column for percentage checks
+        total_col = 'Total_Net' if 'Total_Net' in data.columns else None
+        if total_col is None:
+            # Try to calculate from category columns
+            cat_cols = [c for c in data.columns if c.startswith('Cat_') and c.endswith('_Net')]
+            if cat_cols:
+                total_col = '__calculated_total__'
         
         for idx, row in data.iterrows():
+            row_flags = []  # Collect flags for this row first
+            
+            # Calculate total flow for this row if needed
+            if total_col == '__calculated_total__':
+                row_total = sum(abs(row.get(f"Cat_{cat}_Net", 0)) for cat in entity_stats.keys())
+            elif total_col:
+                row_total = abs(row.get(total_col, 0))
+            else:
+                row_total = 1.0  # Fallback to avoid division by zero
+            
             for cat_name, stats in entity_stats.items():
                 cat_col = f"Cat_{cat_name}_Net"
                 if cat_col not in row.index:
@@ -311,11 +358,25 @@ class CategoryAgent(BaseDetectorAgent):
                 if pd.isna(value) or value == 0:
                     continue
                 
+                abs_value = abs(value)
+                
+                # Filter 1: Minimum absolute value threshold
+                if abs_value < min_abs_value:
+                    continue
+                
+                # Filter 2: Minimum percentage of total flow
+                pct_of_total = 0.0
+                if row_total > 0:
+                    pct_of_total = abs_value / row_total
+                    if pct_of_total < min_pct:
+                        continue
+                
                 mean = stats.get('mean', 0)
                 std = stats.get('std', 1)
                 
                 zscore = (value - mean) / std if std > 0 else 0
                 
+                # Filter 3: Z-score threshold
                 if abs(zscore) > threshold:
                     timestamp = row.get('Week_Start') or row.get('timestamp')
                     if isinstance(timestamp, str):
@@ -341,20 +402,44 @@ class CategoryAgent(BaseDetectorAgent):
                             'value': value,
                             'mean': mean,
                             'std': std,
-                            'zscore': zscore
+                            'zscore': zscore,
+                            'abs_value': abs_value,
+                            'pct_of_total': pct_of_total
                         }
                     )
+                    row_flags.append((abs(zscore), flag))  # Store with z-score for sorting
+            
+            # Filter 4: Limit flags per row - keep only top N by severity/confidence
+            if row_flags:
+                # Sort by z-score (severity) descending
+                row_flags.sort(key=lambda x: x[0], reverse=True)
+                # Take only top max_per_row
+                for _, flag in row_flags[:max_per_row]:
                     flags.append(flag)
         
         return flags
     
     def _detect_with_trees(self, data: pd.DataFrame, entity: str) -> List[AnomalyFlag]:
-        """Use trained category trees for detection."""
+        """Use trained category trees for detection with filtering."""
         flags = []
         
         entity_trees = self.category_trees.get(entity, {})
         if not entity_trees:
             return flags
+        
+        min_abs_value = self.config['min_category_absolute_value']
+        min_pct = self.config['min_category_percentage']
+        max_per_row = self.config['max_flags_per_row']
+        
+        # Calculate total flow column for percentage checks
+        total_col = 'Total_Net' if 'Total_Net' in data.columns else None
+        if total_col is None:
+            cat_cols = [c for c in data.columns if c.startswith('Cat_') and c.endswith('_Net')]
+            if cat_cols:
+                total_col = '__calculated_total__'
+        
+        # Collect all tree flags first, then filter
+        all_tree_flags = []
         
         for cat_name, tree in entity_trees.items():
             if tree.tree is None:
@@ -379,23 +464,45 @@ class CategoryAgent(BaseDetectorAgent):
                     row = data.iloc[i]
                     confidence = proba[1]
                     
+                    # Filter: Require higher confidence for tree predictions
+                    if confidence < 0.7:  # Only flag high-confidence tree predictions
+                        continue
+                    
+                    cat_value = row.get(f"Cat_{cat_name}_Net", 0)
+                    abs_value = abs(cat_value)
+                    
+                    # Filter 1: Minimum absolute value
+                    if abs_value < min_abs_value:
+                        continue
+                    
+                    # Filter 2: Minimum percentage of total
+                    if total_col == '__calculated_total__':
+                        row_total = sum(abs(row.get(f"Cat_{c}_Net", 0)) for c in entity_trees.keys())
+                    elif total_col:
+                        row_total = abs(row.get(total_col, 0))
+                    else:
+                        row_total = 1.0
+                    
+                    if row_total > 0:
+                        pct_of_total = abs_value / row_total
+                        if pct_of_total < min_pct:
+                            continue
+                    
                     timestamp = row.get('Week_Start') or row.get('timestamp')
                     if isinstance(timestamp, str):
                         timestamp = datetime.fromisoformat(timestamp)
                     elif not isinstance(timestamp, datetime):
                         timestamp = datetime.now()
                     
-                    cat_value = row.get(f"Cat_{cat_name}_Net", 0)
-                    
                     flag = self.create_flag(
                         entity=entity,
                         timestamp=timestamp,
                         anomaly_type=AnomalyType.CATEGORY,
-                        severity=Severity.MEDIUM if confidence < 0.8 else Severity.HIGH,
+                        severity=Severity.MEDIUM if confidence < 0.85 else Severity.HIGH,
                         confidence=confidence,
                         metric_name=f"{cat_name}_tree",
                         metric_value=cat_value,
-                        threshold=0.5,
+                        threshold=0.7,  # Higher threshold
                         description=f"Category tree anomaly: {cat_name}",
                         explanation=tree.explain_prediction(X, i),
                         rule_id=f"cat_tree_{cat_name}",
@@ -403,16 +510,31 @@ class CategoryAgent(BaseDetectorAgent):
                         contributing_factors={
                             'category': cat_name,
                             'tree_confidence': confidence,
+                            'abs_value': abs_value,
+                            'pct_of_total': pct_of_total if row_total > 0 else 0,
                             **dict(zip(tree.feature_names, X.iloc[i].values))
                         }
                     )
-                    flags.append(flag)
+                    all_tree_flags.append((i, confidence, flag))  # Store with row index and confidence
+        
+        # Filter 3: Limit flags per row - group by row index
+        row_flags_dict = {}
+        for row_idx, conf, flag in all_tree_flags:
+            if row_idx not in row_flags_dict:
+                row_flags_dict[row_idx] = []
+            row_flags_dict[row_idx].append((conf, flag))
+        
+        # Keep only top N flags per row
+        for row_idx, row_flag_list in row_flags_dict.items():
+            row_flag_list.sort(key=lambda x: x[0], reverse=True)  # Sort by confidence
+            for _, flag in row_flag_list[:max_per_row]:
+                flags.append(flag)
         
         return flags
     
     def _detect_ratio_anomalies(self, data: pd.DataFrame, entity: str,
                                  modifier: float) -> List[AnomalyFlag]:
-        """Detect anomalies in category ratios."""
+        """Detect anomalies in category ratios with stricter filtering."""
         flags = []
         
         # Find ratio columns
@@ -420,23 +542,43 @@ class CategoryAgent(BaseDetectorAgent):
         if not ratio_cols:
             return flags
         
-        threshold = self.config['significant_category_threshold']
+        threshold = 0.85  # Increased from 0.8 to 0.85 - only flag extreme concentrations
+        min_abs_value = self.config['min_category_absolute_value']
         
         for idx, row in data.iterrows():
             # Check for dominant categories (high ratios)
             high_ratios = []
+            
+            # Calculate total for absolute value check
+            total_col = 'Total_Net' if 'Total_Net' in data.columns else None
+            if total_col:
+                row_total = abs(row.get(total_col, 0))
+            else:
+                # Try to calculate from category columns
+                cat_cols = [c for c in data.columns if c.startswith('Cat_') and c.endswith('_Net')]
+                row_total = sum(abs(row.get(c, 0)) for c in cat_cols) if cat_cols else 1.0
             
             for ratio_col in ratio_cols:
                 ratio = row.get(ratio_col, 0)
                 if pd.isna(ratio):
                     continue
                 
-                if ratio > 0.8:  # More than 80% in one category
+                # Stricter threshold and check absolute value
+                if ratio > threshold:  # More than 85% in one category (increased from 80%)
                     cat_name = ratio_col.replace('_Ratio', '')
-                    high_ratios.append((cat_name, ratio))
+                    cat_col = f"Cat_{cat_name}_Net"
+                    cat_value = abs(row.get(cat_col, 0))
+                    
+                    # Filter: Must meet minimum absolute value
+                    if cat_value >= min_abs_value:
+                        high_ratios.append((cat_name, ratio, cat_value))
             
+            # Only flag if there's a significant concentration AND it's a large absolute value
             if high_ratios:
-                max_ratio = max(high_ratios, key=lambda x: x[1])
+                # Sort by ratio descending, then by absolute value
+                high_ratios.sort(key=lambda x: (x[1], x[2]), reverse=True)
+                max_ratio_info = high_ratios[0]
+                cat_name, ratio, cat_value = max_ratio_info
                 
                 timestamp = row.get('Week_Start') or row.get('timestamp')
                 if isinstance(timestamp, str):
@@ -449,18 +591,19 @@ class CategoryAgent(BaseDetectorAgent):
                     timestamp=timestamp,
                     anomaly_type=AnomalyType.CATEGORY,
                     severity=Severity.LOW,
-                    confidence=0.6,
-                    metric_name=f"{max_ratio[0]}_ratio",
-                    metric_value=max_ratio[1],
-                    threshold=0.8,
-                    description=f"High category concentration: {max_ratio[0]} ({max_ratio[1]:.1%})",
-                    explanation=f"The {max_ratio[0]} category represents {max_ratio[1]:.1%} of total "
-                               f"cash flow this period, indicating unusual concentration.",
+                    confidence=0.65,  # Slightly higher confidence
+                    metric_name=f"{cat_name}_ratio",
+                    metric_value=ratio,
+                    threshold=threshold,
+                    description=f"High category concentration: {cat_name} ({ratio:.1%})",
+                    explanation=f"The {cat_name} category represents {ratio:.1%} of total "
+                               f"cash flow this period (${cat_value:,.2f}), indicating unusual concentration.",
                     rule_id="cat_ratio",
                     contributing_factors={
-                        'category': max_ratio[0],
-                        'ratio': max_ratio[1],
-                        'all_high_ratios': dict(high_ratios)
+                        'category': cat_name,
+                        'ratio': ratio,
+                        'absolute_value': cat_value,
+                        'all_high_ratios': {name: r for name, r, _ in high_ratios}
                     }
                 )
                 flags.append(flag)

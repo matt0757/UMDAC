@@ -404,13 +404,42 @@ class MetaCoordinator:
             agreement_ratio = len(detecting_agents) / total_agents if total_agents > 0 else 0
             
             # Calculate weighted confidence from individual agent results
+            # Normalize by agent to prevent high-volume agents from dominating
             total_flag_confidence = 0
             total_flags = 0
             severity_weights = {'critical': 1.0, 'high': 0.85, 'medium': 0.65, 'low': 0.4}
             
+            # Count flags per agent for normalization
+            flags_per_agent = {}
             for result in agent_results:
+                flags_per_agent[result.agent_id] = len(result.flags)
+            
+            # Calculate normalization factor (inverse of flag count, normalized)
+            max_flags = max(flags_per_agent.values()) if flags_per_agent else 1
+            min_flags = min(flags_per_agent.values()) if flags_per_agent else 1
+            
+            # Normalize weights: agents with fewer flags get higher weight per flag
+            # This prevents CategoryAgent from dominating just because it checks more dimensions
+            agent_weights = {}
+            for agent_id, flag_count in flags_per_agent.items():
+                if flag_count > 0:
+                    # Weight inversely proportional to flag count, but cap at reasonable range
+                    # Agents with 1-10 flags get full weight, agents with 100+ flags get reduced weight
+                    if flag_count <= 10:
+                        agent_weights[agent_id] = 1.0
+                    elif flag_count <= 50:
+                        agent_weights[agent_id] = 0.8
+                    elif flag_count <= 100:
+                        agent_weights[agent_id] = 0.6
+                    else:
+                        agent_weights[agent_id] = 0.4  # Heavily penalize very high flag counts
+                else:
+                    agent_weights[agent_id] = 1.0
+            
+            for result in agent_results:
+                agent_weight = agent_weights.get(result.agent_id, 1.0)
                 for flag in result.flags:
-                    weight = severity_weights.get(flag.severity.value, 0.5)
+                    weight = severity_weights.get(flag.severity.value, 0.5) * agent_weight
                     total_flag_confidence += flag.confidence * weight
                     total_flags += 1
             

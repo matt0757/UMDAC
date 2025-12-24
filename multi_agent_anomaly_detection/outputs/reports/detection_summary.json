@@ -1,60 +1,60 @@
 {
-  "generated_at": "2025-12-21T10:57:07.631030",
+  "generated_at": "2025-12-24T14:17:45.124927",
   "entities": {
     "ID10": {
       "is_anomaly": true,
-      "confidence": 0.8795788923076918,
+      "confidence": 0.8650301666666668,
       "severity": "high",
-      "num_flags": 145,
+      "num_flags": 24,
       "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
     },
     "KR10": {
       "is_anomaly": true,
-      "confidence": 0.8779117528681971,
+      "confidence": 0.8641307627821789,
       "severity": "high",
-      "num_flags": 170,
+      "num_flags": 54,
       "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
     },
     "MY10": {
       "is_anomaly": true,
-      "confidence": 0.8630829577825839,
+      "confidence": 0.810638019165017,
       "severity": "high",
-      "num_flags": 134,
-      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+      "num_flags": 50,
+      "recommended_action": "REVIEW - Moderate-confidence finding requires verification"
     },
     "PH10": {
       "is_anomaly": true,
-      "confidence": 0.7996042735042729,
+      "confidence": 0.7540363636363637,
       "severity": "high",
-      "num_flags": 140,
+      "num_flags": 33,
       "recommended_action": "REVIEW - Moderate-confidence finding requires verification"
     },
     "SS10": {
       "is_anomaly": true,
-      "confidence": 0.8751049203618592,
+      "confidence": 0.8201337854485716,
       "severity": "high",
-      "num_flags": 182,
-      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+      "num_flags": 52,
+      "recommended_action": "REVIEW - Moderate-confidence finding requires verification"
     },
     "TH10": {
       "is_anomaly": true,
-      "confidence": 0.8769870619487622,
+      "confidence": 0.8395886306286305,
       "severity": "high",
-      "num_flags": 201,
-      "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
+      "num_flags": 55,
+      "recommended_action": "REVIEW - Moderate-confidence finding requires verification"
     },
     "TW10": {
       "is_anomaly": true,
-      "confidence": 0.9471686270967342,
+      "confidence": 0.9090492751637368,
       "severity": "high",
-      "num_flags": 158,
+      "num_flags": 91,
       "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
     },
     "VN20": {
       "is_anomaly": true,
-      "confidence": 0.9369599477119014,
+      "confidence": 0.895467538375209,
       "severity": "high",
-      "num_flags": 147,
+      "num_flags": 57,
       "recommended_action": "INVESTIGATE - High-confidence anomaly requires immediate review"
     }
   }

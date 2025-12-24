@@ -528,7 +528,7 @@
         <div class="header-content">
             <div>
                 <h1 class="dashboard-title">🔍 Multi-Agent Anomaly Detection</h1>
-                <p class="dashboard-subtitle">AstraZeneca Cash Flow Analysis | Generated: 2025-12-21 10:57:07</p>
+                <p class="dashboard-subtitle">AstraZeneca Cash Flow Analysis | Generated: 2025-12-24 14:17:45</p>
             </div>
             <div class="header-stats">
                 <div class="header-stat">
@@ -540,7 +540,7 @@
                     <div class="header-stat-label">With Anomalies</div>
                 </div>
                 <div class="header-stat">
-                    <div class="header-stat-value">1277</div>
+                    <div class="header-stat-value">416</div>
                     <div class="header-stat-label">Total Flags</div>
                 </div>
             </div>
@@ -569,23 +569,23 @@
             <h2 class="summary-title">📊 Executive Summary</h2>
             <div class="summary-grid">
                 <div class="summary-card">
-                    <div class="summary-value" style="color: var(--az-mulberry);">100.0%</div>
+                    <div class="summary-value" style="color: var(--az-mulberry);">0.004%</div>
                     <div class="summary-label">Anomaly Rate</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value severity-critical">75</div>
+                    <div class="summary-value severity-critical">44</div>
                     <div class="summary-label">Critical Flags</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value severity-high">414</div>
+                    <div class="summary-value severity-high">101</div>
                     <div class="summary-label">High Severity</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value severity-medium">476</div>
+                    <div class="summary-value severity-medium">149</div>
                     <div class="summary-label">Medium Severity</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value severity-low">312</div>
+                    <div class="summary-value severity-low">122</div>
                     <div class="summary-label">Low Severity</div>
                 </div>
                 <div class="summary-card">
@@ -625,8 +625,8 @@
                 <h4>📊 Statistical Agent</h4>
                 <p>Detects outliers using Z-scores, IQR, and rolling statistics</p>
                 <div class="agent-stats">
-                    <span class="agent-stat">Confidence: 50%</span>
-                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">Avg Flag Confidence: 70.0%</span>
+                    <span class="agent-stat">76 detections</span>
                     <span class="agent-stat">2 rule graphs</span>
                 </div>
             </div>
@@ -634,8 +634,8 @@
                 <h4>🔄 Pattern Agent</h4>
                 <p>Identifies violations in seasonal and temporal patterns</p>
                 <div class="agent-stats">
-                    <span class="agent-stat">Confidence: 50%</span>
-                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">Avg Flag Confidence: 84.0%</span>
+                    <span class="agent-stat">27 detections</span>
                     <span class="agent-stat">1 rule graphs</span>
                 </div>
             </div>
@@ -643,8 +643,8 @@
                 <h4>📋 Rule Agent</h4>
                 <p>Enforces business rules for transactions and amounts</p>
                 <div class="agent-stats">
-                    <span class="agent-stat">Confidence: 50%</span>
-                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">Avg Flag Confidence: 76.3%</span>
+                    <span class="agent-stat">52 detections</span>
                     <span class="agent-stat">3 rule graphs</span>
                 </div>
             </div>
@@ -652,8 +652,8 @@
                 <h4>⏰ Temporal Agent</h4>
                 <p>Analyzes week-over-week and month-over-month changes</p>
                 <div class="agent-stats">
-                    <span class="agent-stat">Confidence: 50%</span>
-                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">Avg Flag Confidence: 72.7%</span>
+                    <span class="agent-stat">114 detections</span>
                     <span class="agent-stat">3 rule graphs</span>
                 </div>
             </div>
@@ -661,8 +661,8 @@
                 <h4>🏷️ Category Agent</h4>
                 <p>Monitors category-specific patterns (AP, AR, Payroll, etc.)</p>
                 <div class="agent-stats">
-                    <span class="agent-stat">Confidence: 50%</span>
-                    <span class="agent-stat">0 detections</span>
+                    <span class="agent-stat">Avg Flag Confidence: 71.4%</span>
+                    <span class="agent-stat">147 detections</span>
                     <span class="agent-stat">1 rule graphs</span>
                 </div>
             </div>
@@ -683,12 +683,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">88.0%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">86.5%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">59</div>
+                    <div class="kpi-value">12</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -718,62 +718,14 @@
                 
                 <div class="flag-card severity-critical">
                     <div class="flag-header">
-                        <span class="flag-title">Interest_income_zscore</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Unusual Interest_income: -6.48σ from mean</div>
-                    <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -6.48</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
                         <span class="flag-title">Other_receipt_zscore</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
                     <div class="flag-description">Unusual Other_receipt: 6.40σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 6.40</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">Other_zscore</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Unusual Other: 6.48σ from mean</div>
-                    <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: 6.48</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -57652.36σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -57,652.36</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -12.99σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -12.99</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -783,7 +735,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: -5.74σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -5.74</span>
                     </div>
@@ -795,7 +747,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: -8.04σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -8.04</span>
                     </div>
@@ -807,33 +759,81 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: 5.07σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 5.07</span>
                     </div>
                 </div>
-                <div class="flag-card severity-high">
+                <div class="flag-card severity-critical">
                     <div class="flag-header">
-                        <span class="flag-title">Tax_payable_zscore</span>
-                        <span class="flag-severity high">high</span>
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Unusual Tax_payable: -4.35σ from mean</div>
+                    <div class="flag-description">Deviation from lag-based expectation: -12.99σ</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -4.35</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -12.99</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">AR_zscore</span>
+                        <span class="flag-title">mom_pct_change</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Unusual AR: 4.00σ from mean</div>
+                    <div class="flag-description">Month-over-month change: +757.4%</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: 4.00</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 7.57</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: +514.2%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 5.14</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -310.7%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.11</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -408.2%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -4.08</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -394.9%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.95</span>
                     </div>
                 </div>
             </div>
@@ -855,12 +855,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">87.8%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">86.4%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">67</div>
+                    <div class="kpi-value">33</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -895,7 +895,7 @@
                     </div>
                     <div class="flag-description">Unusual Loan_receipt: 6.48σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 6.48</span>
                     </div>
@@ -907,7 +907,7 @@
                     </div>
                     <div class="flag-description">Unusual Dividend_payout: -6.48σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -6.48</span>
                     </div>
@@ -919,7 +919,7 @@
                     </div>
                     <div class="flag-description">Large transaction detected (Week 30): $5,199,711.11</div>
                     <div class="flag-meta">
-                        <span>🤖 RuleAgent_1a7fc7</span>
+                        <span>🤖 RuleAgent_b727b5</span>
                         <span>📊 Confidence: 79.5%</span>
                         <span>📍 Value: 5,199,711.11</span>
                     </div>
@@ -931,7 +931,7 @@
                     </div>
                     <div class="flag-description">Large transaction detected (Week 17): $4,504,203.36</div>
                     <div class="flag-meta">
-                        <span>🤖 RuleAgent_1a7fc7</span>
+                        <span>🤖 RuleAgent_b727b5</span>
                         <span>📊 Confidence: 76.9%</span>
                         <span>📍 Value: 4,504,203.36</span>
                     </div>
@@ -943,7 +943,7 @@
                     </div>
                     <div class="flag-description">Large transaction detected (Week 43): $4,235,655.55</div>
                     <div class="flag-meta">
-                        <span>🤖 RuleAgent_1a7fc7</span>
+                        <span>🤖 RuleAgent_b727b5</span>
                         <span>📊 Confidence: 75.9%</span>
                         <span>📍 Value: 4,235,655.55</span>
                     </div>
@@ -955,7 +955,7 @@
                     </div>
                     <div class="flag-description">Large transaction detected (Week 13): $4,108,956.80</div>
                     <div class="flag-meta">
-                        <span>🤖 RuleAgent_1a7fc7</span>
+                        <span>🤖 RuleAgent_b727b5</span>
                         <span>📊 Confidence: 75.4%</span>
                         <span>📍 Value: 4,108,956.80</span>
                     </div>
@@ -965,11 +965,11 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 7177.66σ</div>
+                    <div class="flag-description">Deviation from lag-based expectation: -12.45σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 7,177.66</span>
+                        <span>📍 Value: -12.45</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -977,11 +977,23 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -22.72σ</div>
+                    <div class="flag-description">Deviation from lag-based expectation: -6.98σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -22.72</span>
+                        <span>📍 Value: -6.98</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: 6.35σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: 6.35</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -991,21 +1003,9 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: -11.45σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -11.45</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 6.34σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 6.34</span>
                     </div>
                 </div>
             </div>
@@ -1027,12 +1027,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">86.3%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">81.1%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">52</div>
+                    <div class="kpi-value">11</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -1067,7 +1067,7 @@
                     </div>
                     <div class="flag-description">Unusual Other_receipt: 5.07σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 5.07</span>
                     </div>
@@ -1077,57 +1077,9 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -23916.08σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -23,916.08</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 9.02σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 9.02</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -12.70σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -12.70</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -12.52σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -12.52</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
                     <div class="flag-description">Deviation from lag-based expectation: 12.39σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 12.39</span>
                     </div>
@@ -1139,7 +1091,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: -8.69σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -8.69</span>
                     </div>
@@ -1151,7 +1103,7 @@
                     </div>
                     <div class="flag-description">Pattern deviation in month_end: 3.77σ</div>
                     <div class="flag-meta">
-                        <span>🤖 PatternAgent_16e229</span>
+                        <span>🤖 PatternAgent_a081a9</span>
                         <span>📊 Confidence: 87.7%</span>
                         <span>📍 Value: 3.77</span>
                     </div>
@@ -1163,28 +1115,76 @@
                     </div>
                     <div class="flag-description">Pattern deviation in month_end: 3.33σ</div>
                     <div class="flag-meta">
-                        <span>🤖 PatternAgent_16e229</span>
+                        <span>🤖 PatternAgent_a081a9</span>
                         <span>📊 Confidence: 83.3%</span>
                         <span>📍 Value: 3.33</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">Nonting_AR_tree</span>
+                        <span class="flag-title">mom_pct_change</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Category tree anomaly: Nonting_AR</div>
+                    <div class="flag-description">Month-over-month change: -1024.2%</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 82.7%</span>
-                        <span>📍 Value: 0.00</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -10.24</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: +1018.5%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 10.18</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -886.8%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -8.87</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: +785.9%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 7.86</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -317.3%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.17</span>
                     </div>
                 </div>
             </div>
             
             <div class="recommendation-box">
                 <h4>📋 Recommended Action</h4>
-                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+                <p>REVIEW - Moderate-confidence finding requires verification</p>
             </div>
         </section>
         <section class="entity-section" id="PH10">
@@ -1199,12 +1199,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">80.0%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">75.4%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">65</div>
+                    <div class="kpi-value">11</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -1239,21 +1239,9 @@
                     </div>
                     <div class="flag-description">Unusual Tax_payable: -6.33σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -6.33</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">Interest_charges_zscore</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Unusual Interest_charges: -5.92σ from mean</div>
-                    <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -5.92</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -1263,7 +1251,7 @@
                     </div>
                     <div class="flag-description">Unusual Other_receipt: 6.48σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 6.48</span>
                     </div>
@@ -1273,21 +1261,9 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -39384.47σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -39,384.47</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
                     <div class="flag-description">Deviation from lag-based expectation: -5.31σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -5.31</span>
                     </div>
@@ -1299,57 +1275,81 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: 12.55σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 12.55</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 8.35σ</div>
+                    <div class="flag-description">Month-over-month change: +535.5%</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 8.35</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 5.35</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">Interest_income_zscore</span>
+                        <span class="flag-title">mom_pct_change</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Unusual Interest_income: 4.91σ from mean</div>
+                    <div class="flag-description">Month-over-month change: -392.0%</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: 4.91</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.92</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">Loan_payment_zscore</span>
+                        <span class="flag-title">mom_pct_change</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Unusual Loan_payment: -4.14σ from mean</div>
+                    <div class="flag-description">Month-over-month change: +660.8%</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -4.14</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 6.61</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">Other_receipt_tree</span>
+                        <span class="flag-title">mom_pct_change</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Category tree anomaly: Other_receipt</div>
+                    <div class="flag-description">Month-over-month change: +888.7%</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 82.7%</span>
-                        <span>📍 Value: 1,670.01</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 8.89</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -347.8%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.48</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -309.4%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.09</span>
                     </div>
                 </div>
             </div>
@@ -1371,12 +1371,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">87.5%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">82.0%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">82</div>
+                    <div class="kpi-value">14</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -1411,124 +1411,124 @@
                     </div>
                     <div class="flag-description">Unusual Statutory_contribution: -5.35σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -5.35</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
                     <div class="flag-header">
-                        <span class="flag-title">Netting_AP_zscore</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Unusual Netting_AP: -6.17σ from mean</div>
-                    <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -6.17</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -798.23σ</div>
+                    <div class="flag-description">Deviation from lag-based expectation: 9.50σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -798.23</span>
+                        <span>📍 Value: 9.50</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">month_end_deviation</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -54.24σ</div>
+                    <div class="flag-description">Pattern deviation in month_end: 3.96σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -54.24</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 89.6%</span>
+                        <span>📍 Value: 3.96</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 5.36σ</div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 5.36</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 5.59σ</div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 5.59</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -5.42σ</div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -5.42</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 9.09σ</div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 9.09</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 7.90σ</div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 7.90</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
                     </div>
                 </div>
-                <div class="flag-card severity-critical">
+                <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -8.22σ</div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -8.22</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
+                    <div class="flag-meta">
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 84.0%</span>
+                        <span>📍 Value: 0.84</span>
                     </div>
                 </div>
             </div>
             
             <div class="recommendation-box">
                 <h4>📋 Recommended Action</h4>
-                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+                <p>REVIEW - Moderate-confidence finding requires verification</p>
             </div>
         </section>
         <section class="entity-section" id="TH10">
@@ -1543,12 +1543,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">87.7%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">84.0%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">78</div>
+                    <div class="kpi-value">22</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -1583,7 +1583,7 @@
                     </div>
                     <div class="flag-description">Unusual Netting_AP: -5.18σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -5.18</span>
                     </div>
@@ -1595,21 +1595,9 @@
                     </div>
                     <div class="flag-description">Unusual Dividend_payout: -6.48σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -6.48</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">Interest_income_zscore</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Unusual Interest_income: 6.48σ from mean</div>
-                    <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: 6.48</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -1619,7 +1607,7 @@
                     </div>
                     <div class="flag-description">Unusual Netting_AR: 6.48σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 6.48</span>
                     </div>
@@ -1629,33 +1617,9 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -21955.22σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -21,955.22</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -8.25σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -8.25</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
                     <div class="flag-description">Deviation from lag-based expectation: 5.33σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 5.33</span>
                     </div>
@@ -1667,7 +1631,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: 10.01σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 10.01</span>
                     </div>
@@ -1679,7 +1643,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: 6.66σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 6.66</span>
                     </div>
@@ -1691,16 +1655,52 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: 45.58σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 45.58</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">month_end_deviation</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Pattern deviation in month_end: 4.13σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 90.0%</span>
+                        <span>📍 Value: 4.13</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
+                    <div class="flag-meta">
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 82.7%</span>
+                        <span>📍 Value: 0.83</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">tree_prediction</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Pattern anomaly detected by decision tree</div>
+                    <div class="flag-meta">
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 82.7%</span>
+                        <span>📍 Value: 0.83</span>
                     </div>
                 </div>
             </div>
             
             <div class="recommendation-box">
                 <h4>📋 Recommended Action</h4>
-                <p>INVESTIGATE - High-confidence anomaly requires immediate review</p>
+                <p>REVIEW - Moderate-confidence finding requires verification</p>
             </div>
         </section>
         <section class="entity-section" id="TW10">
@@ -1715,12 +1715,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">94.7%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">90.9%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">65</div>
+                    <div class="kpi-value">34</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -1755,7 +1755,7 @@
                     </div>
                     <div class="flag-description">Unusual Loan_receipt: 6.48σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 6.48</span>
                     </div>
@@ -1767,7 +1767,7 @@
                     </div>
                     <div class="flag-description">Unusual AP: -5.73σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -5.73</span>
                     </div>
@@ -1777,45 +1777,9 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 83005.03σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 83,005.03</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -9.97σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -9.97</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -22.31σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -22.31</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
                     <div class="flag-description">Deviation from lag-based expectation: 5.20σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 5.20</span>
                     </div>
@@ -1827,7 +1791,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: 5.32σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: 5.32</span>
                     </div>
@@ -1839,21 +1803,33 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: -7.54σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -7.54</span>
                     </div>
                 </div>
-                <div class="flag-card severity-high">
+                <div class="flag-card severity-critical">
                     <div class="flag-header">
-                        <span class="flag-title">Interest_charges_zscore</span>
-                        <span class="flag-severity high">high</span>
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Unusual Interest_charges: -4.16σ from mean</div>
+                    <div class="flag-description">Deviation from lag-based expectation: -9.97σ</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -4.16</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -9.97</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-critical">
+                    <div class="flag-header">
+                        <span class="flag-title">lag_deviation</span>
+                        <span class="flag-severity critical">critical</span>
+                    </div>
+                    <div class="flag-description">Deviation from lag-based expectation: -22.31σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 70.0%</span>
+                        <span>📍 Value: -22.31</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
@@ -1863,9 +1839,33 @@
                     </div>
                     <div class="flag-description">Pattern deviation in month_end: 3.61σ</div>
                     <div class="flag-meta">
-                        <span>🤖 PatternAgent_16e229</span>
+                        <span>🤖 PatternAgent_a081a9</span>
                         <span>📊 Confidence: 86.1%</span>
                         <span>📍 Value: 3.61</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">month_end_deviation</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Pattern deviation in month_end: 3.28σ</div>
+                    <div class="flag-meta">
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 82.8%</span>
+                        <span>📍 Value: 3.28</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">large_Total_Net</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Large transaction detected (Week 38): $3,509,570.26</div>
+                    <div class="flag-meta">
+                        <span>🤖 RuleAgent_b727b5</span>
+                        <span>📊 Confidence: 81.1%</span>
+                        <span>📍 Value: 3,509,570.26</span>
                     </div>
                 </div>
             </div>
@@ -1887,12 +1887,12 @@
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-icon">🎯</div>
-                    <div class="kpi-value" style="color: var(--az-mulberry);">93.7%</div>
+                    <div class="kpi-value" style="color: var(--az-mulberry);">89.5%</div>
                     <div class="kpi-label">Confidence</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">🚨</div>
-                    <div class="kpi-value">22</div>
+                    <div class="kpi-value">9</div>
                     <div class="kpi-label">Primary Flags</div>
                 </div>
                 <div class="kpi-card">
@@ -1927,7 +1927,7 @@
                     </div>
                     <div class="flag-description">Unusual Loan_payment: -5.59σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: -5.59</span>
                     </div>
@@ -1939,45 +1939,9 @@
                     </div>
                     <div class="flag-description">Unusual Loan_receipt: 6.12σ from mean</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
+                        <span>🤖 CategoryAgent_e3530d</span>
                         <span>📊 Confidence: 90.0%</span>
                         <span>📍 Value: 6.12</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">Interest_charges_zscore</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Unusual Interest_charges: -6.48σ from mean</div>
-                    <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -6.48</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -33906.49σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -33,906.49</span>
-                    </div>
-                </div>
-                <div class="flag-card severity-critical">
-                    <div class="flag-header">
-                        <span class="flag-title">lag_deviation</span>
-                        <span class="flag-severity critical">critical</span>
-                    </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 9.65σ</div>
-                    <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
-                        <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 9.65</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -1987,7 +1951,7 @@
                     </div>
                     <div class="flag-description">Deviation from lag-based expectation: -6.79σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
                         <span>📍 Value: -6.79</span>
                     </div>
@@ -1997,11 +1961,11 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: -5.51σ</div>
+                    <div class="flag-description">Deviation from lag-based expectation: 7.40σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: -5.51</span>
+                        <span>📍 Value: 7.40</span>
                     </div>
                 </div>
                 <div class="flag-card severity-critical">
@@ -2009,35 +1973,71 @@
                         <span class="flag-title">lag_deviation</span>
                         <span class="flag-severity critical">critical</span>
                     </div>
-                    <div class="flag-description">Deviation from lag-based expectation: 7.40σ</div>
+                    <div class="flag-description">Deviation from lag-based expectation: -5.51σ</div>
                     <div class="flag-meta">
-                        <span>🤖 TemporalAgent_c04fb5</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
                         <span>📊 Confidence: 70.0%</span>
-                        <span>📍 Value: 7.40</span>
+                        <span>📍 Value: -5.51</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">Netting_AR_zscore</span>
+                        <span class="flag-title">month_end_deviation</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Unusual Netting_AR: 4.92σ from mean</div>
+                    <div class="flag-description">Pattern deviation in month_end: 3.10σ</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: 4.92</span>
+                        <span>🤖 PatternAgent_a081a9</span>
+                        <span>📊 Confidence: 81.0%</span>
+                        <span>📍 Value: 3.10</span>
                     </div>
                 </div>
                 <div class="flag-card severity-high">
                     <div class="flag-header">
-                        <span class="flag-title">Payroll_zscore</span>
+                        <span class="flag-title">mom_pct_change</span>
                         <span class="flag-severity high">high</span>
                     </div>
-                    <div class="flag-description">Unusual Payroll: -4.02σ from mean</div>
+                    <div class="flag-description">Month-over-month change: +1339.5%</div>
                     <div class="flag-meta">
-                        <span>🤖 CategoryAgent_86c8b0</span>
-                        <span>📊 Confidence: 90.0%</span>
-                        <span>📍 Value: -4.02</span>
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: 13.39</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -609.6%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -6.10</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-high">
+                    <div class="flag-header">
+                        <span class="flag-title">mom_pct_change</span>
+                        <span class="flag-severity high">high</span>
+                    </div>
+                    <div class="flag-description">Month-over-month change: -336.6%</div>
+                    <div class="flag-meta">
+                        <span>🤖 TemporalAgent_95ab09</span>
+                        <span>📊 Confidence: 75.0%</span>
+                        <span>📍 Value: -3.37</span>
+                    </div>
+                </div>
+                <div class="flag-card severity-medium">
+                    <div class="flag-header">
+                        <span class="flag-title">Loan_receipt_tree</span>
+                        <span class="flag-severity medium">medium</span>
+                    </div>
+                    <div class="flag-description">Category tree anomaly: Loan_receipt</div>
+                    <div class="flag-meta">
+                        <span>🤖 CategoryAgent_e3530d</span>
+                        <span>📊 Confidence: 79.6%</span>
+                        <span>📍 Value: 529,176.38</span>
                     </div>
                 </div>
             </div>
@@ -2073,7 +2073,7 @@
         // Severity Chart
         
         Plotly.newPlot('severityChart', [{
-            values: [75, 414, 476, 312],
+            values: [44, 101, 149, 122],
             labels: ['Critical', 'High', 'Medium', 'Low'],
             type: 'pie',
             hole: 0.5,
@@ -2094,11 +2094,11 @@
         // Agent Chart
         
         Plotly.newPlot('agentChart', [{
-            x: ["CategoryAgent", "TemporalAgent", "RuleAgent", "StatisticalAgent", "PatternAgent"],
-            y: [715, 407, 52, 76, 27],
+            x: ["category", "temporal", "rule", "statistical", "pattern"],
+            y: [147, 114, 52, 76, 27],
             type: 'bar',
             marker: {
-                color: ["#830051", "#830051", "#830051", "#830051", "#830051"],
+                color: ["#F0AB00", "#68D2DF", "#003865", "#830051", "#3C1053"],
                 line: { color: '#3F4444', width: 1 }
             }
         }], {
@@ -2115,7 +2115,7 @@
         Plotly.newPlot('timelineChart', [
             {
                 x: ["ID10", "KR10", "MY10", "PH10", "SS10", "TH10", "TW10", "VN20"],
-                y: [87.95788923076918, 87.79117528681971, 86.3082957782584, 79.96042735042728, 87.51049203618592, 87.69870619487622, 94.71686270967342, 93.69599477119014],
+                y: [86.50301666666668, 86.41307627821789, 81.0638019165017, 75.40363636363637, 82.01337854485716, 83.95886306286306, 90.90492751637368, 89.5467538375209],
                 type: 'bar',
                 name: 'Confidence %',
                 marker: { color: ["#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F", "#D0006F"], opacity: 0.8 },
@@ -2124,7 +2124,7 @@
             },
             {
                 x: ["ID10", "KR10", "MY10", "PH10", "SS10", "TH10", "TW10", "VN20"],
-                y: [145, 170, 134, 140, 182, 201, 158, 147],
+                y: [24, 54, 50, 33, 52, 55, 91, 57],
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Flag Count',

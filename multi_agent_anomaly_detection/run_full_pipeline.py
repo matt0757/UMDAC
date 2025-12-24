@@ -425,8 +425,145 @@ class DashboardGenerator:
             for e in entities.values() if e.verdict
         )
         
+        # Calculate anomaly rate based on transaction-level data if available
+        # First, try to load clean_transactions.csv for accurate row count
+        data_processor = DataProcessor()
+        clean_txn_path = data_processor.data_dir / "clean_transactions.csv"
+        
+        total_rows = 0
+        rows_with_flags = set()  # Track unique transactions/rows that have flags
+        
+        if clean_txn_path.exists():
+            try:
+                transactions_df = pd.read_csv(clean_txn_path, low_memory=False)
+                total_rows = len(transactions_df)
+                
+                # Collect all flagged weeks
+                flagged_weeks = set()
+                for entity in entities.values():
+                    if not entity.verdict:
+                        continue
+                    
+                    entity_id = entity.entity_id
+                    
+                    for flag in entity.verdict.primary_flags + entity.verdict.secondary_flags:
+                        if flag.timestamp:
+                            if isinstance(flag.timestamp, datetime):
+                                flag_date = flag.timestamp.date()
+                            elif isinstance(flag.timestamp, pd.Timestamp):
+                                flag_date = flag.timestamp.date()
+                            else:
+                                try:
+                                    flag_date = pd.to_datetime(flag.timestamp).date()
+                                except:
+                                    continue
+                            
+                            flagged_weeks.add((flag.entity, flag_date))
+                            flagged_weeks.add((entity_id, flag_date))
+                
+                # Count transactions in flagged weeks
+                if 'Pstng Date' in transactions_df.columns or 'Doc..Date' in transactions_df.columns:
+                    date_col = 'Pstng Date' if 'Pstng Date' in transactions_df.columns else 'Doc..Date'
+                    entity_col = 'Name' if 'Name' in transactions_df.columns else 'Entity'
+                    
+                    for idx, row in transactions_df.iterrows():
+                        txn_date = row.get(date_col)
+                        txn_entity = row.get(entity_col)
+                        
+                        if pd.notna(txn_date) and pd.notna(txn_entity):
+                            try:
+                                if isinstance(txn_date, datetime):
+                                    txn_date_obj = txn_date.date()
+                                elif isinstance(txn_date, pd.Timestamp):
+                                    txn_date_obj = txn_date.date()
+                                else:
+                                    txn_date_obj = pd.to_datetime(txn_date).date()
+                                
+                                # Match by entity and date (within same week)
+                                week_start = txn_date_obj - timedelta(days=txn_date_obj.weekday())
+                                
+                                if (txn_entity, week_start) in flagged_weeks or (txn_entity, txn_date_obj) in flagged_weeks:
+                                    rows_with_flags.add(idx)
+                            except:
+                                continue
+                
+                print(f"  Using transaction-level data: {total_rows:,} transactions, {len(rows_with_flags):,} in flagged weeks")
+                
+            except Exception as e:
+                print(f"  Warning: Could not load clean_transactions.csv: {e}")
+                total_rows = 0
+        
+        # Fallback: if transaction data not available, use weekly aggregated data
+        if total_rows == 0:
+            for entity in entities.values():
+                if not entity.verdict or entity.data is None:
+                    continue
+                
+                entity_id = entity.entity_id
+                df = entity.data
+                total_rows += len(df)
+                
+                # Build a mapping of timestamp to row index for this entity
+                # This helps match flags to specific rows
+                timestamp_to_row = {}
+                if 'Week_Start' in df.columns:
+                    for idx, row in df.iterrows():
+                        week_start = row.get('Week_Start')
+                        if pd.notna(week_start):
+                            # Normalize timestamp to date for matching
+                            if isinstance(week_start, datetime):
+                                date_key = week_start.date()
+                            elif isinstance(week_start, pd.Timestamp):
+                                date_key = week_start.date()
+                            else:
+                                try:
+                                    date_key = pd.to_datetime(week_start).date()
+                                except:
+                                    date_key = str(week_start)
+                            timestamp_to_row[(entity_id, date_key)] = idx
+                else:
+                    # If no Week_Start, use row index
+                    for idx in range(len(df)):
+                        timestamp_to_row[(entity_id, idx)] = idx
+                
+                # Match flags to rows
+                for flag in entity.verdict.primary_flags + entity.verdict.secondary_flags:
+                    if flag.timestamp:
+                        # Normalize flag timestamp to date
+                        if isinstance(flag.timestamp, datetime):
+                            flag_date = flag.timestamp.date()
+                        elif isinstance(flag.timestamp, pd.Timestamp):
+                            flag_date = flag.timestamp.date()
+                        else:
+                            try:
+                                flag_date = pd.to_datetime(flag.timestamp).date()
+                            except:
+                                continue
+                    
+                    # Try to match flag to row
+                    row_key = (flag.entity, flag_date)
+                    if row_key in timestamp_to_row:
+                        rows_with_flags.add(row_key)
+                    else:
+                        # If exact match fails, try with entity_id instead of flag.entity
+                        row_key = (entity_id, flag_date)
+                        if row_key in timestamp_to_row:
+                            rows_with_flags.add(row_key)
+                # If no timestamp, we can't match to a specific row
+                # Skip it - we only count rows we can definitively match
+            
+            print(f"  Using weekly aggregated data: {total_rows:,} rows")
+        
+        # Calculate anomaly rate: percentage of rows that had at least one flag
+        if total_rows > 0:
+            anomaly_rate = len(rows_with_flags) / total_rows
+        else:
+            # Fallback to entity-based rate if no data available
+            anomaly_rate = entities_with_anomalies / total_entities if total_entities > 0 else 0
+        
         severity_counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0}
         agent_flag_counts = {}
+        agent_avg_confidence = {}  # Track average confidence per agent from flags
         
         for entity in entities.values():
             if not entity.verdict:
@@ -435,16 +572,37 @@ class DashboardGenerator:
             for flag in entity.verdict.primary_flags + entity.verdict.secondary_flags:
                 severity_counts[flag.severity.value] += 1
                 
-                agent_type = flag.agent_id.split('_')[0] if '_' in flag.agent_id else flag.agent_id
+                # Extract agent type from agent_id (e.g., "CategoryAgent_86c8b0" -> "category")
+                agent_id = flag.agent_id.split('_')[0] if '_' in flag.agent_id else flag.agent_id
+                # Normalize to lowercase and remove "Agent" suffix if present
+                agent_type = agent_id.lower().replace('agent', '').strip()
+                # Map common variations
+                agent_type_map = {
+                    'category': 'category',
+                    'statistical': 'statistical',
+                    'pattern': 'pattern',
+                    'rule': 'rule',
+                    'temporal': 'temporal'
+                }
+                agent_type = agent_type_map.get(agent_type, agent_type)
                 agent_flag_counts[agent_type] = agent_flag_counts.get(agent_type, 0) + 1
+                
+                # Track confidence for this agent
+                if agent_type not in agent_avg_confidence:
+                    agent_avg_confidence[agent_type] = []
+                agent_avg_confidence[agent_type].append(flag.confidence)
         
         return {
             'total_entities': total_entities,
             'entities_with_anomalies': entities_with_anomalies,
-            'anomaly_rate': entities_with_anomalies / total_entities if total_entities > 0 else 0,
+            'anomaly_rate': anomaly_rate,
             'total_flags': total_flags,
+            'total_rows': total_rows,
+            'rows_with_flags': len(rows_with_flags),
             'severity_counts': severity_counts,
             'agent_flag_counts': agent_flag_counts,
+            'agent_avg_confidence': {k: sum(v) / len(v) if v else 0.5 
+                                     for k, v in agent_avg_confidence.items()},
             'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
     
@@ -460,7 +618,7 @@ class DashboardGenerator:
                 entity_sections += self._generate_entity_section(entity_data)
         
         # Build agent overview
-        agent_overview = self._generate_agent_overview(system_status)
+        agent_overview = self._generate_agent_overview(system_status, overall_stats)
         
         # Build severity chart data
         severity_data = self._generate_severity_chart_data(overall_stats)
@@ -1038,7 +1196,7 @@ class DashboardGenerator:
             <h2 class="summary-title">📊 Executive Summary</h2>
             <div class="summary-grid">
                 <div class="summary-card">
-                    <div class="summary-value" style="color: var(--az-mulberry);">{overall_stats['anomaly_rate']:.1%}</div>
+                    <div class="summary-value" style="color: var(--az-mulberry);">{overall_stats['anomaly_rate'] * 100:.3f}%</div>
                     <div class="summary-label">Anomaly Rate</div>
                 </div>
                 <div class="summary-card">
@@ -1143,8 +1301,9 @@ class DashboardGenerator:
         
         return "\n            ".join(links)
     
-    def _generate_agent_overview(self, system_status: Dict[str, Any]) -> str:
-        """Generate agent overview section."""
+    def _generate_agent_overview(self, system_status: Dict[str, Any], 
+                                  overall_stats: Dict[str, Any] = None) -> str:
+        """Generate agent overview section with real data."""
         agents_html = ""
         
         agent_info = {
@@ -1176,21 +1335,47 @@ class DashboardGenerator:
         }
         
         agents_data = system_status.get('agents', {})
+        agent_flag_counts = overall_stats.get('agent_flag_counts', {}) if overall_stats else {}
+        agent_avg_confidence = overall_stats.get('agent_avg_confidence', {}) if overall_stats else {}
         
         for agent_type, info in agent_info.items():
+            # Get agent status from system_status
             agent_status = agents_data.get(agent_type, {})
-            confidence = agent_status.get('confidence', 0.5)
-            detections = agent_status.get('total_detections', 0)
+            
+            # Get confidence: prefer average flag confidence from this run, 
+            # fallback to agent's historical confidence, then default
+            if agent_type in agent_avg_confidence:
+                # Use average confidence from flags in this run
+                confidence = agent_avg_confidence[agent_type]
+            else:
+                # Fallback to agent's historical confidence (based on feedback)
+                confidence = agent_status.get('confidence', 0.5)
+            
+            # Get detections from overall_stats (flags from this run)
+            # The agent_flag_counts uses normalized agent_type keys (category, statistical, etc.)
+            detections = agent_flag_counts.get(agent_type, 0)
+            
+            # Get rule graphs from agent status
             rule_graphs = agent_status.get('rule_graphs', 0)
             
             color = AZColors.AGENTS.get(agent_type, AZColors.MULBERRY)
+            
+            # Format confidence display
+            if detections > 0:
+                # Show average flag confidence from this run (more meaningful)
+                confidence_display = f"{confidence:.1%}"
+                confidence_label = "Avg Flag Confidence"
+            else:
+                # No detections, show historical confidence or default
+                confidence_display = f"{confidence:.0%}"
+                confidence_label = "Historical Confidence" if confidence != 0.5 else "Default Confidence"
             
             agents_html += f'''
             <div class="agent-card" style="border-left-color: {color};">
                 <h4>{info['icon']} {info['name']}</h4>
                 <p>{info['description']}</p>
                 <div class="agent-stats">
-                    <span class="agent-stat">Confidence: {confidence:.0%}</span>
+                    <span class="agent-stat">{confidence_label}: {confidence_display}</span>
                     <span class="agent-stat">{detections} detections</span>
                     <span class="agent-stat">{rule_graphs} rule graphs</span>
                 </div>
