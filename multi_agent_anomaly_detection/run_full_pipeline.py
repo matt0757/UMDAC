@@ -480,7 +480,9 @@ class DashboardGenerator:
                                     txn_date_obj = pd.to_datetime(txn_date).date()
                                 
                                 # Match by entity and date (within same week)
-                                week_start = txn_date_obj - timedelta(days=txn_date_obj.weekday())
+                                # Weekly data uses Wednesday (weekday=2) as week start
+                                days_since_wednesday = (txn_date_obj.weekday() - 2) % 7
+                                week_start = txn_date_obj - timedelta(days=days_since_wednesday)
                                 
                                 if (txn_entity, week_start) in flagged_weeks or (txn_entity, txn_date_obj) in flagged_weeks:
                                     rows_with_flags.add(idx)
