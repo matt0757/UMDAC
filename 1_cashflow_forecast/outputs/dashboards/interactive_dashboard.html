@@ -914,7 +914,7 @@
     <header class="dashboard-header">
         <div class="header-content">
             <h1 class="dashboard-title">💰 Cash Flow Forecasting Dashboard</h1>
-            <p class="dashboard-subtitle">Time-Series Analysis & ML-Based Predictions | Generated: 2025-12-24 13:40</p>
+            <p class="dashboard-subtitle">Time-Series Analysis & ML-Based Predictions | Generated: 2025-12-24 15:47</p>
         </div>
     </header>
 
@@ -1118,7 +1118,7 @@
         <div class="entity-section" id="TH10">
             <div class="entity-header">
                 <h2><span class="entity-badge">TH10</span> Cash Flow Analysis</h2>
-                <div class="model-badge">Best Model: <strong>Ridge</strong></div>
+                <div class="model-badge">Best Model: <strong>Ensemble</strong></div>
             </div>
 
             <!-- KPI Cards Row -->
@@ -1155,19 +1155,19 @@
                     <div class="metrics-row">
                         <div class="metric">
                             <span class="metric-label">MAE</span>
-                            <span class="metric-value">$14.7K</span>
+                            <span class="metric-value">$9.8K</span>
                         </div>
                         <div class="metric">
                             <span class="metric-label">RMSE</span>
-                            <span class="metric-value">$17.4K</span>
+                            <span class="metric-value">$13.9K</span>
                         </div>
                         <div class="metric">
                             <span class="metric-label">MAPE</span>
-                            <span class="metric-value">64.3%</span>
+                            <span class="metric-value">56.2%</span>
                         </div>
                         <div class="metric">
                             <span class="metric-label">Direction Accuracy</span>
-                            <span class="metric-value">66.7%</span>
+                            <span class="metric-value">100.0%</span>
                         </div>
                     </div>
                 </div>
@@ -1182,7 +1182,7 @@
                 <!-- Short-term Forecast -->
                 <div class="chart-container">
                     <h3>📅 1-Month Ahead Forecast</h3>
-                    <p class="chart-description">Weekly cash flow predictions for the next 4 weeks based on Ridge model.</p>
+                    <p class="chart-description">Weekly cash flow predictions for the next 4 weeks based on Ensemble model.</p>
                     <div id="short-forecast-TH10" class="chart"></div>
                     <div class="insight-box" style="border-left-color: #C4D600">
                         <div class="insight-header">
@@ -1373,9 +1373,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$143.3K</td>
-                            <td>$238.1K</td>
-                            <td>312.6</td>
+                            <td>$142.8K</td>
+                            <td>$237.9K</td>
+                            <td>311.3</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -1395,15 +1395,15 @@
                             <td>$128.9K</td>
                             <td>209.8</td>
                             <td>100.0</td>
-                        </tr><tr class="best-model">
-                            <td>Ridge ⭐</td>
+                        </tr><tr class="">
+                            <td>Ridge </td>
                             <td>$14.7K</td>
                             <td>$17.4K</td>
                             <td>64.3</td>
                             <td>66.7</td>
-                        </tr><tr class="">
-                            <td>Ensemble </td>
-                            <td>$9.9K</td>
+                        </tr><tr class="best-model">
+                            <td>Ensemble ⭐</td>
+                            <td>$9.8K</td>
                             <td>$13.9K</td>
                             <td>56.2</td>
                             <td>100.0</td>
@@ -1437,7 +1437,7 @@
             },
             {
                 x: ["2025-10-08", "2025-10-15", "2025-10-22", "2025-10-29"],
-                y: [-39571.68117761069, -58029.14805672789, -41046.65877686883, -39972.404481314115],
+                y: [-43990.67578125, -51852.60546875, -58651.48828125, -39895.48046875],
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: '🔮 Model Prediction',
@@ -1849,7 +1849,7 @@
                         </div>
                         <div class="metric">
                             <span class="metric-label">MAPE</span>
-                            <span class="metric-value">200.5%</span>
+                            <span class="metric-value">199.9%</span>
                         </div>
                         <div class="metric">
                             <span class="metric-label">Direction Accuracy</span>
@@ -2059,9 +2059,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$4.2K</td>
-                            <td>$6.2K</td>
-                            <td>495.3</td>
+                            <td>$4.1K</td>
+                            <td>$6.1K</td>
+                            <td>487.8</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -2091,7 +2091,7 @@
                             <td>Ensemble ⭐</td>
                             <td>$2.1K</td>
                             <td>$2.6K</td>
-                            <td>200.5</td>
+                            <td>199.9</td>
                             <td>100.0</td>
                         </tr>
                     </tbody>
@@ -2123,7 +2123,7 @@
             },
             {
                 x: ["2025-10-08", "2025-10-15", "2025-10-22", "2025-10-29"],
-                y: [-8456.8837890625, 4851.84619140625, -61124.18359375, -5193.85498046875],
+                y: [-8455.3115234375, 4893.193359375, -61150.0390625, -5185.52734375],
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: '🔮 Model Prediction',
@@ -2746,8 +2746,8 @@
                         <tr class="">
                             <td>XGBoost </td>
                             <td>$144.2K</td>
-                            <td>$230.8K</td>
-                            <td>23.3</td>
+                            <td>$230.9K</td>
+                            <td>23.4</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -3159,7 +3159,7 @@
                 
                 <div class="news-card" style="border-left-color: #27ae60;">
                     <div class="news-card-title">
-                        <a href="https://news.google.com/rss/articles/CBMiZEFVX3lxTE9wbWFudHBrcTluV1VxTWdvTDBDOEZPNHl6UzVKYWF3ZzZGbWJ3U0JXYkVaTDlrUXVqR1p6anR4Q3p5SWlsWHp2TTMzbjFvUVdMVlA0WS1WYVZxUTJpODRveldORFM?oc=5" target="_blank">Philippines scales blue carbon with $1 billion financing, blue economy law - Reccessary</a>
+                        <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1aM3NZb2tFczRDeEJod2lTbGFBb1ZQd1ZtMm1wSklOandDS0NqLVlvTk9qNFpuSVlsV3VOb3hNS0RPTmFqeGVfZW9taWtvNVdLVkhTVUlPOWZZa3N2eEVwTVgteDJ2MWdi?oc=5" target="_blank">Philippines scales blue carbon with $1 billion financing, blue economy law - Reccessary</a>
                     </div>
                     <div class="news-card-meta">
                         <span>📰 google_news_rss</span>
@@ -3431,8 +3431,8 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$175.2K</td>
-                            <td>$185.2K</td>
+                            <td>$175.3K</td>
+                            <td>$185.4K</td>
                             <td>174.7</td>
                             <td>66.7</td>
                         </tr><tr class="">
@@ -3462,7 +3462,7 @@
                         </tr><tr class="">
                             <td>Ensemble </td>
                             <td>$153.1K</td>
-                            <td>$164.3K</td>
+                            <td>$164.4K</td>
                             <td>148.2</td>
                             <td>66.7</td>
                         </tr>
@@ -4117,9 +4117,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$650.7K</td>
-                            <td>$665.2K</td>
-                            <td>103.9</td>
+                            <td>$649.8K</td>
+                            <td>$664.6K</td>
+                            <td>103.7</td>
                             <td>66.7</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -4147,8 +4147,8 @@
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>Ensemble </td>
-                            <td>$251.0K</td>
-                            <td>$274.1K</td>
+                            <td>$250.9K</td>
+                            <td>$274.0K</td>
                             <td>32.7</td>
                             <td>100.0</td>
                         </tr>
@@ -4803,9 +4803,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$375.1K</td>
-                            <td>$395.9K</td>
-                            <td>380.3</td>
+                            <td>$374.8K</td>
+                            <td>$395.5K</td>
+                            <td>380.5</td>
                             <td>66.7</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -4835,7 +4835,7 @@
                             <td>Ensemble </td>
                             <td>$251.4K</td>
                             <td>$346.6K</td>
-                            <td>198.0</td>
+                            <td>198.1</td>
                             <td>66.7</td>
                         </tr>
                     </tbody>
@@ -5489,9 +5489,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$119.9K</td>
-                            <td>$184.7K</td>
-                            <td>128.0</td>
+                            <td>$120.0K</td>
+                            <td>$184.6K</td>
+                            <td>129.6</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -5521,7 +5521,7 @@
                             <td>Ensemble </td>
                             <td>$98.8K</td>
                             <td>$140.2K</td>
-                            <td>166.7</td>
+                            <td>167.0</td>
                             <td>100.0</td>
                         </tr>
                     </tbody>
@@ -6175,9 +6175,9 @@
                     <tbody>
                         <tr class="">
                             <td>XGBoost </td>
-                            <td>$255.4K</td>
-                            <td>$276.5K</td>
-                            <td>4877.8</td>
+                            <td>$254.9K</td>
+                            <td>$276.1K</td>
+                            <td>4871.9</td>
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>LightGBM </td>
@@ -6205,9 +6205,9 @@
                             <td>100.0</td>
                         </tr><tr class="">
                             <td>Ensemble </td>
-                            <td>$147.6K</td>
+                            <td>$147.5K</td>
                             <td>$151.2K</td>
-                            <td>2130.9</td>
+                            <td>2130.6</td>
                             <td>100.0</td>
                         </tr>
                     </tbody>

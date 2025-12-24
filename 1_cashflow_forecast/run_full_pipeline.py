@@ -938,7 +938,7 @@ class MLForecaster:
         "TH10": {
             # Thailand has high volatility, outliers, and strong week-of-month patterns
             "use_robust_scaling": True,  # Handle outliers better
-            "model_preference": ["Ridge", "GradientBoosting"],  # Simpler models for small data
+            "model_preference": ["Ridge", "GradientBoosting", "Ensemble"],  # Simpler models for small data
             "historical_weight": 0.70,  # Rely more on historical patterns
             "model_weight": 0.30,
             "add_week_dummies": True,  # One-hot encode week-of-month
