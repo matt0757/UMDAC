@@ -15,13 +15,14 @@
   - [Cash Flow Forecasting Pipeline](#1-cash-flow-forecasting-pipeline)
   - [Multi-Agent Anomaly Detection](#2-multi-agent-anomaly-detection)
   - [News Scraper & Sentiment Analysis](#3-news-scraper--sentiment-analysis)
-  - [Dashboard Enhancer](#4-dashboard-enhancer)
+  - [News Fetch API Server](#4-news-fetch-api-server)
 - [Data Sources](#-data-sources)
 - [Installation](#-installation)
 - [Usage](#-usage)
 - [Output Files](#-output-files)
 - [Project Structure](#-project-structure)
 - [Technical Stack](#-technical-stack)
+- [Performance Metrics](#-performance-metrics)
 - [License](#-license)
 
 ---
@@ -63,9 +64,9 @@
 │   │  Data           │    │  Anomaly Detection  │    │  Reports  │                │
 │   └─────────────────┘    └─────────────────────┘    └───────────┘                │
 │                                                                 │                │
-│   ┌─────────────────┐    ┌─────────────────────┐                ▼                │
-│   │  News Sources   │───▶│  News Scraper &     │───▶│ Dashboard Enhancer  │      │
-│   │  (RSS/Web)      │    │  Sentiment Analysis │    │ (Market Insights)   │      │
+│   ┌─────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐      │
+│   │  News Sources   │───▶│  News Scraper &     │───▶│  News Fetch API     │      │
+│   │  (RSS/Web)      │    │  Sentiment Analysis │    │  (Flask Server)     │      │
 │   └─────────────────┘    └─────────────────────┘    └─────────────────────┘      │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
@@ -86,7 +87,9 @@ A complete end-to-end machine learning pipeline for cash flow forecasting.
 | File | Purpose |
 |------|---------|
 | `run_full_pipeline.py` | Main executable - runs entire pipeline from raw data to dashboard |
+| `news_server.py` | Flask API server for fetching news and serving dashboard |
 | `PIPELINE_DOCUMENTATION.md` | Comprehensive technical documentation |
+| `NEWS_FETCH_README.md` | Documentation for the news fetch API server |
 | `processed_data/` | Cleaned and feature-engineered weekly data |
 | `outputs/dashboards/` | Generated interactive HTML dashboards |
 
@@ -174,7 +177,13 @@ multi_agent_anomaly_detection/
 │   └── temporal_rules.json
 ├── data/
 │   └── knowledge_base.db    # SQLite database
-└── run_detection.py         # Main entry point
+├── outputs/
+│   ├── dashboards/          # Generated anomaly detection dashboards
+│   └── reports/             # JSON reports (detailed_verdicts.json, detection_summary.json)
+├── utils/
+│   └── helpers.py           # Utility functions
+├── run_detection.py         # CLI entry point for detection
+└── run_full_pipeline.py     # End-to-end pipeline with dashboard generation
 ```
 
 #### Agent Types
@@ -197,18 +206,28 @@ multi_agent_anomaly_detection/
 
 #### Usage
 
+**CLI Interface (run_detection.py):**
 ```bash
 # Run detection on data
 python run_detection.py --data weekly_features.csv --entity ID10
 
-# Train agents on historical data
-python run_detection.py --train --data historical_data.csv
+# Generate HTML report
+python run_detection.py --data data.csv --output report.html --format html
+
+# Generate JSON report
+python run_detection.py --data data.csv --output report.json --format json
 
 # Check system status
 python run_detection.py --status
+```
 
-# Run rule evolution cycle
-python run_detection.py --evolve
+**Full Pipeline (run_full_pipeline.py):**
+```bash
+# Run end-to-end pipeline with dashboard generation
+python run_full_pipeline.py
+
+# With custom options
+python run_full_pipeline.py --data-dir path/to/data --output-dir path/to/output --entities ID10,TW10
 ```
 
 ---
@@ -272,36 +291,65 @@ print(summary['score'])    # -1.0 to 1.0
 
 ---
 
-### 4. Dashboard Enhancer
+### 4. News Fetch API Server
 
-**Location:** `dashboard_enhancer.py`
+**Location:** `1_cashflow_forecast/news_server.py`
 
-Integrates news sentiment analysis with cash flow forecasts to create enhanced dashboards with market insights.
+A lightweight Flask server that provides REST API endpoints for fetching fresh news and sentiment data for the Cash Flow Forecasting Dashboard. Allows dynamic updates to the Market News section without regenerating the entire dashboard.
 
 #### Features
 
-- **Entity-Region Mapping**: Links entities to countries and economic contexts
-- **Trend Analysis**: Analyzes forecast trends (direction, volatility)
-- **Risk Assessment**: Combined risk scoring from forecast + sentiment
-- **Strategic Recommendations**: AI-generated treasury management advice
+- **RESTful API**: Simple HTTP endpoints for news fetching
+- **Country-Specific News**: Fetches news for all 8 APAC entities
+- **Caching**: Stores sentiment data in JSON files for quick access
+- **Dashboard Integration**: Serves the interactive dashboard HTML
+- **CORS Enabled**: Supports cross-origin requests for local development
 
-#### Generated Recommendations
+#### API Endpoints
 
-| Outlook | Risk Level | Recommendation |
-|---------|------------|----------------|
-| **FAVORABLE** | Low-Moderate | Growth initiatives, investment acceleration |
-| **CHALLENGING** | Elevated | Conservative stance, increased liquidity |
-| **CAUTIOUS** | Moderate-High | Close monitoring, contingency planning |
-| **NEUTRAL** | Moderate | Balanced approach, standard operations |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Serve the dashboard HTML |
+| `/api/fetch-news` | GET/POST | Fetch fresh news for all countries |
+| `/api/news/<country>` | GET | Get cached news for a specific country |
+| `/api/news-all` | GET | Get all cached news data |
+| `/api/status` | GET | Server status and endpoint list |
 
 #### Usage
 
-```python
-from dashboard_enhancer import run
+```bash
+# Start the server
+cd 1_cashflow_forecast
+python news_server.py
 
-# Enhances dashboard with Market Insights section
-run()
+# Server runs on http://localhost:5001
 ```
+
+**API Examples:**
+```bash
+# Fetch news for all countries
+curl http://localhost:5001/api/fetch-news?max_articles=10
+
+# Get news for a specific country
+curl http://localhost:5001/api/news/Thailand
+
+# Get all cached news
+curl http://localhost:5001/api/news-all
+```
+
+#### Country Coverage
+
+The server fetches news for all 8 APAC entities:
+- **TH10** → Thailand
+- **TW10** → Taiwan
+- **SS10** → Singapore
+- **MY10** → Malaysia
+- **VN20** → Vietnam
+- **KR10** → South Korea
+- **ID10** → Indonesia
+- **PH10** → Philippines
+
+Sentiment data is cached in `News_scraper/country_sentiments/` directory as JSON files.
 
 ---
 
@@ -364,10 +412,13 @@ playwright install chromium
 
 ### Dependencies
 
+Key dependencies from `requirements.txt`:
+
 ```
 # Data Processing
 pandas>=2.0.0
 numpy>=1.24.0
+python-dateutil>=2.8.0
 
 # Visualization
 matplotlib>=3.7.0
@@ -379,6 +430,7 @@ scikit-learn>=1.3.0
 xgboost>=2.0.0
 lightgbm>=4.0.0
 statsmodels>=0.14.0
+prophet>=1.1.0
 
 # NLP & Sentiment
 transformers
@@ -389,10 +441,17 @@ lxml_html_clean
 # Web Scraping
 playwright
 feedparser
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
+# Web Server
+flask>=2.3.0
+flask-cors>=4.0.0
 
 # Notebook Support (optional)
 jupyter>=1.0.0
 notebook>=7.0.0
+ipykernel>=6.0.0
 ```
 
 ---
@@ -433,11 +492,47 @@ cd News_scraper
 python main_scraper.py
 ```
 
-### 4. Enhance Dashboard with Market Insights
+**Using the API programmatically:**
+```python
+# Option 1: Import from module (if News_scraper is in path)
+from main_scraper import analyze_news_sync, get_full_summary
+
+# Option 2: Import with full path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / "News_scraper"))
+from main_scraper import analyze_news_sync, get_full_summary
+
+# Analyze news synchronously
+results = analyze_news_sync(
+    keywords=["US economy", "Federal Reserve"],
+    max_articles=10,
+    fast_mode=True  # Fast mode skips full extraction for strong headlines
+)
+
+# Get summary
+summary = get_full_summary(results)
+print(f"Verdict: {summary['verdict']}")
+print(f"Score: {summary['score']}")
+```
+
+### 4. Run News Fetch API Server
 
 ```bash
-python dashboard_enhancer.py
+cd 1_cashflow_forecast
+python news_server.py
 ```
+
+The server will start on `http://localhost:5001` and provide API endpoints for fetching news. The dashboard can call these endpoints to update news data dynamically.
+
+### 5. Run Full Anomaly Detection Pipeline
+
+```bash
+cd multi_agent_anomaly_detection
+python run_full_pipeline.py
+```
+
+This runs the complete anomaly detection pipeline with dashboard generation for all entities.
 
 ---
 
@@ -447,18 +542,23 @@ python dashboard_enhancer.py
 
 | File | Location | Description |
 |------|----------|-------------|
-| `interactive_dashboard.html` | `1_cashflow_forecast/outputs/dashboards/` | Main forecast dashboard |
-| `report.html` | Root | Anomaly detection report |
-| `sentiment_report.json` | `News_scraper/` | Latest sentiment analysis |
+| `interactive_dashboard.html` | `1_cashflow_forecast/outputs/dashboards/` | Main cash flow forecast dashboard |
+| `anomaly_detection_dashboard.html` | `multi_agent_anomaly_detection/outputs/dashboards/` | Anomaly detection dashboard |
+| `detection_summary.json` | `multi_agent_anomaly_detection/outputs/reports/` | Summary of anomaly detections |
+| `detailed_verdicts.json` | `multi_agent_anomaly_detection/outputs/reports/` | Detailed verdict explanations |
+| `sentiment_report.json` | `News_scraper/` | Latest sentiment analysis results |
+| `*_sentiment.json` | `News_scraper/country_sentiments/` | Country-specific sentiment data |
 
 ### Processed Data
 
 | File | Location | Description |
 |------|----------|-------------|
 | `clean_transactions.csv` | `1_cashflow_forecast/processed_data/` | Cleaned transaction data |
-| `weekly_entity_features.csv` | `1_cashflow_forecast/processed_data/` | Aggregated features |
-| `weekly_*.csv` | `1_cashflow_forecast/processed_data/` | Per-entity weekly data |
-| `knowledge_base.db` | `multi_agent_anomaly_detection/data/` | Anomaly detection DB |
+| `weekly_entity_features.csv` | `1_cashflow_forecast/processed_data/` | Aggregated weekly features for all entities |
+| `weekly_ID10.csv` | `1_cashflow_forecast/processed_data/` | Per-entity weekly data (ID10) |
+| `weekly_TW10.csv` | `1_cashflow_forecast/processed_data/` | Per-entity weekly data (TW10) |
+| `weekly_*.csv` | `1_cashflow_forecast/processed_data/` | Per-entity weekly data (other entities) |
+| `knowledge_base.db` | `multi_agent_anomaly_detection/data/` | SQLite database for anomaly detection knowledge base |
 
 ---
 
@@ -467,34 +567,74 @@ python dashboard_enhancer.py
 ```
 UMDAC/
 ├── 📁 1_cashflow_forecast/
-│   ├── run_full_pipeline.py      # Main ML forecasting script
-│   ├── PIPELINE_DOCUMENTATION.md # Technical documentation
-│   ├── processed_data/           # Cleaned/feature data
-│   └── outputs/dashboards/       # Generated dashboards
+│   ├── run_full_pipeline.py         # Main ML forecasting script
+│   ├── news_server.py               # Flask API server for news fetching
+│   ├── PIPELINE_DOCUMENTATION.md    # Technical documentation
+│   ├── NEWS_FETCH_README.md         # News API documentation
+│   ├── processed_data/              # Cleaned/feature data
+│   │   ├── clean_transactions.csv
+│   │   ├── weekly_entity_features.csv
+│   │   └── weekly_*.csv (per entity)
+│   └── outputs/
+│       └── dashboards/
+│           └── interactive_dashboard.html
 │
 ├── 📁 multi_agent_anomaly_detection/
-│   ├── agents/                   # Detection agent implementations
-│   ├── coordination/             # Meta-coordinator
-│   ├── core/                     # Data models, knowledge base
-│   ├── evolution/                # Rule evolution, feedback
-│   ├── rules/                    # Rule definitions (JSON)
-│   ├── data/                     # SQLite database
-│   └── run_detection.py          # Entry point
+│   ├── agents/                      # Detection agent implementations
+│   │   ├── base_agent.py
+│   │   ├── statistical_agent.py
+│   │   ├── pattern_agent.py
+│   │   ├── rule_agent.py
+│   │   ├── temporal_agent.py
+│   │   └── category_agent.py
+│   ├── coordination/
+│   │   └── meta_coordinator.py      # Agent orchestration
+│   ├── core/                        # Core components
+│   │   ├── models.py
+│   │   ├── knowledge_base.py
+│   │   ├── rule_graph.py
+│   │   └── interpretable_tree.py
+│   ├── evolution/                   # Rule evolution & feedback
+│   │   ├── rule_evolution.py
+│   │   └── feedback.py
+│   ├── rules/                       # Rule definitions (JSON)
+│   │   ├── business_rules.json
+│   │   ├── statistical_rules.json
+│   │   └── temporal_rules.json
+│   ├── data/
+│   │   └── knowledge_base.db        # SQLite database
+│   ├── outputs/
+│   │   ├── dashboards/
+│   │   │   └── anomaly_detection_dashboard.html
+│   │   └── reports/
+│   │       ├── detection_summary.json
+│   │       └── detailed_verdicts.json
+│   ├── utils/
+│   │   └── helpers.py
+│   ├── run_detection.py             # CLI entry point
+│   └── run_full_pipeline.py        # End-to-end pipeline
 │
 ├── 📁 News_scraper/
-│   ├── main_scraper.py          # Main orchestrator
-│   ├── news_scraper.py          # RSS/web scraping
-│   ├── article_extractor.py     # Content extraction
-│   └── sentiment_analyzer.py    # FinBERT analysis
+│   ├── main_scraper.py              # Main orchestrator with API
+│   ├── news_scraper.py              # RSS/web scraping
+│   ├── article_extractor.py         # Content extraction
+│   ├── sentiment_analyzer.py        # FinBERT analysis
+│   ├── country_sentiments/          # Cached sentiment data
+│   │   └── *_sentiment.json (per country)
+│   └── sentiment_report.json        # Latest analysis results
 │
 ├── 📁 Data/
-│   ├── Data - Main.csv          # Transaction data
-│   ├── Data - Cash Balance.csv  # Cash positions
-│   └── Others - *.csv           # Reference data
+│   ├── Datathon Dataset.xlsx - Data - Main.csv
+│   ├── Datathon Dataset.xlsx - Data - Cash Balance.csv
+│   ├── Datathon Dataset.xlsx - Others - Category Linkage.csv
+│   ├── Datathon Dataset.xlsx - Others - Country Mapping.csv
+│   └── Datathon Dataset.xlsx - Others - Exchange Rate.csv
 │
-├── dashboard_enhancer.py        # Sentiment integration
-├── requirements.txt             # Python dependencies
-└── README.md                    # This file
+├── 📁 outputs/
+│   └── agent_reports/               # Additional agent reports
+│
+├── requirements.txt                 # Python dependencies
+└── README.md                        # This file
 ```
 
 ---
@@ -508,9 +648,10 @@ UMDAC/
 | **NLP** | Transformers (FinBERT), PyTorch |
 | **Data Processing** | pandas, NumPy |
 | **Visualization** | Plotly.js, Matplotlib, Seaborn |
-| **Web Scraping** | Playwright, Newspaper4k, feedparser |
+| **Web Scraping** | Playwright, Newspaper4k, feedparser, BeautifulSoup4 |
+| **Web Server** | Flask, Flask-CORS |
 | **Database** | SQLite |
-| **Dashboard** | HTML5/CSS3/JavaScript |
+| **Dashboard** | HTML5/CSS3/JavaScript (Plotly.js) |
 
 ---
 
@@ -528,10 +669,12 @@ UMDAC/
 
 ### Anomaly Detection
 
-- **Agents**: 5 specialized detection agents
-- **Resolution**: Consensus-based conflict resolution
-- **Confidence**: Weighted ensemble voting
-- **Evolution**: Automatic rule optimization via feedback
+- **Agents**: 5 specialized detection agents (Statistical, Pattern, Rule, Temporal, Category)
+- **Resolution**: Consensus-based conflict resolution via MetaCoordinator
+- **Confidence**: Weighted ensemble voting with confidence scores
+- **Evolution**: Automatic rule optimization via feedback mechanism
+- **Interpretability**: Detailed explanations for each anomaly detection
+- **Knowledge Base**: Persistent SQLite storage for rules and historical detections
 
 ---
 
